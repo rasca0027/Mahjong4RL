@@ -1,22 +1,21 @@
 import itertools
 import random
 
+suits_dict = {0: 'Jihai', 1: 'Manzu', 2: 'Souzu', 3: 'Pinzu'}
+jihai_dict = {0: 'Haku', 1: 'Hatsu', 2: 'Chun', 3: 'Ton', 4: 'Nan', 5: 'Shaa', 6: 'Pei'}
+
 
 class Tile:
     def __init__(self, suit, rank):
-        self.suit_dict = {0: 'Jihai', 1: 'Manzu', 2: 'Souzu', 3: 'Pinzu'}
-        self.jihai_dict = {0: 'Haku', 1: 'Hatsu', 2: 'Chun', 
-                           3: 'Ton', 4: 'Nan', 5: 'Shaa', 6: 'Pei'}
         self.suit = suit
         self.rank = rank
         self.dora = False
         
-    
     def __str__(self):
         if self._suit == 0:
-            return f"Tile of { self.jihai_dict[self._rank] }"
+            return f"Tile of { jihai_dict[self._rank] }"
         else:
-            return f"Tile of { self._rank } { self.suit_dict[self._suit] }"
+            return f"Tile of { self._rank } { suits_dict[self._suit] }"
     
     @property
     def suit(self):
@@ -25,7 +24,7 @@ class Tile:
     @suit.setter
     def suit(self, value):
         if not 0 <= value < 4:
-            raise ValueError(f"Suit should be in: { self.suit_dict }")
+            raise ValueError(f"Suit should be in: { suits_dict }")
         self._suit = value
         
     @property
@@ -36,10 +35,10 @@ class Tile:
     def rank(self, value):
         if self._suit == 0: # Jihai
             if not 0 <= value < 7:
-                raise ValueError(f"Value for Jihai should be in: { self.jihai_dict }")
+                raise ValueError(f"Value for Jihai should be in: { jihai_dict }")
         else:
             if not 1 <= value < 10:
-                raise ValueError(f"Value for { self.suit_dict[self._suit] } should be in: 1-9")
+                raise ValueError(f"Value for { suits_dict[self._suit] } should be in: 1-9")
         self._rank = value
 
 
