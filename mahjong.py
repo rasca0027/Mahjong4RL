@@ -69,7 +69,7 @@ class Stack:
         else:
             dora_rank = dora_indicator.rank + 1
             if dora_rank >= 6: dora_rank = 3
-        for tile in self.stack:
+        for i, tile in self.stack:
             if tile.suit == dora_suit and tile.rank == dora_rank:
-                tile.is_dora = True
+                self.stack[i].is_dora = True
 
