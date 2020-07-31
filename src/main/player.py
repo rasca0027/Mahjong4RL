@@ -17,8 +17,8 @@ class Player:
         self.name = name
         self.seating_position = seating_position
         self.points = 25_000
-        self.riichi = False
-
+        self.is_riichi = False
+        
     def __str__(self):
         return (
             f"Player: { self.name }, Seating Position: "

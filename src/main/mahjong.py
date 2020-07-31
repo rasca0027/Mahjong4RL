@@ -28,8 +28,8 @@ class Tile:
     def __init__(self, suit, rank):
         self.suit = suit
         self.rank = rank
-        self.dora = False
-
+        self.is_dora = False
+        
     def __str__(self):
         if self._suit == 0:
             return f"Tile of { get_name(Jihai, self._rank) }"
@@ -71,7 +71,8 @@ class Stack:
         self.initiate()
         self.playling_wall = iter(self.stack[:122])
         self.dead_wall = iter(self.stack[-14:])  # 嶺上牌
-
+        self.set_dora()
+        
     def initiate(self):
         for suit in range(0, 4):
             max_rank = 7 if suit == 0 else 10  # Jihai only have 7 values
@@ -80,3 +81,18 @@ class Stack:
                     self.stack.append(Tile(suit, rank))
 
         random.shuffle(self.stack)
+
+    def set_dora(self):
+        dora_indicator = self.stack[-5]
+        dora_suit = dora_indicator.suit
+        if dora_indicator.suit != 0:
+            dora_rank = dora_indicator.rank + 1
+        elif dora_indicator.rank >= 0 and dora_indicator <= 2:
+            dora_rank = (dora_indicator.rank + 1) % 3
+        else:
+            dora_rank = dora_indicator.rank + 1
+            if dora_rank >= 6: dora_rank = 3
+        for i, tile in self.stack:
+            if tile.suit == dora_suit and tile.rank == dora_rank:
+                self.stack[i].is_dora = True
+
