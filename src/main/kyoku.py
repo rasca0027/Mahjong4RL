@@ -1,3 +1,5 @@
+from typing import List
+
 from .player import Player
 from .mahjong import Stack
 
@@ -18,15 +20,12 @@ class Kyoku:
     """A portion of the game, starting from the dealing of tiles
     and ends with the declaration of a win, aborted hand, or draw.
     """
-    def __init__(self):
+    def __init__(self, players: List[Player]):
         self.winner = None
-        # set four players
-        # The positions should be set here?
-        self.players = [
-            Player("", pos) for pos in range(4)
-        ]
+        self.players = players
         # initiate tile stack
         self.tile_stack = Stack()
+
         # deal tiles to each player to produce their starting hands
         pass
 
