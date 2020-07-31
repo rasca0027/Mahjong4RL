@@ -33,7 +33,10 @@
 
 
 TODO:
-[ ] dora記在Kyoku裡面 把Tile的is_dora拿掉
-[ ] set_dora() 移到Kyoku (dora可能會增加)
-[ ] naki_and_actions 新增check_tsumo() 跟check_ron() call同一個helper function
-[ ] 7/30 先寫player 再寫吃碰槓
+- [ ]  dora記在Kyoku裡面 把Tile的is_dora拿掉
+- [ ]  set_dora() 移到Kyoku (dora可能會增加)
+- [ ]  naki_and_actions 新增check_tsumo() 跟check_ron() call同一個helper function
+- [ ]  7/30 先寫player 再寫吃碰槓
+
+
+
