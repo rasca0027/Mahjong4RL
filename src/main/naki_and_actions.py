@@ -1,10 +1,10 @@
 
-def check_ron(tiles_in_hand, new_tile):
+def check_ron(player, new_tile):
     """Helper function to check if new tile is a winning hand
     The hand must have a valid yaku and it's not furiten 振聴
 
     Args:
-        tiles_in_hand (List of Tile objects): The player's current hand
+        player (Player): Current player, 手牌 副露 棄牌
         new_tile (Tile object): The potential winning hand 
 
     Returns:
@@ -14,27 +14,33 @@ def check_ron(tiles_in_hand, new_tile):
     """
     ...
 
+def check_tsumo(player, new_tile):
+    pass
 
-def check_kan(tiles_in_hand, new_tile):
+def check_yaku():
+    pass
+
+def check_furiten():
+    pass
+
+def check_kan(player, new_tile):
     """Helper function to check if new tile can form a tile grouping of four identical tiles with current hand
+    明槓 暗槓 加槓
 
     Args:
-        tiles_in_hand (List of Tile objects): The player's current hand
+        player (Player): Current player, 手牌 副露 棄牌
         new_tile (Tile object): The potential Kan tile
 
     Returns:
         bool: True for opportunity to call Kan, False otherwise.
-
-    TODO: distinguish ankan and shouminkan?
     """
     ...
 
-
-def check_pon(tiles_in_hand, new_tile):
+def check_pon(player, new_tile):
     """Helper function to check if new tile can form a tile grouping of three identical tiles with current hand
 
     Args:
-        tiles_in_hand (List of Tile objects): The player's current hand
+        player (Player): Current player, 手牌 副露 棄牌
         new_tile (Tile object): The potential Pon tile
 
     Returns:
@@ -43,15 +49,16 @@ def check_pon(tiles_in_hand, new_tile):
     ...
 
 
-def check_chii(tiles_in_hand, new_tile):
+def check_chii(player, new_tile):
     """Helper function to check if new tile can form a tile grouping of three sequential tiles with current hand
+    上家（Kamicha）棄牌才能call
 
     Args:
-        tiles_in_hand (List of Tile objects): The player's current hand
+        player (Player): Current player, 手牌 副露 棄牌
         new_tile (Tile object): The potential Chii tile
 
     Returns:
-        bool: True for opportunity to call Chii, False otherwise.
+        empty list, or list of possible combinations.
     """
     ...
 
@@ -66,5 +73,12 @@ def check_riichi(tiles_in_hand, tile_to_dicard):
     Returns:
         bool: True for opportunity to declare riichi, False otherwise.
     """
+    # check 副露
+    # check 聽牌
     ...
 
+def check_tenpai():
+    """
+    Return possible tenpai discard tile
+    """
+    pass
