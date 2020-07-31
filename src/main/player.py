@@ -1,9 +1,18 @@
+from enum import Enum, unique
 
-positions = {0: 'Ton', 1: 'Nan', 2: 'Shaa', 3: 'Pei'}
+from .utils import get_values, get_name
+
+
+@unique
+class Position(Enum):
+    TON = 0
+    NAN = 1
+    SHAA = 2
+    PEI = 3
 
 
 class Player:
-    
+
     def __init__(self, name, seating_position):
         self.name = name
         self.seating_position = seating_position
@@ -11,14 +20,19 @@ class Player:
         self.is_riichi = False
         
     def __str__(self):
-        return f'Player: { self.name }, Seating Position: { positions[self.seating_position] }'
+        return (
+            f"Player: { self.name }, Seating Position: "
+            f"{ get_name(Position, self.seating_position) }"
+        )
 
     @property
     def seating_position(self):
         return self._seating_position
-        
+
     @seating_position.setter
     def seating_position(self, value):
         if not 0 <= value < 4:
-            raise ValueError(f"Seating Position should be in: { positions }")
+            raise ValueError(
+                f"Seating Position should be in: "
+                f"{ get_values(Position) }")
         self._seating_position = value
