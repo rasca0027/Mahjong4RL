@@ -32,6 +32,7 @@
 - ~~幾本場~~
 
 
+
 TODO:
 - [ ]  dora記在Kyoku裡面 把Tile的is_dora拿掉
 - [ ]  set_dora() 移到Kyoku (dora可能會增加)
