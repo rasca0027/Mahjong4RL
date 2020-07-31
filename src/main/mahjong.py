@@ -28,8 +28,7 @@ class Tile:
     def __init__(self, suit, rank):
         self.suit = suit
         self.rank = rank
-        self.is_dora = False
-        
+
     def __str__(self):
         if self._suit == 0:
             return f"Tile of { get_name(Jihai, self._rank) }"
@@ -64,15 +63,25 @@ class Tile:
                     f"should be in: 1-9")
         self._rank = value
 
+    def akadora(self):
+        # red dora setter
+        pass
+
 
 class Stack:
     def __init__(self):
         self.stack = []
+
+        self.dora_index = -5
+        self.dora_indicator = []
+        self.unadora_indicator = []
+        self.dora = []
+        self.unadora = []
+
         self.initiate()
         self.playling_wall = iter(self.stack[:122])
         self.dead_wall = iter(self.stack[-14:])  # 嶺上牌
-        self.set_dora()
-        
+
     def initiate(self):
         for suit in range(0, 4):
             max_rank = 7 if suit == 0 else 10  # Jihai only have 7 values
@@ -81,18 +90,54 @@ class Stack:
                     self.stack.append(Tile(suit, rank))
 
         random.shuffle(self.stack)
+        self.add_dora_indicator()
 
-    def set_dora(self):
-        dora_indicator = self.stack[-5]
-        dora_suit = dora_indicator.suit
-        if dora_indicator.suit != 0:
-            dora_rank = dora_indicator.rank + 1
-        elif dora_indicator.rank >= 0 and dora_indicator <= 2:
-            dora_rank = (dora_indicator.rank + 1) % 3
+    def add_dora_indicator(self):
+        if self.can_add_dora_indicator():
+            next_dora_ind = self.stack[self.dora_index]
+            self.dora_indicator.append(next_dora_ind)
+
+            next_unadora_ind = self.stack[self.dora_index-1]
+            self.unadora_indicator.append(next_unadora_ind)
+
+            self.dora.append(self.compute_dora(next_dora_ind))
+            self.unadora.append(self.compute_dora(next_unadora_ind))
+            self.dora_index -= 2
         else:
-            dora_rank = dora_indicator.rank + 1
-            if dora_rank >= 6: dora_rank = 3
-        for i, tile in self.stack:
-            if tile.suit == dora_suit and tile.rank == dora_rank:
-                self.stack[i].is_dora = True
+            raise ValueError(
+                "Number of doras could only be less than 4"
+            )
+        return
 
+    def get_dora_indicator(self):
+        return self.dora_indicator
+
+    def get_unadora_indicator(self):
+        return self.unadora_indicator
+
+    def get_dora(self):
+        return self.dora
+
+    def get_unadora(self):
+        return self.unadora
+
+    def can_add_dora_indicator(self):
+        if self.dora_index < -11:
+            return False
+        return True
+
+    @staticmethod
+    def compute_dora(tile: Tile):
+        target_rank = 0
+        if tile.suit == Suit.JIHAI.value:
+            if tile.rank < 3:
+                # Sangenpai
+                target_rank = (tile.rank + 1) % 3
+            else:
+                # Kazehai
+                target_rank = (tile.rank - 3 + 1) % 4 + 3
+        else:
+            # others
+            target_rank = tile.rank % 9 + 1
+
+        return Tile(tile.suit, target_rank)

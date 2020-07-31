@@ -1,3 +1,5 @@
+from .player import Player
+from .mahjong import Stack
 
 
 class Turn:
@@ -13,20 +15,20 @@ class Turn:
 
 
 class Kyoku:
-    """A portion of the game, starting from the dealing of tiles and ends with the declaration of a win, aborted hand, or draw. 
+    """A portion of the game, starting from the dealing of tiles
+    and ends with the declaration of a win, aborted hand, or draw.
     """
     def __init__(self):
         self.winner = None
         # set four players
-        self.players = []
-        for player in range(4):
-            player = Player('', positions[i]) 
-            self.players.append(player)
+        # The positions should be set here?
+        self.players = [
+            Player("", pos) for pos in range(4)
+        ]
         # initiate tile stack
         self.tile_stack = Stack()
         # deal tiles to each player to produce their starting hands
-        # 要計算骰子嗎？
         pass
 
-    # The game begins with the dealer's initial discard.    
+    # The game begins with the dealer's initial discard.
     # while self.winner, repeat Turn
