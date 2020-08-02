@@ -1,5 +1,8 @@
 from enum import Enum, unique
+from collections import OrderedDict
+import numpy as np
 
+from .mahjong import Suit, Jihai
 from .utils import get_values, get_name
 
 
@@ -11,12 +14,47 @@ class Position(Enum):
     PEI = 3
 
 
+class OrderedMJList(list):
+    def __init__(self, ls=[]):
+        super(OrderedMJList, self).__init__(ls)
+
+    def ordered_tiles(self):
+        return sorted(self, key=lambda tile: (tile.suit, tile.rank))
+
+    def honor_tiles(self):
+        '''
+        http://arcturus.su/wiki/Mahjong_equipment#Japanese_tiles
+        '''
+        return [tile for tile in self if tile.suit == Suit.JIHAI.value]
+
+    def manzu_tiles(self):
+        return [tile for tile in self if tile.suit == Suit.MANZU.value]
+
+    def souzu_tiles(self):
+        return [tile for tile in self if tile.suit == Suit.SOUZU.value]
+
+    def pinzu_tiles(self):
+        return [tile for tile in self if tile.suit == Suit.PINZU.value]
+
+
+class OrderedMJDict(OrderedDict):
+    pass
+
+
+class MJarray(np.ndarray):
+    pass
+
+
 class Player:
     def __init__(self, name, seating_position):
         self.name = name
         self.seating_position = seating_position
         self.points = 25_000
         self.is_riichi = False
+        self.hand = OrderedMJList() # 手牌
+        self.fuuro = OrderedMJList() # 副露/鳴き
+        self.kawa = OrderedMJList() # 河 is formed by the discarded tiles.
+
 
     def __str__(self):
         return (
