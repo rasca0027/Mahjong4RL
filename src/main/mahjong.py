@@ -9,8 +9,8 @@ from .utils import get_values, get_name
 class Suit(Enum):
     JIHAI = 0
     MANZU = 1
-    Souzu = 2
-    Pinzu = 3
+    SOUZU = 2
+    PINZU = 3
 
 
 @unique
