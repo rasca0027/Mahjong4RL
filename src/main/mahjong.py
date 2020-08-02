@@ -68,7 +68,7 @@ class Tile:
         pass
 
 
-class Stack:
+class Stack:  # TODO: maybe rename as Haiyama, which are the tiles arranged in walls?
     def __init__(self):
         self.stack = []
 

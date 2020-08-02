@@ -37,8 +37,18 @@ class OrderedMJList(list):
         return [tile for tile in self if tile.suit == Suit.PINZU.value]
 
 
-class OrderedMJDict(OrderedDict):
-    pass
+class OrderedMJDict:
+    def __init__(self):
+        self.tiles = {Suit.JIHAI.value: dict.fromkeys(range(len(Jihai)),0),
+                      Suit.MANZU.value: dict.fromkeys(range(1, 10),0),
+                      Suit.SOUZU.value: dict.fromkeys(range(1, 10),0),
+                      Suit.PINZU.value: dict.fromkeys(range(1, 10),0)
+                      }
+
+    #  usage: 
+    #  Player.hand = OrderedMJDict()
+    #  new_tile = Tile(2,1)
+    #  Player.hand.tiles[new_tile.suit][new_tile.rank] += 1
 
 
 class MJarray(np.ndarray):
