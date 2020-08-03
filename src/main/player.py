@@ -1,10 +1,5 @@
 from enum import Enum, unique
-<<<<<<< HEAD
-from collections import OrderedDict
-import numpy as np
-=======
 from typing import List
->>>>>>> origin/hoa
 
 from .mahjong import Suit, Jihai
 from .utils import get_values, get_name
