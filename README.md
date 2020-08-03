@@ -34,7 +34,8 @@
 
 
 TODO:
-- [ ]  ~~dora記在Kyoku裡面 把Tile的is_dora拿掉~~ 改成記在 Stack 裡
+- [x]  dora記在Kyoku裡面 把Tile的is_dora拿掉 -> 記在 mahjong.Stack 中
+- [x]  set_dora() 移到Kyoku (dora可能會增加) -> 也記在 mahjong.Stack 中，需要增加 dora 可以 call Stack().add_dora_indicator()
 - [ ]  naki_and_actions 新增check_tsumo() 跟check_ron() call同一個helper function
 - [ ]  7/30 先寫player 再寫吃碰槓
 
