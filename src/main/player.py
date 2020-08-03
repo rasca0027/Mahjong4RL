@@ -1,6 +1,8 @@
 from enum import Enum, unique
+from typing import List
 
 from .utils import get_values, get_name
+from .mahjong import Huro
 
 
 @unique
@@ -13,10 +15,11 @@ class Position(Enum):
 
 class Player:
     def __init__(self, name, seating_position):
-        self.name = name
+        self.name: str = name
         self.seating_position = seating_position
-        self.points = 25_000
-        self.is_riichi = False
+        self.points: int = 25_000
+        self.is_riichi: bool = False
+        self.kabe: List[Huro] = []
 
     def __str__(self):
         return (
@@ -29,7 +32,7 @@ class Player:
         return self._seating_position
 
     @seating_position.setter
-    def seating_position(self, value):
+    def seating_position(self, value: Position):
         if not 0 <= value < 4:
             raise ValueError(
                 f"Seating Position should be in: "

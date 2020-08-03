@@ -1,5 +1,6 @@
 import itertools
 import random
+from typing import List
 from enum import Enum, unique
 
 from .utils import get_values, get_name
@@ -22,6 +23,13 @@ class Jihai(Enum):
     NAN = 4
     SHAA = 5
     PEI = 6
+
+
+@unique
+class Naki(Enum):
+    CHI = 0
+    PON = 1
+    KAN = 2
 
 
 class Tile:
@@ -66,6 +74,19 @@ class Tile:
     def akadora(self):
         # red dora setter
         pass
+
+    def __lt__(self, other):
+        return self.suit < other.suit or (
+            self. suit == other.suit and self.rank < other.rank
+        )
+
+    def __eq__(self, other):
+        return self.suit == other.suit and self.rank == other.rank
+
+    def __gt__(self, other):
+        return self.suit > other.suit or (
+            self.suit == other.suit and self.rank > other.rank
+        )
 
 
 class Stack:
@@ -141,3 +162,27 @@ class Stack:
             target_rank = tile.rank % 9 + 1
 
         return Tile(tile.suit, target_rank)
+
+
+class Huro:
+    def __init__(self, naki_type: Naki, tiles: List[Tile]):
+        self.naki_type = naki_type
+        self.tiles = tiles
+
+    @property
+    def tiles(self):
+        return self._tiles
+
+    @tiles.setter
+    def tiles(self, tiles: List[Tile]):
+        self._tiles = tiles
+
+    def add_kan(self, tile: Tile):
+        # change type from PON to KAN
+        if self.naki_type != Naki.PON:
+            raise ValueError(
+                "Adding kan is only available when the original "
+                "naki type is PON"
+            )
+        self.naki_type = Naki.KAN
+        self._tiles.append(tile)
