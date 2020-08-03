@@ -93,7 +93,7 @@ class Stack:  # TODO: maybe rename as Haiyama, which are the tiles arranged in w
     def __init__(self):
         self.stack = []
 
-        self.dora_index = -5
+        self.dora_revealed = 1
         self.dora_indicator = []
         self.unadora_indicator = []
         self.dora = []
@@ -101,7 +101,7 @@ class Stack:  # TODO: maybe rename as Haiyama, which are the tiles arranged in w
 
         self.initiate()
         self.playling_wall = iter(self.stack[:122])
-        self.dead_wall = iter(self.stack[-14:])  # 嶺上牌
+        self.dead_wall = iter(self.stack[-4:])  # 嶺上牌 14 張，但只有最後四張能抽
 
     def initiate(self):
         for suit in range(0, 4):
@@ -111,19 +111,11 @@ class Stack:  # TODO: maybe rename as Haiyama, which are the tiles arranged in w
                     self.stack.append(Tile(suit, rank))
 
         random.shuffle(self.stack)
-        self.add_dora_indicator()
+        self.set_dora()
 
-    def add_dora_indicator(self):
-        if self.can_add_dora_indicator():
-            next_dora_ind = self.stack[self.dora_index]
-            self.dora_indicator.append(next_dora_ind)
-
-            next_unadora_ind = self.stack[self.dora_index-1]
-            self.unadora_indicator.append(next_unadora_ind)
-
-            self.dora.append(self.compute_dora(next_dora_ind))
-            self.unadora.append(self.compute_dora(next_unadora_ind))
-            self.dora_index -= 2
+    def add_dora_indicator(self): # call when a kan is made
+        if self.dora_revealed < 4:
+            self.dora_revealed += 1
         else:
             raise ValueError(
                 "Number of doras could only be less than 4"
@@ -131,21 +123,29 @@ class Stack:  # TODO: maybe rename as Haiyama, which are the tiles arranged in w
         return
 
     def get_dora_indicator(self):
-        return self.dora_indicator
+        return self.dora_indicator[:self.dora_revealed]
 
     def get_unadora_indicator(self):
-        return self.unadora_indicator
+        return self.unadora_indicator[:self.dora_revealed]
 
     def get_dora(self):
-        return self.dora
+        return self.dora[:self.dora_revealed]
 
     def get_unadora(self):
-        return self.unadora
+        return self.unadora[:self.dora_revealed]
 
-    def can_add_dora_indicator(self):
-        if self.dora_index < -11:
-            return False
-        return True
+    def set_dora():
+        for i in range(-5, -13, -1):
+            if i%2:
+                self.dora_indicator.append(self.stack[i])
+            else:
+                self.unadora_indicator.append(self.stack[i])
+        
+        for indicator in self.dora_indicator:
+             self.dora.append(self.compute_dora(indicator))
+
+        for indicator in self.unadora_indicator:
+            self.unadora.append(self.compute_dora(indicator))
 
     @staticmethod
     def compute_dora(tile: Tile):
