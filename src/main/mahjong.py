@@ -107,7 +107,7 @@ class Stack:  # TODO: maybe rename as Haiyama, which are the tiles arranged in w
 
         self.initiate()
         self.playling_wall = iter(self.stack[:122])
-        self.dead_wall = iter(self.stack[-14:])  # 嶺上牌
+        self.rinshanpai = iter(self.stack[-4:])  # 王牌是最後七墩，嶺上牌是特指槓可以抽的最後四張
 
     def initiate(self):
         for suit in range(0, 4):
