@@ -73,11 +73,16 @@ class Tile:
         self._rank = value
 
     def calc_index(self):
-        return self.suit * 10 + self.rank
-
+        return self._suit * 10 + self._rank
+    
     @classmethod
-    def get_tile_by_index(ind): 
+    def get_tile_by_index(cls, ind): 
         return Tile(ind // 10, ind % 10)
+
+    def get_prev_tile(self):
+        if self._rank <= 1:
+            new_rank = 
+
 
     def akadora(self):
         # red dora setter
