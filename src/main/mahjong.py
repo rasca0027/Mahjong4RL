@@ -1,5 +1,6 @@
 import itertools
 import random
+from typing import List
 from enum import Enum, unique
 
 from .utils import get_values, get_name
@@ -9,8 +10,8 @@ from .utils import get_values, get_name
 class Suit(Enum):
     JIHAI = 0
     MANZU = 1
-    Souzu = 2
-    Pinzu = 3
+    SOUZU = 2
+    PINZU = 3
 
 
 @unique
@@ -24,10 +25,18 @@ class Jihai(Enum):
     PEI = 6
 
 
+@unique
+class Naki(Enum):
+    CHI = 0
+    PON = 1
+    KAN = 2
+
+
 class Tile:
     def __init__(self, suit, rank):
         self.suit = suit
         self.rank = rank
+        self.index = calc_index(suit, rank)
 
     def __str__(self):
         if self._suit == 0:
@@ -63,12 +72,19 @@ class Tile:
                     f"should be in: 1-9")
         self._rank = value
 
+    def calc_index(self):
+        return self.suit * 10 + self.rank
+
+    @classmethod
+    def get_tile_by_index(ind): 
+        return Tile(ind // 10, ind % 10)
+
     def akadora(self):
         # red dora setter
         pass
 
 
-class Stack:
+class Stack:  # TODO: maybe rename as Haiyama, which are the tiles arranged in walls?
     def __init__(self):
         self.stack = []
 
@@ -80,7 +96,7 @@ class Stack:
 
         self.initiate()
         self.playling_wall = iter(self.stack[:122])
-        self.dead_wall = iter(self.stack[-14:])  # 嶺上牌
+        self.rinshanpai = iter(self.stack[-4:])  # 王牌是最後七墩，嶺上牌是特指槓可以抽的最後四張
 
     def initiate(self):
         for suit in range(0, 4):
@@ -141,3 +157,27 @@ class Stack:
             target_rank = tile.rank % 9 + 1
 
         return Tile(tile.suit, target_rank)
+
+
+class Huro:
+    def __init__(self, naki_type: Naki, tiles: List[Tile]):
+        self.naki_type = naki_type
+        self.tiles = tiles
+
+    @property
+    def tiles(self):
+        return self._tiles
+
+    @tiles.setter
+    def tiles(self, tiles: List[Tile]):
+        self._tiles = tiles
+
+    def add_kan(self, tile: Tile):
+        # change type from PON to KAN
+        if self.naki_type != Naki.PON:
+            raise ValueError(
+                "Adding kan is only available when the original "
+                "naki type is PON"
+            )
+        self.naki_type = Naki.KAN
+        self._tiles.append(tile)
