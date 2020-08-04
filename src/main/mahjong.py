@@ -36,7 +36,7 @@ class Tile:
     def __init__(self, suit, rank):
         self.suit = suit
         self.rank = rank
-        self.index = calc_index(suit, rank)
+        self.index = self.calc_index()
 
     def __str__(self):
         if self._suit == 0:
@@ -77,12 +77,7 @@ class Tile:
     
     @classmethod
     def get_tile_by_index(cls, ind): 
-        return Tile(ind // 10, ind % 10)
-
-    def get_prev_tile(self):
-        if self._rank <= 1:
-            new_rank = 
-
+        return cls(ind // 10, ind % 10)
 
     def akadora(self):
         # red dora setter
