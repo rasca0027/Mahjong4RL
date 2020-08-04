@@ -36,6 +36,7 @@ class Tile:
     def __init__(self, suit, rank):
         self.suit = suit
         self.rank = rank
+        self.index = calc_index(suit, rank)
 
     def __str__(self):
         if self._suit == 0:
@@ -70,6 +71,11 @@ class Tile:
                     f"Value for { get_name(Suit, self._suit) }"
                     f"should be in: 1-9")
         self._rank = value
+
+    def calc_index(self, suit, rank):
+        if suit == 0:
+            return rank
+        return (suit - 1) * 9 + rank + 7
 
     def akadora(self):
         # red dora setter

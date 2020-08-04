@@ -1,5 +1,6 @@
 from enum import Enum, unique
-from typing import List
+from typing import List, DefaultDict
+from collections import defaultdict
 
 from .mahjong import Suit, Jihai
 from .utils import get_values, get_name
@@ -26,11 +27,12 @@ class OrderedMJDict:
         Player.hand.tiles[discard_tile.suit][discard_tile.rank] -= 1
     '''
     def __init__(self):
-        self.tiles = {Suit.JIHAI: dict.fromkeys(range(len(Jihai)),0),
-                      Suit.MANZU: dict.fromkeys(range(1, 10),0),
-                      Suit.SOUZU: dict.fromkeys(range(1, 10),0),
-                      Suit.PINZU: dict.fromkeys(range(1, 10),0)
-                      }
+        self.tiles = {
+            Suit.JIHAI: dict.fromkeys(range(len(Jihai)), 0),
+            Suit.MANZU: dict.fromkeys(range(1, 10), 0),
+            Suit.SOUZU: dict.fromkeys(range(1, 10), 0),
+            Suit.PINZU: dict.fromkeys(range(1, 10), 0)
+        }
 
 
 class Player:
@@ -39,7 +41,8 @@ class Player:
         self.seating_position = seating_position
         self.points: int = 25_000
         self.is_riichi: bool = False
-        self.hand = OrderedMJList() # 手牌
+        # self.hand = OrderedMJDict() # 手牌
+        self.hand: DefaultDict[Tile] = defaultdict(int)
         self.kabe: List[Huro] = [] # 副露/鳴き
         self.kawa: List[Tile] = [] # 河 is formed by the discarded tiles. 這個順序蠻重要的，也許用 list if Tile 就好？
 
