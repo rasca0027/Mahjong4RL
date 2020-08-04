@@ -46,7 +46,7 @@ def check_pon(player, new_tile):
     Returns:
         bool: True for opportunity to call Pon, False otherwise.
     """
-    ...
+    return player.hand[new_tile.index] >= 2
 
 
 def check_chii(player, new_tile):
