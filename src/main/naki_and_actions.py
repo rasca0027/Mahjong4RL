@@ -67,26 +67,21 @@ def check_chii(player, new_tile):
     if new_tile.suit == 0: 
         return possible_sets
 
-    if new_tile.rank >= 3:
-        prev_tile = Tile.get_tile_by_index(new_tile.index - 1)
-        prev_prev_tile = Tile.get_tile_by_index(new_tile.index - 2)
-        if (player.hand[prev_tile.index] > 0 and 
-                player.hand[prev_prev_tile.index] > 0):
-            possible_sets.append([prev_prev_tile, prev_tile, new_tile])
+    if player.hand[new_tile.index - 1] > 0:
+        if player.hand[new_tile.index - 2] > 0:
+            possible_sets.append([Tile.get_tile_by_index(new_tile.index - 1),
+                                  Tile.get_tile_by_index(new_tile.index - 2),
+                                  new_tile])
+        if player.hand[new_tile.index + 1] > 0:
+            possible_sets.append([Tile.get_tile_by_index(new_tile.index - 1),
+                                  new_tile,
+                                  Tile.get_tile_by_index(new_tile.index + 1)])
 
-    if new_tile.rank >= 2 and new_tile.rank <= 8:
-        prev_tile = Tile.get_tile_by_index(new_tile.index - 1)
-        next_tile = Tile.get_tile_by_index(new_tile.index + 1)
-        if (player.hand[prev_tile.index] > 0 and 
-                player.hand[next_tile.index] > 0):
-            possible_sets.append([prev_tile, new_tile, next_tile])
-
-    if new_tile.rank <= 7:
-        next_tile = Tile.get_tile_by_index(new_tile.index + 1)
-        next_next_tile = Tile.get_tile_by_index(new_tile.index + 2)
-        if (player.hand[next_tile.index] > 0 and 
-                player.hand[next_next_tile.index] > 0):
-            possible_sets.append([new_tile, next_tile, next_next_tile])
+    if player.hand[new_tile.index + 1] > 0:
+        if player.hand[new_tile.index + 2] > 0:
+            possible_sets.append([new_tile,
+                                  Tile.get_tile_by_index(new_tile.index + 1),
+                                  Tile.get_tile_by_index(new_tile.index + 2)])
 
     return possible_sets
 
