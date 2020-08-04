@@ -72,27 +72,16 @@ class Tile:
                     f"should be in: 1-9")
         self._rank = value
 
-    def calc_index(self, suit, rank):
-        if suit == 0:
-            return rank
-        return (suit - 1) * 9 + rank + 7
+    def calc_index(self):
+        return self.suit * 10 + self.rank
+
+    @classmethod
+    def get_tile_by_index(ind): 
+        return Tile(ind // 10, ind % 10)
 
     def akadora(self):
         # red dora setter
         pass
-
-    def __lt__(self, other):
-        return self.suit < other.suit or (
-            self. suit == other.suit and self.rank < other.rank
-        )
-
-    def __eq__(self, other):
-        return self.suit == other.suit and self.rank == other.rank
-
-    def __gt__(self, other):
-        return self.suit > other.suit or (
-            self.suit == other.suit and self.rank > other.rank
-        )
 
 
 class Stack:  # TODO: maybe rename as Haiyama, which are the tiles arranged in walls?
