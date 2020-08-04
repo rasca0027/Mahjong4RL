@@ -1,4 +1,7 @@
+from typing import List
+
 from .mahjong import Tile
+from .player import Player
 
 
 def check_ron(player, new_tile):
@@ -51,7 +54,7 @@ def check_pon(player, new_tile):
     ...
 
 
-def check_chii(player, new_tile):
+def check_chii(player: Player, new_tile: Tile) -> List:
     """Helper function to check if new tile can form a tile grouping of three sequential tiles with current hand
     上家（Kamicha）棄牌才能call
 
