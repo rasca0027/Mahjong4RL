@@ -1,4 +1,5 @@
 from typing import List
+
 from .mahjong import Tile, Naki
 from .player import Player
 
@@ -108,7 +109,7 @@ def check_pon(player, new_tile):
     Returns:
         bool: True for opportunity to call Pon, False otherwise.
     """
-    ...
+    return player.hand[new_tile.index] >= 2
 
 
 def check_chii(player, new_tile):
@@ -123,7 +124,33 @@ def check_chii(player, new_tile):
     Returns:
         empty list, or list of possible combinations.
     """
-    ...
+    possible_sets = []
+
+    if new_tile.suit == 0: 
+        return possible_sets
+
+    if new_tile.rank >= 3:
+        prev_tile = Tile.get_tile_by_index(new_tile.index - 1)
+        prev_prev_tile = Tile.get_tile_by_index(new_tile.index - 2)
+        if (player.hand[prev_tile.index] > 0 and 
+                player.hand[prev_prev_tile.index] > 0):
+            possible_sets.append([prev_prev_tile, prev_tile, new_tile])
+
+    if new_tile.rank >= 2 and new_tile.rank <= 8:
+        prev_tile = Tile.get_tile_by_index(new_tile.index - 1)
+        next_tile = Tile.get_tile_by_index(new_tile.index + 1)
+        if (player.hand[prev_tile.index] > 0 and 
+                player.hand[next_tile.index] > 0):
+            possible_sets.append([prev_tile, new_tile, next_tile])
+
+    if new_tile.rank <= 7:
+        next_tile = Tile.get_tile_by_index(new_tile.index + 1)
+        next_next_tile = Tile.get_tile_by_index(new_tile.index + 2)
+        if (player.hand[next_tile.index] > 0 and 
+                player.hand[next_next_tile.index] > 0):
+            possible_sets.append([new_tile, next_tile, next_next_tile])
+
+    return possible_sets
 
 
 def check_riichi(tiles_in_hand, tile_to_dicard):
