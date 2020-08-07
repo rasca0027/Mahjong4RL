@@ -74,7 +74,7 @@ class Tile:
 
     def calc_index(self):
         return self._suit * 10 + self._rank
-    
+
     @classmethod
     def get_tile_by_index(cls, ind):
         return cls(ind // 10, ind % 10)
@@ -127,7 +127,7 @@ class Stack:
             next_dora_ind = self.stack[self.dora_index]
             self.dora_indicator.append(next_dora_ind)
 
-            next_unadora_ind = self.stack[self.dora_index-1]
+            next_unadora_ind = self.stack[self.dora_index - 1]
             self.unadora_indicator.append(next_unadora_ind)
 
             self.dora.append(self.compute_dora(next_dora_ind))
