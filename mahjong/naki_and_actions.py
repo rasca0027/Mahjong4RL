@@ -163,7 +163,7 @@ def check_riichi(player: Player, machi: List[Tile]) -> bool:
     Returns:
         bool: True for opportunity to declare riichi, False otherwise.
     """
-    return len(player.kabe) == 0 and len(machi) > 0
+    return not player.kabe and len(machi) > 0
 
 
 def check_tenpai(player: Player) -> List[Tile]:
