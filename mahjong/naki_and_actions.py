@@ -153,25 +153,28 @@ def check_chii(player: Player, new_tile: Tile) -> List[List[Tile]]:
     return possible_sets
 
 
-def check_riichi(tiles_in_hand, tile_to_dicard):
+def check_riichi(player: Player, machi: List[Tile]) -> bool:
     """Helper function to check if player can declare riichi
 
     Args:
-        tiles_in_hand (List of Tile objects):
-            The player's current hand of 14 tiles
-        tile_to_dicard (Tile object):
-            Tile selected by player to discard
+        player (Player): Current player, 手牌 副露 棄牌
+        machi (List of Tile): Every possible tile that could complete the hand
 
     Returns:
         bool: True for opportunity to declare riichi, False otherwise.
     """
-    # check 副露
-    # check 聽牌
-    pass
+    return len(player.kabe) == 0 and len(machi) > 0
 
 
-def check_tenpai():
-    """
-    Return possible tenpai discard tile
+def check_tenpai(player: Player) -> List[Tile]:
+    """Helper function to check if player can declare is tenpai
+    and what Machi is (waiting patterns)
+
+    Args:
+        player (Player): Current player, 手牌 副露 棄牌
+
+    Returns:
+        possible_list (List[Tile]):
+            every possible tile that could complete the hand (Ron or Tsumo)
     """
     pass
