@@ -132,19 +132,19 @@ def check_chii(player: Player, new_tile: Tile) -> List[List[Tile]]:
     if new_tile.rank >= 3:
         tile_1 = Tile.get_tile_by_index(new_tile.index - 1)
         tile_2 = Tile.get_tile_by_index(new_tile.index - 2)
-        if (player.hand[tile_1.index] > 0 and player.hand[tile_2.index] > 0):
+        if player.hand[tile_1.index] > 0 and player.hand[tile_2.index] > 0:
             possible_sets.append([tile_1, tile_2, new_tile])
 
     if new_tile.rank >= 2 and new_tile.rank <= 8:
         tile_1 = Tile.get_tile_by_index(new_tile.index - 1)
         tile_3 = Tile.get_tile_by_index(new_tile.index + 1)
-        if (player.hand[tile_1.index] > 0 and player.hand[tile_3.index] > 0):
+        if player.hand[tile_1.index] > 0 and player.hand[tile_3.index] > 0:
             possible_sets.append([tile_1, new_tile, tile_3])
 
     if new_tile.rank <= 7:
         tile_2 = Tile.get_tile_by_index(new_tile.index + 1)
         tile_3 = Tile.get_tile_by_index(new_tile.index + 2)
-        if (player.hand[tile_2.index] > 0 and player.hand[tile_3.index] > 0):
+        if player.hand[tile_2.index] > 0 and player.hand[tile_3.index] > 0:
             possible_sets.append([new_tile, tile_2, tile_3])
 
     return possible_sets
