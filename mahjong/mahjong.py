@@ -73,18 +73,32 @@ class Tile:
         self._rank = value
 
     def calc_index(self):
-        return self.suit * 10 + self.rank
-
+        return self._suit * 10 + self._rank
+    
     @classmethod
-    def get_tile_by_index(cls, ind): 
+    def get_tile_by_index(cls, ind):
         return cls(ind // 10, ind % 10)
 
     def akadora(self):
         # red dora setter
         pass
 
+    def __eq__(self, other):
+        return self.rank == other.rank and self.suit == other.suit
 
-class Stack:  # TODO: maybe rename as Haiyama, which are the tiles arranged in walls?
+    def __lt__(self, other):
+        return self.suit < other.suit or (
+            self.suit == other.suit and self.rank < other.rank
+        )
+
+    def __gt__(self, other):
+        return self.suit > other.suit or (
+            self.suit == other.suit and self.rank > other.rank
+        )
+
+
+class Stack:
+    # TODO: maybe rename as Haiyama, which are the tiles arranged in walls?
     def __init__(self):
         self.stack = []
 
