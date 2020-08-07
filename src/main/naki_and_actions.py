@@ -98,7 +98,7 @@ def check_daminkan(player: Player, discarded_tile: Tile) -> bool:
     return player.hand[discarded_tile.index] == 3
 
 
-def check_pon(player, new_tile):
+def check_pon(player: Player, discarded_tile: Tile) -> bool:
     """Helper function to check if new tile can form a tile grouping of three
        identical tiles with current hand
 
@@ -112,7 +112,7 @@ def check_pon(player, new_tile):
     return player.hand[new_tile.index] >= 2
 
 
-def check_chii(player, new_tile):
+def check_chii(player: Player, new_tile: Tile) -> List[List[Tile]]:
     """Helper function to check if new tile can form a tile grouping of three
        sequential tiles with current hand
     上家（Kamicha）棄牌才能call
