@@ -1,4 +1,7 @@
 
+from .mahjong import Tile
+from .player import Player
+
 def check_ron(player, new_tile):
     """Helper function to check if new tile is a winning hand
     The hand must have a valid yaku and it's not furiten 振聴
@@ -36,7 +39,7 @@ def check_kan(player, new_tile):
     """
     ...
 
-def check_pon(player, new_tile):
+def check_pon(player: Player, new_tile: Tile) -> bool:
     """Helper function to check if new tile can form a tile grouping of three identical tiles with current hand
 
     Args:
@@ -46,7 +49,7 @@ def check_pon(player, new_tile):
     Returns:
         bool: True for opportunity to call Pon, False otherwise.
     """
-    ...
+    return player.hand[new_tile.index] >= 2
 
 
 def check_chii(player, new_tile):
