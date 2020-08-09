@@ -189,15 +189,15 @@ def check_tenpai(player: Player) -> List[Tile]:
                 new_hand[tile_index] -= 2
                 if check_remains_are_sets(new_hand):
                     machi_found = True
+                    break
         return machi_found
 
     for suit in Suit:
         max_rank = 8 if suit == Suit.JIHAI else 10
         for rank in range(1, max_rank):
             machi_tile = Tile(suit.value, rank)
-            current_hand = copy.deepcopy(player.hand)
-            if current_hand[machi_tile.index] != 4:
-                if check_machi(machi_tile, current_hand):
+            if player.hand[machi_tile.index] != 4:
+                if check_machi(machi_tile, player.hand):
                     possible_list.append(machi_tile)
 
     return possible_list
