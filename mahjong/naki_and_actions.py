@@ -208,7 +208,7 @@ def check_remains_are_sets(remain_tiles: DefaultDict[int, int]) -> bool:
 
     Args:
         remain_tiles (DefaultDict):
-            tiles in hands after taking out Jantou (雀頭/眼)
+            tiles in hand after taking out Jantou (雀頭/眼) and Kabe
 
     Returns:
         bool: True for tiles can form sets, False otherwise.
