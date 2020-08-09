@@ -1,6 +1,7 @@
-from typing import List
+import copy
+from typing import List, DefaultDict
 
-from .mahjong import Tile, Naki
+from .mahjong import Tile, Suit, Naki
 from .player import Player
 
 
@@ -16,7 +17,7 @@ def check_ron(player, new_tile):
         bool: True for Ron, False otherwise.
 
     ref:
-      https://colab.research.google.com/drive/1ih1hU_EDRQ8z-NI0KJ7lVeORxJa7HmNf?usp=sharing:
+      https://colab.research.google.com/drive/1ih1hU_EDRQ8z-NI0KJ7lVeORxJa7HmNf?usp=sharing
     """
     ...
 
@@ -177,4 +178,64 @@ def check_tenpai(player: Player) -> List[Tile]:
         possible_list (List[Tile]):
             every possible tile that could complete the hand (Ron or Tsumo)
     """
-    pass
+    possible_list = []
+
+    def check_machi(machi_tile, current_hand):
+        machi_found = False
+        for tile_index in sorted(current_hand.keys()):
+            new_hand = copy.deepcopy(current_hand)
+            new_hand[machi_tile.index] += 1
+            if new_hand[tile_index] >= 2:
+                new_hand[tile_index] -= 2
+                if check_remains_are_sets(new_hand):
+                    machi_found = True
+        return machi_found
+
+    for suit in Suit:
+        max_rank = 8 if suit == Suit.JIHAI else 10
+        for rank in range(1, max_rank):
+            machi_tile = Tile(suit.value, rank)
+            current_hand = copy.deepcopy(player.hand)
+            if current_hand[machi_tile.index] != 4:
+                if check_machi(machi_tile, current_hand):
+                    possible_list.append(machi_tile)
+
+    return possible_list
+
+
+def check_remains_are_sets(remain_tiles: DefaultDict[int, int]) -> bool:
+    """Helper function to check all tiles in remain_tiles can form into sets
+
+    Args:
+        remain_tiles (DefaultDict):
+            tiles in hands after taking out Jantou (雀頭/眼)
+
+    Returns:
+        bool: True for tiles can form sets, False otherwise.
+    """
+    remain_tiles_n = sum(remain_tiles.values())
+    if remain_tiles_n % 3 > 0:
+        raise ValueError(f"Remain tiles should be multiples of 3,"
+                         f"got { remain_tiles_n } instead.")
+
+    sets_to_find = int(remain_tiles_n / 3)
+
+    for tile_index in sorted(remain_tiles.keys()):
+        if tile_index < Tile(Suit.MANZU.value, 1).index:  # 字牌檢查碰
+            if remain_tiles[tile_index] == 3:
+                sets_to_find -= 1
+        else:  # 萬索餅牌
+            if remain_tiles[tile_index] >= 3:  # check for pung
+                remain_tiles[tile_index] -= 3
+                sets_to_find -= 1
+            if remain_tiles[tile_index + 2] > 0:  # check for chii
+                chii_n = min(remain_tiles[tile_index],
+                             remain_tiles[tile_index + 1],
+                             remain_tiles[tile_index + 2])
+                if chii_n > 0:
+                    remain_tiles[tile_index] -= chii_n
+                    remain_tiles[tile_index + 1] -= chii_n
+                    remain_tiles[tile_index + 2] -= chii_n
+                    sets_to_find -= chii_n
+
+    return sets_to_find == 0
