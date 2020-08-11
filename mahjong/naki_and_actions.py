@@ -49,9 +49,9 @@ def check_ankan(player: Player, new_tile: Tile) -> List[Tile]:
     possible_list = []
     for index, value in player.hand.items():
         if value == 4:
-            possible_list.append(Tile.by_index(value))
+            possible_list.append(Tile.index2tile(value))
         elif value == 3 and new_tile.index == index:
-            possible_list.append(Tile.by_index(value))
+            possible_list.append(Tile.index2tile(value))
         else:
             pass
     return sorted(possible_list)
@@ -130,20 +130,20 @@ def check_chii(player: Player, new_tile: Tile) -> List[List[Tile]]:
         return possible_sets
 
     if new_tile.rank >= 3:
-        tile_1 = Tile.by_index(new_tile.index - 1)
-        tile_2 = Tile.by_index(new_tile.index - 2)
+        tile_1 = Tile.index2tile(new_tile.index - 1)
+        tile_2 = Tile.index2tile(new_tile.index - 2)
         if player.hand[tile_1.index] > 0 and player.hand[tile_2.index] > 0:
             possible_sets.append([tile_1, tile_2, new_tile])
 
     if new_tile.rank >= 2 and new_tile.rank <= 8:
-        tile_1 = Tile.by_index(new_tile.index - 1)
-        tile_3 = Tile.by_index(new_tile.index + 1)
+        tile_1 = Tile.index2tile(new_tile.index - 1)
+        tile_3 = Tile.index2tile(new_tile.index + 1)
         if player.hand[tile_1.index] > 0 and player.hand[tile_3.index] > 0:
             possible_sets.append([tile_1, new_tile, tile_3])
 
     if new_tile.rank <= 7:
-        tile_2 = Tile.by_index(new_tile.index + 1)
-        tile_3 = Tile.by_index(new_tile.index + 2)
+        tile_2 = Tile.index2tile(new_tile.index + 1)
+        tile_3 = Tile.index2tile(new_tile.index + 2)
         if player.hand[tile_2.index] > 0 and player.hand[tile_3.index] > 0:
             possible_sets.append([new_tile, tile_2, tile_3])
 
