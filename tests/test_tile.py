@@ -4,9 +4,9 @@ from mahjong.mahjong import Tile, Suit
 
 
 class TestTile(unittest.TestCase):
-    
+
     def setUp(self):
-        self.tile = Tile(Suit.MANZU.value, 2) # 二萬
+        self.tile = Tile(Suit.MANZU.value, 2)  # 二萬
 
     def test_getter(self):
         self.assertEqual(self.tile.suit, 1)
@@ -28,7 +28,6 @@ class TestTile(unittest.TestCase):
     def test_rank_setter_error(self):
         with self.assertRaises(ValueError):
             self.tile.rank = -1
-        
+
     def test_index(self):
         self.assertEqual(self.tile.index, 12)
-
