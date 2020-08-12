@@ -109,7 +109,7 @@ def check_pon(player: Player, discarded_tile: Tile) -> bool:
     Returns:
         bool: True for opportunity to call Pon, False otherwise.
     """
-    return player.hand[new_tile.index] >= 2
+    return player.hand[discarded_tile.index] >= 2
 
 
 def check_chii(player: Player, new_tile: Tile) -> List[List[Tile]]:

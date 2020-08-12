@@ -1,6 +1,6 @@
 import unittest
 
-from .mahjong import Tile, Suit
+from mahjong.mahjong import Tile, Suit
 
 
 class TestTile(unittest.TestCase):
@@ -32,5 +32,3 @@ class TestTile(unittest.TestCase):
     def test_index(self):
         self.assertEqual(self.tile.index, 12)
 
-if __name__ == '__main__':
-    unittest.main()
