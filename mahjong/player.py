@@ -2,7 +2,6 @@ from enum import Enum, unique
 from typing import List, DefaultDict
 from collections import defaultdict
 
-from .mahjong import Suit, Jihai
 from .utils import get_values, get_name
 from .mahjong import Huro, Tile
 
@@ -22,8 +21,8 @@ class Player:
         self.points: int = 25_000
         self.is_riichi: bool = False
         self.hand: DefaultDict[int] = defaultdict(int)
-        self.kabe: List[Huro] = [] # 副露/鳴き
-        self.kawa: List[Tile] = [] # 河 is formed by the discarded tiles. 這個順序蠻重要的，也許用 list if Tile 就好？
+        self.kabe: List[Huro] = []  # 副露/鳴き
+        self.kawa: List[Tile] = []  # 河 is formed by the discarded tiles.
 
     def __str__(self):
         return (
