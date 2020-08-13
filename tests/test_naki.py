@@ -1,8 +1,9 @@
 import unittest
 
-from mahjong.mahjong import Tile, Suit, Jihai
+from mahjong.mahjong import Tile, Suit, Jihai, Naki, Huro
 from mahjong.player import Player, Position
-from mahjong.naki_and_actions import check_pon, check_chii, check_tenpai
+from mahjong.naki_and_actions import (
+    check_pon, check_chii, check_tenpai, check_riichi)
 
 
 class TestPon(unittest.TestCase):
@@ -138,3 +139,38 @@ class TestTenpai(unittest.TestCase):
         self.player_1.hand[Tile(Suit.PINZU.value, 1).index] -= 1
         self.player_1.hand[Tile(Suit.PINZU.value, 2).index] += 1
         self.assertEqual(check_tenpai(self.player_1), [])
+
+    def test_tenpai_error(self):
+        self.player_1.hand[Tile(Suit.PINZU.value, 2).index] -= 1
+        self.assertRaises(ValueError, check_tenpai, self.player_1)
+
+
+class TestRiichi(unittest.TestCase):
+    def setUp(self):
+        # tenpai: 3 MANZU 5 SOUZU
+        self.player = Player('test', Position.TON.value)
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 2).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 4).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 6).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 7).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 8).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 2
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 2
+
+    def test_riichi(self):
+        machi = check_tenpai(self.player)
+        self.assertEqual(check_riichi(self.player, machi), True)
+
+    def test_no_riichi(self):
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] -= 1
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] -= 2
+        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
+                                                Tile(Suit.SOUZU.value, 5),
+                                                Tile(Suit.SOUZU.value, 5)]))
+
+        machi = check_tenpai(self.player)
+        self.assertEqual(check_riichi(self.player, machi), False)

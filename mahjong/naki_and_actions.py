@@ -215,7 +215,7 @@ def check_remains_are_sets(remain_tiles: DefaultDict[int, int]) -> bool:
     """
     remain_tiles_n = sum(remain_tiles.values())
     if remain_tiles_n % 3 > 0:
-        raise ValueError(f"Remain tiles should be multiples of 3,"
+        raise ValueError(f"Remain tiles should be multiples of 3, "
                          f"got { remain_tiles_n } instead.")
 
     sets_to_find = int(remain_tiles_n / 3)
