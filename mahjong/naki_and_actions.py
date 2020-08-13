@@ -184,7 +184,7 @@ def check_tenpai(player: Player, new_tile: Tile):
     hand = player.hand.copy()
     hand[new_tile.index] += 1
     # all possible tiles
-    all_tiles = get_all_tiles() 
+    all_tiles = get_all_tiles()
     possible_winning_tiles = []
     # try discarding each tile:
     possible_discard_tile_id = [k for (k, v) in hand.items() if v > 0]
@@ -198,10 +198,10 @@ def check_tenpai(player: Player, new_tile: Tile):
             temp_hand[tile.index] += 1
             if check_four_sets(temp_hand):
                 machi.append(tile)
-        if len(machi) > 0: 
+        if len(machi) > 0:
             # there is at least one winning possibility if discarding this tile
             # if discard this, listening to machi
-            possible_winning_tiles.append((discard_id, machi)) 
+            possible_winning_tiles.append((discard_id, machi))
     return possible_winning_tiles
 
 
@@ -215,7 +215,7 @@ def check_four_sets(hand):
             t = Tile.get_tile_by_index(i)
             if t.suit != 0 and t.rank <= 7:
                 if i + 1 in remaining and i + 2 in remaining:
-                    pairs = min(remaining[i], remaining[i + 1], remaining[i + 2])
+                    pairs = min(remaining[i], remaining[i+1], remaining[i+2])
                     remaining[i] -= pairs
                     remaining[i + 1] -= pairs
                     remaining[i + 2] -= pairs
@@ -229,5 +229,3 @@ def check_four_sets(hand):
         if check_mentsu(temp_hand):
             return True
     return False
-            
-
