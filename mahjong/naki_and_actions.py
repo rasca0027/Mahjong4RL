@@ -166,12 +166,71 @@ def check_riichi(tiles_in_hand, tile_to_dicard):
         bool: True for opportunity to declare riichi, False otherwise.
     """
     # check 副露
+
     # check 聽牌
     pass
 
 
-def check_tenpai():
+def check_tenpai(player: Player, new_tile: Tile):
     """
     Return possible tenpai discard tile
     """
-    pass
+    def get_all_tiles():
+        all_tiles = []
+        for suit in range(0, 4):
+            max_rank = 7 if suit == 0 else 10
+            for rank in range(1, max_rank):
+                all_tiles.append(Tile(suit, rank))
+        return all_tiles
+    # do i need to add huro???
+    # temporarily add tile into hand
+    hand = player.hand.copy()
+    hand[new_tile.index] += 1
+    # all possible tiles
+    all_tiles = get_all_tiles() 
+    possible_winning_tiles = []
+    # try discarding each tile:
+    possible_discard_tile_id = [k for (k, v) in hand.items() if v > 0]
+    for discard_id in possible_discard_tile_id:
+        temp_hand = hand.copy()
+        temp_hand[discard_id] -= 1
+        machi = []
+        # try adding each tile
+        for tile in all_tiles:
+            # temporarily add the possible tile
+            temp_hand[tile.index] += 1
+            if check_four_sets(temp_hand):
+                machi.append(tile)
+        if len(machi) > 0: 
+            # there is at least one winning possibility if discarding this tile
+            # if discard this, listening to machi
+            possible_winning_tiles.append((discard_id, machi)) 
+    return possible_winning_tiles
+
+
+def check_four_sets(hand):
+    def check_mentsu(remaining):
+        found = 0
+        for i, v in remaining.items():
+            if v >= 3:
+                remaining[i] -= 3
+                found += 1
+            t = Tile.get_tile_by_index(i)
+            if t.suit != 0 and t.rank <= 7:
+                if i + 1 in remaining and i + 2 in remaining:
+                    pairs = min(remaining[i], remaining[i + 1], remaining[i + 2])
+                    remaining[i] -= pairs
+                    remaining[i + 1] -= pairs
+                    remaining[i + 2] -= pairs
+                    found += pairs
+        return found == 4
+    # remove jantou first
+    possible_jantous = [k for (k, v) in hand.items() if v >= 2]
+    for jantou in possible_jantous:
+        temp_hand = hand.copy()
+        temp_hand[jantou] -= 2
+        if check_mentsu(temp_hand):
+            return True
+    return False
+            
+
