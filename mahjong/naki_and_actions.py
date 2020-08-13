@@ -131,8 +131,8 @@ def check_chii(player: Player, new_tile: Tile) -> List[List[Tile]]:
         return possible_sets
 
     if new_tile.rank >= 3:
-        tile_1 = Tile.get_tile_by_index(new_tile.index - 1)
-        tile_2 = Tile.get_tile_by_index(new_tile.index - 2)
+        tile_1 = Tile.get_tile_by_index(new_tile.index - 2)
+        tile_2 = Tile.get_tile_by_index(new_tile.index - 1)
         if player.hand[tile_1.index] > 0 and player.hand[tile_2.index] > 0:
             possible_sets.append([tile_1, tile_2, new_tile])
 
@@ -165,8 +165,8 @@ def check_riichi(player: Player, machi: List[Tile]) -> bool:
 
 
 def check_tenpai(player: Player) -> List[Tile]:
-    """Helper function to check if player can declare is tenpai
-    and what Machi is (waiting patterns)
+    """Helper function to check if player can declare tenpai with current
+    tiles in hand. If so, return Machi tile(s) (waiting patterns)
 
     Args:
         player (Player): Current player, 手牌 副露 棄牌
@@ -202,6 +202,9 @@ def check_tenpai(player: Player) -> List[Tile]:
 
 def check_remains_are_sets(remain_tiles: DefaultDict[int, int]) -> bool:
     """Helper function to check all tiles in remain_tiles can form into sets
+    Set is defined as:
+      1. Shuntsu 「順子」 is a tile group with three sequential numbered tiles
+      2. Koutsu 「刻子」 is a tile group with three of the same type of tiles
 
     Args:
         remain_tiles (DefaultDict):
@@ -218,14 +221,14 @@ def check_remains_are_sets(remain_tiles: DefaultDict[int, int]) -> bool:
     sets_to_find = int(remain_tiles_n / 3)
 
     for tile_index in sorted(remain_tiles.keys()):
-        if tile_index < Tile(Suit.MANZU.value, 1).index:  # 字牌檢查碰
+        if tile_index < Tile(Suit.MANZU.value, 1).index:  # only check Koutsu
             if remain_tiles[tile_index] == 3:
                 sets_to_find -= 1
-        else:  # 萬索餅牌
-            if remain_tiles[tile_index] >= 3:  # check for pung
+        else:  # numbered tiles
+            if remain_tiles[tile_index] >= 3:  # check for Koutsu
                 remain_tiles[tile_index] -= 3
                 sets_to_find -= 1
-            if remain_tiles[tile_index + 2] > 0:  # check for chii
+            if remain_tiles[tile_index + 2] > 0:  # check for Shuntsu
                 chii_n = min(remain_tiles[tile_index],
                              remain_tiles[tile_index + 1],
                              remain_tiles[tile_index + 2])
