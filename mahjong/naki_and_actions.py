@@ -1,7 +1,7 @@
 import copy
 from typing import List, DefaultDict
 
-from .mahjong import Tile, Suit, Naki
+from .components import Tile, Suit, Naki
 from .player import Player
 
 
