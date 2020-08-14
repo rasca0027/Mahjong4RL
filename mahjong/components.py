@@ -76,7 +76,7 @@ class Tile:
         return self._suit * 10 + self._rank
 
     @classmethod
-    def index2tile(cls, ind):
+    def from_index(cls, ind):
         return cls(ind // 10, ind % 10)
 
     def akadora(self):
