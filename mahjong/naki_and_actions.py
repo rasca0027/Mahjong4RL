@@ -1,6 +1,7 @@
-from typing import List
+import copy
+from typing import List, DefaultDict
 
-from .components import Tile, Naki
+from .mahjong import Tile, Suit, Naki
 from .player import Player
 
 
@@ -16,7 +17,7 @@ def check_ron(player, new_tile):
         bool: True for Ron, False otherwise.
 
     ref:
-      https://colab.research.google.com/drive/1ih1hU_EDRQ8z-NI0KJ7lVeORxJa7HmNf?usp=sharing:
+      https://colab.research.google.com/drive/1ih1hU_EDRQ8z-NI0KJ7lVeORxJa7HmNf?usp=sharing
     """
     ...
 
@@ -150,25 +151,89 @@ def check_chii(player: Player, new_tile: Tile) -> List[List[Tile]]:
     return possible_sets
 
 
-def check_riichi(tiles_in_hand, tile_to_dicard):
+def check_riichi(player: Player, machi: List[Tile]) -> bool:
     """Helper function to check if player can declare riichi
 
     Args:
-        tiles_in_hand (List of Tile objects):
-            The player's current hand of 14 tiles
-        tile_to_dicard (Tile object):
-            Tile selected by player to discard
+        player (Player): Current player, 手牌 副露 棄牌
+        machi (List of Tile): Every possible tile that could complete the hand
 
     Returns:
         bool: True for opportunity to declare riichi, False otherwise.
     """
-    # check 副露
-    # check 聽牌
-    pass
+    return not player.kabe and len(machi) > 0
 
 
-def check_tenpai():
+def check_tenpai(player: Player) -> List[Tile]:
+    """Helper function to check if player can declare tenpai with current
+    tiles in hand. If so, return Machi tile(s) (waiting patterns)
+
+    Args:
+        player (Player): Current player, 手牌 副露 棄牌
+
+    Returns:
+        possible_list (List[Tile]):
+            every possible tile that could complete the hand (Ron or Tsumo)
     """
-    Return possible tenpai discard tile
+    possible_list = []
+    huro_count = len(player.kabe)
+
+    def check_machi(machi_tile, current_hand):
+        machi_found = False
+        for tile_index in current_hand.keys():
+            new_hand = copy.deepcopy(current_hand)
+            new_hand[machi_tile.index] += 1
+            if new_hand[tile_index] >= 2:
+                new_hand[tile_index] -= 2
+                if check_remains_are_sets(new_hand, huro_count):
+                    machi_found = True
+                    break
+        return machi_found
+
+    for suit in Suit:
+        max_rank = 8 if suit == Suit.JIHAI else 10
+        for rank in range(1, max_rank):
+            machi_tile = Tile(suit.value, rank)
+            if check_machi(machi_tile, player.hand):
+                possible_list.append(machi_tile)
+
+    return possible_list
+
+
+def check_remains_are_sets(remain_tiles: DefaultDict[int, int],
+                           huro_count: int) -> bool:
+    """Helper function to check all tiles in remain_tiles can form into sets
+    Set is defined as:
+      1. Shuntsu 「順子」 is a tile group with three sequential numbered tiles
+      2. Koutsu 「刻子」 is a tile group with three of the same type of tiles
+
+    Args:
+        remain_tiles (DefaultDict):
+            tiles in hand after taking out Jantou (雀頭/眼) and Kabe
+        huro_count:
+            how many huro in player's kabe
+
+    Returns:
+        bool: True for tiles can form sets, False otherwise.
     """
-    pass
+    sets_to_find = 4 - huro_count
+
+    for tile_index in sorted(remain_tiles.keys()):
+        if tile_index < Tile(Suit.MANZU.value, 1).index:  # only check Koutsu
+            if remain_tiles[tile_index] == 3:
+                sets_to_find -= 1
+        else:  # numbered tiles
+            if remain_tiles[tile_index] >= 3:  # check for Koutsu
+                remain_tiles[tile_index] -= 3
+                sets_to_find -= 1
+            if remain_tiles[tile_index + 2] > 0:  # check for Shuntsu
+                chii_n = min(remain_tiles[tile_index],
+                             remain_tiles[tile_index + 1],
+                             remain_tiles[tile_index + 2])
+                if chii_n > 0:
+                    remain_tiles[tile_index] -= chii_n
+                    remain_tiles[tile_index + 1] -= chii_n
+                    remain_tiles[tile_index + 2] -= chii_n
+                    sets_to_find -= chii_n
+
+    return sets_to_find == 0

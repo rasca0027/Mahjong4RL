@@ -16,24 +16,24 @@ class Suit(Enum):
 
 @unique
 class Jihai(Enum):
-    HAKU = 0
-    HATSU = 1
-    CHUN = 2
-    TON = 3
-    NAN = 4
-    SHAA = 5
-    PEI = 6
+    HAKU = 1
+    HATSU = 2
+    CHUN = 3
+    TON = 4
+    NAN = 5
+    SHAA = 6
+    PEI = 7
 
 
 @unique
 class Naki(Enum):
-    CHI = 0
+    CHII = 0
     PON = 1
     KAN = 2
 
 
 class Tile:
-    def __init__(self, suit, rank):
+    def __init__(self, suit: int, rank: int):
         self.suit = suit
         self.rank = rank
         self.index = self.calc_index()
@@ -49,7 +49,7 @@ class Tile:
         return self._suit
 
     @suit.setter
-    def suit(self, value):
+    def suit(self, value: int):
         if not 0 <= value < 4:
             raise ValueError(f"Suit should be in: { get_values(Suit) }")
         self._suit = value
@@ -59,9 +59,9 @@ class Tile:
         return self._rank
 
     @rank.setter
-    def rank(self, value):
+    def rank(self, value: int):
         if self._suit == 0:  # Jihai
-            if not 0 <= value < 7:
+            if not 1 <= value < 8:
                 raise ValueError(
                     f"Value for Jihai should be in: "
                     f"{ get_values(Jihai) }")
@@ -114,7 +114,7 @@ class Stack:
 
     def initiate(self):
         for suit in range(0, 4):
-            max_rank = 7 if suit == 0 else 10  # Jihai only have 7 values
+            max_rank = 8 if suit == 0 else 10  # Jihai only have 7 values
             for rank in range(1, max_rank):
                 for _ in itertools.repeat(None, 4):
                     self.stack.append(Tile(suit, rank))
