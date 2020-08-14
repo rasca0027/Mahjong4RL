@@ -17,11 +17,9 @@ class TestPon(unittest.TestCase):
     def test_pon(self):
         discard_shaa = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
         discard_hatsu = Tile(Suit.JIHAI.value, Jihai.HATSU.value)
+        discard_haku = Tile(Suit.JIHAI.value, Jihai.HAKU.value)
         self.assertEqual(check_pon(self.player, discard_shaa), True)
         self.assertEqual(check_pon(self.player, discard_hatsu), True)
-
-    def test_no_pon(self):
-        discard_haku = Tile(Suit.JIHAI.value, Jihai.HAKU.value)
         self.assertEqual(check_pon(self.player, discard_haku), False)
 
 
@@ -41,8 +39,8 @@ class TestChii(unittest.TestCase):
         possible_sets_1 = [[Tile(Suit.MANZU.value, 1),
                             Tile(Suit.MANZU.value, 2),
                             Tile(Suit.MANZU.value, 3)]]
-        discard_4 = Tile(Suit.MANZU.value, 4)
-        possible_sets_4 = [[Tile(Suit.MANZU.value, 2),
+        discard_2 = Tile(Suit.MANZU.value, 4)
+        possible_sets_2 = [[Tile(Suit.MANZU.value, 2),
                             Tile(Suit.MANZU.value, 3),
                             Tile(Suit.MANZU.value, 4)],
                            [Tile(Suit.MANZU.value, 3),
@@ -51,17 +49,17 @@ class TestChii(unittest.TestCase):
                            [Tile(Suit.MANZU.value, 4),
                             Tile(Suit.MANZU.value, 5),
                             Tile(Suit.MANZU.value, 6)]]
-        discard_7 = Tile(Suit.MANZU.value, 7)
-        possible_sets_7 = [[Tile(Suit.MANZU.value, 5),
+        discard_3 = Tile(Suit.MANZU.value, 7)
+        possible_sets_3 = [[Tile(Suit.MANZU.value, 5),
                             Tile(Suit.MANZU.value, 6),
                             Tile(Suit.MANZU.value, 7)]]
         self.assertEqual(check_chii(self.player, discard_1), possible_sets_1)
-        self.assertEqual(check_chii(self.player, discard_4), possible_sets_4)
-        self.assertEqual(check_chii(self.player, discard_7), possible_sets_7)
+        self.assertEqual(check_chii(self.player, discard_2), possible_sets_2)
+        self.assertEqual(check_chii(self.player, discard_3), possible_sets_3)
 
     def test_no_chii(self):
-        discard_8 = Tile(Suit.MANZU.value, 8)
-        self.assertEqual(check_chii(self.player, discard_8), [])
+        discard = Tile(Suit.MANZU.value, 8)
+        self.assertEqual(check_chii(self.player, discard), [])
 
 
 class TestTenpai(unittest.TestCase):
