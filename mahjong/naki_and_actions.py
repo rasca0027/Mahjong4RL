@@ -131,8 +131,8 @@ def check_chii(player: Player, new_tile: Tile) -> List[List[Tile]]:
         return possible_sets
 
     if new_tile.rank >= 3:
-        tile_1 = Tile.from_index(new_tile.index - 1)
-        tile_2 = Tile.from_index(new_tile.index - 2)
+        tile_1 = Tile.from_index(new_tile.index - 2)
+        tile_2 = Tile.from_index(new_tile.index - 1)
         if player.hand[tile_1.index] > 0 and player.hand[tile_2.index] > 0:
             possible_sets.append([tile_1, tile_2, new_tile])
 
