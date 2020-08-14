@@ -27,13 +27,13 @@ class Jihai(Enum):
 
 @unique
 class Naki(Enum):
-    CHI = 0
+    CHII = 0
     PON = 1
     KAN = 2
 
 
 class Tile:
-    def __init__(self, suit, rank):
+    def __init__(self, suit: int, rank: int):
         self.suit = suit
         self.rank = rank
         self.index = self.calc_index()
@@ -49,9 +49,7 @@ class Tile:
         return self._suit
 
     @suit.setter
-    def suit(self, value):
-        if not isinstance(value, int):
-            raise TypeError("Suit value must be a integer")
+    def suit(self, value: int):
         if not 0 <= value < 4:
             raise ValueError(f"Suit should be in: { get_values(Suit) }")
         self._suit = value
@@ -61,9 +59,7 @@ class Tile:
         return self._rank
 
     @rank.setter
-    def rank(self, value):
-        if not isinstance(value, int):
-            raise TypeError("Rank value must be a integer")
+    def rank(self, value: int):
         if self._suit == 0:  # Jihai
             if not 1 <= value < 8:
                 raise ValueError(

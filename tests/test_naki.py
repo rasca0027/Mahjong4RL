@@ -104,14 +104,49 @@ class TestTenpai(unittest.TestCase):
         self.player_4.hand[Tile(Suit.SOUZU.value, 5).index] += 1
         self.player_4.hand[Tile(Suit.MANZU.value, 8).index] += 3
         self.player_4.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 2
+        self.player_4.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
+                                                  Tile(Suit.SOUZU.value, 5),
+                                                  Tile(Suit.SOUZU.value, 5)]))
         # tenpai: 2 MANZU
         self.player_5 = Player('test_5', Position.TON.value)
         self.player_5.hand[Tile(Suit.PINZU.value, 9).index] += 2
         self.player_5.hand[Tile(Suit.MANZU.value, 1).index] += 1
         self.player_5.hand[Tile(Suit.MANZU.value, 3).index] += 1
+        self.player_5.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
+                                                  Tile(Suit.SOUZU.value, 5),
+                                                  Tile(Suit.SOUZU.value, 5)]))
+        self.player_5.kabe.append(Huro(Naki.PON, [Tile(Suit.PINZU.value, 5),
+                                                  Tile(Suit.PINZU.value, 5),
+                                                  Tile(Suit.PINZU.value, 5)]))
+        self.player_5.kabe.append(Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
+                                                   Tile(Suit.MANZU.value, 8),
+                                                   Tile(Suit.MANZU.value, 9)]))
         # tenpai: TON
         self.player_6 = Player('test_6', Position.TON.value)
         self.player_6.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 1
+        self.player_6.kabe.append(
+            Huro(Naki.PON, [Tile(Suit.JIHAI.value, Jihai.SHAA.value),
+                            Tile(Suit.JIHAI.value, Jihai.SHAA.value),
+                            Tile(Suit.JIHAI.value, Jihai.SHAA.value)]))
+        self.player_6.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
+                                                  Tile(Suit.SOUZU.value, 5),
+                                                  Tile(Suit.SOUZU.value, 5)]))
+        self.player_6.kabe.append(Huro(Naki.PON, [Tile(Suit.PINZU.value, 5),
+                                                  Tile(Suit.PINZU.value, 5),
+                                                  Tile(Suit.PINZU.value, 5)]))
+        self.player_6.kabe.append(Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
+                                                   Tile(Suit.MANZU.value, 8),
+                                                   Tile(Suit.MANZU.value, 9)]))
+        # tenpai: 1 MANZU 4 MANZU 空聴（カラテン）
+        self.player_7 = Player('test_7', Position.TON.value)
+        self.player_7.hand[Tile(Suit.MANZU.value, 1).index] += 4
+        self.player_7.hand[Tile(Suit.MANZU.value, 2).index] += 1
+        self.player_7.hand[Tile(Suit.MANZU.value, 3).index] += 1
+        self.player_7.hand[Tile(Suit.MANZU.value, 4).index] += 4
+        self.player_7.kabe.append(
+            Huro(Naki.PON, [Tile(Suit.JIHAI.value, Jihai.SHAA.value),
+                            Tile(Suit.JIHAI.value, Jihai.SHAA.value),
+                            Tile(Suit.JIHAI.value, Jihai.SHAA.value)]))
 
     def test_tenpai(self):
         player_1_tenpai = [Tile(Suit.MANZU.value, 3),
@@ -126,21 +161,20 @@ class TestTenpai(unittest.TestCase):
                            Tile(Suit.SOUZU.value, 2)]
         player_5_tenpai = [Tile(Suit.MANZU.value, 2)]
         player_6_tenpai = [Tile(Suit.JIHAI.value, Jihai.TON.value)]
+        player_7_tenpai = [Tile(Suit.MANZU.value, 1),
+                           Tile(Suit.MANZU.value, 4)]
         self.assertEqual(check_tenpai(self.player_1), player_1_tenpai)
         self.assertEqual(check_tenpai(self.player_2), player_2_tenpai)
         self.assertEqual(check_tenpai(self.player_3), player_3_tenpai)
         self.assertEqual(check_tenpai(self.player_4), player_4_tenpai)
         self.assertEqual(check_tenpai(self.player_5), player_5_tenpai)
         self.assertEqual(check_tenpai(self.player_6), player_6_tenpai)
+        self.assertEqual(check_tenpai(self.player_7), player_7_tenpai)
 
     def test_no_tenpai(self):
         self.player_1.hand[Tile(Suit.PINZU.value, 1).index] -= 1
         self.player_1.hand[Tile(Suit.PINZU.value, 2).index] += 1
         self.assertEqual(check_tenpai(self.player_1), [])
-
-    def test_tenpai_error(self):
-        self.player_1.hand[Tile(Suit.PINZU.value, 2).index] -= 1
-        self.assertRaises(ValueError, check_tenpai, self.player_1)
 
 
 class TestRiichi(unittest.TestCase):

@@ -176,15 +176,16 @@ def check_tenpai(player: Player) -> List[Tile]:
             every possible tile that could complete the hand (Ron or Tsumo)
     """
     possible_list = []
+    huro_count = len(player.kabe)
 
     def check_machi(machi_tile, current_hand):
         machi_found = False
-        for tile_index in sorted(current_hand.keys()):
+        for tile_index in current_hand.keys():
             new_hand = copy.deepcopy(current_hand)
             new_hand[machi_tile.index] += 1
             if new_hand[tile_index] >= 2:
                 new_hand[tile_index] -= 2
-                if check_remains_are_sets(new_hand):
+                if check_remains_are_sets(new_hand, huro_count):
                     machi_found = True
                     break
         return machi_found
@@ -193,14 +194,14 @@ def check_tenpai(player: Player) -> List[Tile]:
         max_rank = 8 if suit == Suit.JIHAI else 10
         for rank in range(1, max_rank):
             machi_tile = Tile(suit.value, rank)
-            if player.hand[machi_tile.index] != 4:
-                if check_machi(machi_tile, player.hand):
-                    possible_list.append(machi_tile)
+            if check_machi(machi_tile, player.hand):
+                possible_list.append(machi_tile)
 
     return possible_list
 
 
-def check_remains_are_sets(remain_tiles: DefaultDict[int, int]) -> bool:
+def check_remains_are_sets(remain_tiles: DefaultDict[int, int],
+                           huro_count: int) -> bool:
     """Helper function to check all tiles in remain_tiles can form into sets
     Set is defined as:
       1. Shuntsu 「順子」 is a tile group with three sequential numbered tiles
@@ -209,16 +210,13 @@ def check_remains_are_sets(remain_tiles: DefaultDict[int, int]) -> bool:
     Args:
         remain_tiles (DefaultDict):
             tiles in hand after taking out Jantou (雀頭/眼) and Kabe
+        huro_count:
+            how many huro in player's kabe
 
     Returns:
         bool: True for tiles can form sets, False otherwise.
     """
-    remain_tiles_n = sum(remain_tiles.values())
-    if remain_tiles_n % 3 > 0:
-        raise ValueError(f"Remain tiles should be multiples of 3, "
-                         f"got { remain_tiles_n } instead.")
-
-    sets_to_find = int(remain_tiles_n / 3)
+    sets_to_find = 4 - huro_count
 
     for tile_index in sorted(remain_tiles.keys()):
         if tile_index < Tile(Suit.MANZU.value, 1).index:  # only check Koutsu
