@@ -177,6 +177,16 @@ def check_tenpai(player: Player) -> List[Tile]:
     """
     possible_list = []
     huro_count = len(player.kabe)
+    potential_machi = set()
+    for tile_index in player.hand.keys():
+        if tile_index < Tile(Suit.MANZU.value, 1).index:
+            potential_machi.add(tile_index)
+        else:
+            potential_machi.add(tile_index)
+            if (tile_index - 1) % 10:
+                potential_machi.add(tile_index - 1)
+            if (tile_index + 1) % 10:
+                potential_machi.add(tile_index + 1)
 
     def check_machi(machi_tile, current_hand):
         machi_found = False
@@ -190,12 +200,10 @@ def check_tenpai(player: Player) -> List[Tile]:
                     break
         return machi_found
 
-    for suit in Suit:
-        max_rank = 8 if suit == Suit.JIHAI else 10
-        for rank in range(1, max_rank):
-            machi_tile = Tile(suit.value, rank)
-            if check_machi(machi_tile, player.hand):
-                possible_list.append(machi_tile)
+    for tile_index in potential_machi:
+        machi_tile = Tile.from_index(tile_index)
+        if check_machi(machi_tile, player.hand):
+            possible_list.append(machi_tile)
 
     return possible_list
 
