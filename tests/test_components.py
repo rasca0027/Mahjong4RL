@@ -1,6 +1,6 @@
 import unittest
 
-from mahjong.components import Tile, Suit, Stack, Jihai
+from mahjong.components import Suit, Jihai, Naki, Tile, Stack, Huro
 
 
 class TestTile(unittest.TestCase):
@@ -104,3 +104,42 @@ class TestStack(unittest.TestCase):
         self.assertEqual(Stack.compute_dora(dora_indicator4), dora4)
         self.assertEqual(Stack.compute_dora(dora_indicator5), dora5)
         self.assertEqual(Stack.compute_dora(dora_indicator6), dora6)
+
+
+class TestHuro(unittest.TestCase):
+
+    def setUp(self):
+        self.huro_chii = Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
+                                          Tile(Suit.MANZU.value, 8),
+                                          Tile(Suit.MANZU.value, 9)])
+        self.huro_pon = Huro(Naki.PON, [Tile(Suit.MANZU.value, 2),
+                                        Tile(Suit.MANZU.value, 2),
+                                        Tile(Suit.MANZU.value, 2)])
+        self.huro_kan = Huro(Naki.KAN, [Tile(Suit.MANZU.value, 5),
+                                        Tile(Suit.MANZU.value, 5),
+                                        Tile(Suit.MANZU.value, 5),
+                                        Tile(Suit.MANZU.value, 5)])
+
+    def test_naki_type(self):
+        self.assertEqual(self.huro_kan.naki_type, Naki.KAN)
+
+    def test_tiles_getter(self):
+        tiles_in_huro = [Tile(Suit.MANZU.value, 7),
+                         Tile(Suit.MANZU.value, 8),
+                         Tile(Suit.MANZU.value, 9)]
+        self.assertEqual(self.huro_chii.tiles, tiles_in_huro)
+
+    def test_tiles_setter(self):
+        new_tiles_in_huro = [Tile(Suit.MANZU.value, 5),
+                             Tile(Suit.MANZU.value, 6),
+                             Tile(Suit.MANZU.value, 7)]
+        self.huro_chii.tiles = new_tiles_in_huro
+        self.assertEqual(self.huro_chii.tiles, new_tiles_in_huro)
+
+    def test_add_kan(self):
+        self.huro_pon.add_kan(Tile(Suit.MANZU.value, 2))
+        self.assertEqual(self.huro_pon.naki_type, Naki.KAN)
+
+    def test_add_kan_error(self):
+        with self.assertRaises(ValueError):
+            self.huro_chii.add_kan(Tile(Suit.MANZU.value, 7))
