@@ -110,7 +110,7 @@ class Stack:
 
         self.initiate()
         self.playling_wall = iter(self.stack[:122])
-        self.rinshanpai = iter(self.stack[-4:])  # 王牌是最後七墩，嶺上牌是特指槓可以抽的最後四張
+        self.rinshanpai = iter(self.stack[-4:][::-1])  # 王牌是最後七墩，嶺上牌是槓可以抽的最後四張
 
     def initiate(self):
         for suit in range(0, 4):
@@ -160,12 +160,12 @@ class Stack:
     def compute_dora(tile: Tile):
         target_rank = 0
         if tile.suit == Suit.JIHAI.value:
-            if tile.rank < 3:
+            if tile.rank <= Jihai.CHUN.value:
                 # Sangenpai
-                target_rank = (tile.rank + 1) % 3
+                target_rank = tile.rank % 3 + 1
             else:
                 # Kazehai
-                target_rank = (tile.rank - 3 + 1) % 4 + 3
+                target_rank = (tile.rank - 3) % 4 + 4
         else:
             # others
             target_rank = tile.rank % 9 + 1
