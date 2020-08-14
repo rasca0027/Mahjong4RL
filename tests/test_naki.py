@@ -34,28 +34,41 @@ class TestChii(unittest.TestCase):
         self.player.hand[Tile(Suit.MANZU.value, 5).index] += 1
         self.player.hand[Tile(Suit.MANZU.value, 6).index] += 1
 
-    def test_chii(self):
-        discard_1 = Tile(Suit.MANZU.value, 1)
-        possible_sets_1 = [[Tile(Suit.MANZU.value, 1),
-                            Tile(Suit.MANZU.value, 2),
-                            Tile(Suit.MANZU.value, 3)]]
-        discard_2 = Tile(Suit.MANZU.value, 4)
-        possible_sets_2 = [[Tile(Suit.MANZU.value, 2),
-                            Tile(Suit.MANZU.value, 3),
-                            Tile(Suit.MANZU.value, 4)],
-                           [Tile(Suit.MANZU.value, 3),
-                            Tile(Suit.MANZU.value, 4),
-                            Tile(Suit.MANZU.value, 5)],
-                           [Tile(Suit.MANZU.value, 4),
-                            Tile(Suit.MANZU.value, 5),
-                            Tile(Suit.MANZU.value, 6)]]
-        discard_3 = Tile(Suit.MANZU.value, 7)
-        possible_sets_3 = [[Tile(Suit.MANZU.value, 5),
-                            Tile(Suit.MANZU.value, 6),
-                            Tile(Suit.MANZU.value, 7)]]
-        self.assertEqual(check_chii(self.player, discard_1), possible_sets_1)
-        self.assertEqual(check_chii(self.player, discard_2), possible_sets_2)
-        self.assertEqual(check_chii(self.player, discard_3), possible_sets_3)
+    def test_chii_1(self):
+        discard = Tile(Suit.MANZU.value, 1)
+        possible_sets = [[Tile(Suit.MANZU.value, 1),
+                          Tile(Suit.MANZU.value, 2),
+                          Tile(Suit.MANZU.value, 3)]]
+        chii_sets = check_chii(self.player, discard)
+        chii_sets = [sorted(chii_set) for chii_set in chii_sets]
+
+        self.assertEqual(chii_sets, possible_sets)
+
+    def test_chii_2(self):
+        discard = Tile(Suit.MANZU.value, 4)
+        possible_sets = [[Tile(Suit.MANZU.value, 2),
+                          Tile(Suit.MANZU.value, 3),
+                          Tile(Suit.MANZU.value, 4)],
+                         [Tile(Suit.MANZU.value, 3),
+                          Tile(Suit.MANZU.value, 4),
+                          Tile(Suit.MANZU.value, 5)],
+                         [Tile(Suit.MANZU.value, 4),
+                          Tile(Suit.MANZU.value, 5),
+                          Tile(Suit.MANZU.value, 6)]]
+        chii_sets = check_chii(self.player, discard)
+        chii_sets = [sorted(chii_set) for chii_set in chii_sets]
+
+        self.assertEqual(chii_sets, possible_sets)
+
+    def test_chii_3(self):
+        discard = Tile(Suit.MANZU.value, 7)
+        possible_sets = [[Tile(Suit.MANZU.value, 5),
+                          Tile(Suit.MANZU.value, 6),
+                          Tile(Suit.MANZU.value, 7)]]
+        chii_sets = check_chii(self.player, discard)
+        chii_sets = [sorted(chii_set) for chii_set in chii_sets]
+
+        self.assertEqual(chii_sets, possible_sets)
 
     def test_no_chii(self):
         discard = Tile(Suit.MANZU.value, 8)
@@ -148,28 +161,47 @@ class TestTenpai(unittest.TestCase):
                             Tile(Suit.JIHAI.value, Jihai.SHAA.value),
                             Tile(Suit.JIHAI.value, Jihai.SHAA.value)]))
 
-    def test_tenpai(self):
+    def test_tenpai_1(self):
         player_1_tenpai = [Tile(Suit.MANZU.value, 3),
                            Tile(Suit.SOUZU.value, 5)]
+        machi_list = sorted(check_tenpai(self.player_1))
+        self.assertEqual(machi_list, player_1_tenpai)
+
+    def test_tenpai_2(self):
         player_2_tenpai = [Tile(Suit.JIHAI.value, Jihai.PEI.value),
                            Tile(Suit.PINZU.value, 4),
                            Tile(Suit.PINZU.value, 7)]
+        machi_list = sorted(check_tenpai(self.player_2))
+        self.assertEqual(machi_list, player_2_tenpai)
+
+    def test_tenpai_3(self):
         player_3_tenpai = [Tile(Suit.SOUZU.value, 1),
                            Tile(Suit.SOUZU.value, 4),
                            Tile(Suit.SOUZU.value, 7)]
+        machi_list = sorted(check_tenpai(self.player_3))
+        self.assertEqual(machi_list, player_3_tenpai)
+
+    def test_tenpai_4(self):
         player_4_tenpai = [Tile(Suit.JIHAI.value, Jihai.NAN.value),
                            Tile(Suit.SOUZU.value, 2)]
+        machi_list = sorted(check_tenpai(self.player_4))
+        self.assertEqual(machi_list, player_4_tenpai)
+
+    def test_tenpai_5(self):
         player_5_tenpai = [Tile(Suit.MANZU.value, 2)]
+        machi_list = sorted(check_tenpai(self.player_5))
+        self.assertEqual(machi_list, player_5_tenpai)
+
+    def test_tenpai_6(self):
         player_6_tenpai = [Tile(Suit.JIHAI.value, Jihai.TON.value)]
+        machi_list = sorted(check_tenpai(self.player_6))
+        self.assertEqual(machi_list, player_6_tenpai)
+
+    def test_tenpai_7(self):
         player_7_tenpai = [Tile(Suit.MANZU.value, 1),
                            Tile(Suit.MANZU.value, 4)]
-        self.assertEqual(check_tenpai(self.player_1), player_1_tenpai)
-        self.assertEqual(check_tenpai(self.player_2), player_2_tenpai)
-        self.assertEqual(check_tenpai(self.player_3), player_3_tenpai)
-        self.assertEqual(check_tenpai(self.player_4), player_4_tenpai)
-        self.assertEqual(check_tenpai(self.player_5), player_5_tenpai)
-        self.assertEqual(check_tenpai(self.player_6), player_6_tenpai)
-        self.assertEqual(check_tenpai(self.player_7), player_7_tenpai)
+        machi_list = sorted(check_tenpai(self.player_7))
+        self.assertEqual(machi_list, player_7_tenpai)
 
     def test_no_tenpai(self):
         self.player_1.hand[Tile(Suit.PINZU.value, 1).index] -= 1
