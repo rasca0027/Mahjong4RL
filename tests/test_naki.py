@@ -3,7 +3,98 @@ import unittest
 from mahjong.components import Tile, Suit, Jihai, Naki, Huro
 from mahjong.player import Player, Position
 from mahjong.naki_and_actions import (
-    check_pon, check_chii, check_tenpai, check_riichi)
+    check_ankan, check_chakan, check_daminkan, check_pon, check_chii,
+    check_tenpai, check_riichi)
+
+
+class TestRon(unittest.TestCase):
+    ...
+
+
+class TestTsumo(unittest.TestCase):
+    ...
+
+
+class TestYaku(unittest.TestCase):
+    ...
+
+
+class TestFuriten(unittest.TestCase):
+    ...
+
+
+class TestAnkan(unittest.TestCase):
+
+    def setUp(self):
+        self.player = Player('test', Position.TON.value)
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
+
+    def test_ankan_1(self):
+        new_tile = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
+        ankan_list = [new_tile]
+        self.assertEqual(check_ankan(self.player, new_tile), ankan_list)
+
+    def test_ankan_2(self):
+        kan_in_hand = Tile(Suit.JIHAI.value, Jihai.TON.value)
+        self.player.hand[kan_in_hand.index] += 4
+
+        new_tile = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
+        ankan_list = sorted([new_tile, kan_in_hand])
+
+        self.assertEqual(check_ankan(self.player, new_tile), ankan_list)
+
+    def test_no_ankan(self):
+        new_tile = Tile(Suit.JIHAI.value, Jihai.HATSU.value)
+        self.assertEqual(check_ankan(self.player, new_tile), [])
+
+
+class TestChakan(unittest.TestCase):
+
+    def setUp(self):
+        self.player = Player('test', Position.TON.value)
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
+        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.PINZU.value, 5),
+                                                Tile(Suit.PINZU.value, 5),
+                                                Tile(Suit.PINZU.value, 5)]))
+        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.MANZU.value, 7),
+                                                Tile(Suit.MANZU.value, 7),
+                                                Tile(Suit.MANZU.value, 7)]))
+
+    def test_chakan_1(self):
+        new_tile = Tile(Suit.PINZU.value, 5)
+        chakan_list = [new_tile]
+        self.assertEqual(check_chakan(self.player, new_tile), chakan_list)
+
+    def test_chakan_2(self):
+        self.player.hand[Tile(Suit.MANZU.value, 7).index] += 1
+        new_tile = Tile(Suit.PINZU.value, 5)
+        chakan_list = sorted([new_tile, Tile(Suit.MANZU.value, 7)])
+        self.assertEqual(check_chakan(self.player, new_tile), chakan_list)
+
+    def test_no_chakan(self):
+        new_tile = Tile(Suit.PINZU.value, 6)
+        self.assertEqual(check_chakan(self.player, new_tile), [])
+
+
+class TestDaminkan(unittest.TestCase):
+
+    def setUp(self):
+        self.player = Player('test', Position.TON.value)
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
+
+    def test_daminkan(self):
+        discarded_tile = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
+        self.assertEqual(check_daminkan(self.player, discarded_tile), True)
+
+    def test_no_daminkan(self):
+        discarded_tile = Tile(Suit.JIHAI.value, Jihai.HATSU.value)
+        self.assertEqual(check_daminkan(self.player, discarded_tile), False)
 
 
 class TestPon(unittest.TestCase):

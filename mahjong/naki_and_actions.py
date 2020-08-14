@@ -50,9 +50,9 @@ def check_ankan(player: Player, new_tile: Tile) -> List[Tile]:
     possible_list = []
     for index, value in player.hand.items():
         if value == 4:
-            possible_list.append(Tile.from_index(value))
+            possible_list.append(Tile.from_index(index))
         elif value == 3 and new_tile.index == index:
-            possible_list.append(Tile.from_index(value))
+            possible_list.append(Tile.from_index(index))
         else:
             pass
     return sorted(possible_list)
