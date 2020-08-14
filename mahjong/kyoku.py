@@ -1,7 +1,7 @@
 from typing import List
 
 from .player import Player
-from .mahjong import Stack
+from .components import Stack
 
 
 class Turn:

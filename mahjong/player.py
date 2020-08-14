@@ -3,7 +3,7 @@ from typing import List, DefaultDict
 from collections import defaultdict
 
 from .utils import get_values, get_name
-from .mahjong import Huro, Tile
+from .components import Huro, Tile
 
 
 @unique
