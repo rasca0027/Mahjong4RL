@@ -1,6 +1,6 @@
 import unittest
 
-from mahjong.mahjong import Tile, Suit
+from mahjong.components import Tile, Suit
 
 
 class TestTile(unittest.TestCase):

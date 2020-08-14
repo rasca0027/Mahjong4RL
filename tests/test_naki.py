@@ -1,6 +1,6 @@
 import unittest
 
-from mahjong.mahjong import Tile, Suit, Jihai, Naki, Huro
+from mahjong.components import Tile, Suit, Jihai, Naki, Huro
 from mahjong.player import Player, Position
 from mahjong.naki_and_actions import (
     check_pon, check_chii, check_tenpai, check_riichi)
