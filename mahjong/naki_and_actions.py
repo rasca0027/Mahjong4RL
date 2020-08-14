@@ -150,22 +150,18 @@ def check_chii(player: Player, new_tile: Tile) -> List[List[Tile]]:
     return possible_sets
 
 
-def check_riichi(tiles_in_hand, tile_to_dicard):
+def check_riichi(player: Player, new_tile: Tile):
     """Helper function to check if player can declare riichi
-
-    Args:
-        tiles_in_hand (List of Tile objects):
-            The player's current hand of 14 tiles
-        tile_to_dicard (Tile object):
-            Tile selected by player to discard
-
     Returns:
         bool: True for opportunity to declare riichi, False otherwise.
     """
     # check 副露
-
+    if len(player.kabe) > 0: 
+        return False
     # check 聽牌
-    pass
+    return check_tenpai(player, new_tile)
+
+
 
 
 def check_tenpai(player: Player, new_tile: Tile):
@@ -179,7 +175,7 @@ def check_tenpai(player: Player, new_tile: Tile):
             for rank in range(1, max_rank):
                 all_tiles.append(Tile(suit, rank))
         return all_tiles
-    # do i need to add huro???
+    huro_sets = len(player.kabe)
     # temporarily add tile into hand
     hand = player.hand.copy()
     hand[new_tile.index] += 1
@@ -196,7 +192,7 @@ def check_tenpai(player: Player, new_tile: Tile):
         for tile in all_tiles:
             # temporarily add the possible tile
             temp_hand[tile.index] += 1
-            if check_four_sets(temp_hand):
+            if check_four_sets(temp_hand, huro_sets):
                 machi.append(tile)
         if len(machi) > 0:
             # there is at least one winning possibility if discarding this tile
@@ -205,7 +201,7 @@ def check_tenpai(player: Player, new_tile: Tile):
     return possible_winning_tiles
 
 
-def check_four_sets(hand):
+def check_four_sets(hand, huros):
     def check_mentsu(remaining):
         found = 0
         for i, v in remaining.items():
@@ -220,7 +216,7 @@ def check_four_sets(hand):
                     remaining[i + 1] -= pairs
                     remaining[i + 2] -= pairs
                     found += pairs
-        return found == 4
+        return found + huros == 4
     # remove jantou first
     possible_jantous = [k for (k, v) in hand.items() if v >= 2]
     for jantou in possible_jantous:
