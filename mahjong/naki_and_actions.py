@@ -5,13 +5,13 @@ from .components import Tile, Suit, Naki
 from .player import Player
 
 
-def check_ron(player, new_tile):
+def check_ron(player: Player, discarded_tile: Tile) -> bool:
     """Helper function to check if new tile is a winning hand
     The hand must have a valid yaku and it's not furiten 振聴
 
     Args:
         player (Player): Current player, 手牌 副露 棄牌
-        new_tile (Tile object): The potential winning hand
+        discarded_tile (Tile object): The potential winning hand
 
     Returns:
         bool: True for Ron, False otherwise.
@@ -19,19 +19,27 @@ def check_ron(player, new_tile):
     ref:
       https://colab.research.google.com/drive/1ih1hU_EDRQ8z-NI0KJ7lVeORxJa7HmNf?usp=sharing
     """
-    ...
+    return discarded_tile in check_tenpai(player)
 
 
-def check_tsumo(player, new_tile):
-    pass
+def check_tsumo(player: Player, new_tile: Tile) -> bool:
+
+    return new_tile in check_tenpai(player)
 
 
 def check_yaku():
     pass
 
 
-def check_furiten():
-    pass
+def check_furiten(player: Player) -> bool:
+    """Furiten: if one of player's machi is in player's discard tiles,
+    player can only tsumo and not ron
+    """
+    machi = check_tenpai(player)
+    for tile in machi:
+        if tile in player.kawa:
+            return True
+    return False
 
 
 def check_ankan(player: Player, new_tile: Tile) -> List[Tile]:

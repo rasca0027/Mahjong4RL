@@ -4,16 +4,50 @@ from mahjong.components import Tile, Suit, Jihai, Naki, Huro
 from mahjong.player import Player, Position
 from mahjong.naki_and_actions import (
     check_ankan, check_chakan, check_daminkan, check_pon, check_chii,
-    check_tenpai, check_riichi)
+    check_tenpai, check_riichi, check_ron, check_tsumo)
 
 
 class TestRon(unittest.TestCase):
-    ...
+
+    def setUp(self):
+        self.player = Player('test', Position.TON.value)
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 2
+
+    def test_ron_1(self):
+        discard_1 = Tile(Suit.JIHAI.value, Jihai.TON.value)
+        discard_2 = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
+        self.assertEqual(check_ron(self.player, discard_1), True)
+        self.assertEqual(check_ron(self.player, discard_2), True)
+
+    def test_ron_2(self):
+        discard_1 = Tile(Suit.JIHAI.value, Jihai.PEI.value)
+        self.assertEqual(check_ron(self.player, discard_1), False)
 
 
 class TestTsumo(unittest.TestCase):
-    ...
 
+    def setUp(self):
+        self.player = Player('test', Position.TON.value)
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 4).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.PEI.value).index] += 2
+
+    def test_tsumo_1(self):
+        new_tile_1 = Tile(Suit.MANZU.value, 2)
+        new_tile_2 = Tile(Suit.MANZU.value, 5)
+        self.assertEqual(check_tsumo(self.player, new_tile_1), True)
+        self.assertEqual(check_tsumo(self.player, new_tile_2), True)
+
+    def test_tsumo_2(self):
+        new_tile = Tile(Suit.MANZU.value, 1)
+        self.assertEqual(check_tsumo(self.player, new_tile), False)
 
 class TestYaku(unittest.TestCase):
     ...
