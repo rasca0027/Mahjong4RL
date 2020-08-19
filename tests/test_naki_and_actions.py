@@ -3,16 +3,72 @@ import unittest
 from mahjong.components import Tile, Suit, Jihai, Naki, Huro
 from mahjong.player import Player, Position
 from mahjong.naki_and_actions import (
+    check_ron, check_tsumo, check_furiten,
     check_ankan, check_chakan, check_daminkan, check_pon, check_chii,
     check_tenpai, check_riichi)
 
 
 class TestRon(unittest.TestCase):
-    ...
+
+    def setUp(self):
+        # tenpai: 3 MANZU 5 SOUZU
+        self.player = Player('test', Position.TON.value)
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 2).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 4).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 6).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 7).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 8).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 2
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 2
+
+    def test_ron(self):
+        discard_1 = Tile(Suit.MANZU.value, 3)
+        discard_2 = Tile(Suit.SOUZU.value, 5)
+
+        self.assertEqual(check_ron(self.player, discard_1), True)
+        self.assertEqual(check_ron(self.player, discard_2), True)
+
+    def test_no_ron(self):
+        discard_1 = Tile(Suit.MANZU.value, 4)
+        self.assertEqual(check_ron(self.player, discard_1), False)
+
+        # 振聴
+        discard_2 = Tile(Suit.MANZU.value, 3)
+        self.player.kawa.append(Tile(Suit.MANZU.value, 3))
+        self.assertEqual(check_ron(self.player, discard_2), False)
 
 
 class TestTsumo(unittest.TestCase):
-    ...
+
+    def setUp(self):
+        # tenpai: 3 MANZU 5 SOUZU
+        self.player = Player('test', Position.TON.value)
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 2).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 4).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 6).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 7).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 8).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 2
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 2
+
+    def test_tsumo(self):
+        discard_1 = Tile(Suit.MANZU.value, 3)
+        discard_2 = Tile(Suit.SOUZU.value, 5)
+
+        self.assertEqual(check_tsumo(self.player, discard_1), True)
+        self.assertEqual(check_tsumo(self.player, discard_2), True)
+
+    def test_no_ron(self):
+        discard_1 = Tile(Suit.MANZU.value, 4)
+        self.assertEqual(check_tsumo(self.player, discard_1), False)
 
 
 class TestYaku(unittest.TestCase):
@@ -20,7 +76,20 @@ class TestYaku(unittest.TestCase):
 
 
 class TestFuriten(unittest.TestCase):
-    ...
+    def setUp(self):
+        # tenpai: TON and NAN
+        self.player = Player('test', Position.TON.value)
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 2
+        self.player.kawa.append(Tile(Suit.JIHAI.value, Jihai.TON.value))
+
+    def test_furiten(self):
+        winning_tile = Tile(Suit.JIHAI.value, Jihai.TON.value)
+        self.assertEqual(check_furiten(self.player, winning_tile), True)
+
+    def test_no_furiten(self):
+        winning_tile = Tile(Suit.JIHAI.value, Jihai.NAN.value)
+        self.assertEqual(check_furiten(self.player, winning_tile), False)
 
 
 class TestAnkan(unittest.TestCase):

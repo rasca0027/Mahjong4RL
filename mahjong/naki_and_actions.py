@@ -21,7 +21,7 @@ def check_ron(player: Player, discarded_tile: Tile):
     """
     ron = False
     if discarded_tile in check_tenpai(player):
-        if check_furiten(player, discarded_tile):
+        if not check_furiten(player, discarded_tile):
             if check_yaku(player):
                 ron = True
 
