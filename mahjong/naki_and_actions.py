@@ -23,6 +23,7 @@ def check_ron(player, new_tile):
 
 
 def check_tsumo(player, new_tile):
+    test
     pass
 
 
