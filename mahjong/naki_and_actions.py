@@ -19,11 +19,13 @@ def check_ron(player: Player, discarded_tile: Tile):
     ref:
       https://colab.research.google.com/drive/1ih1hU_EDRQ8z-NI0KJ7lVeORxJa7HmNf?usp=sharing
     """
+    ron = False
     if discarded_tile in check_tenpai(player):
-        # TODO: check yaku and furiten
-        return check_yaku(player)
-    else:
-        return False
+        if check_furiten(player, discarded_tile):
+            if check_yaku(player):
+                ron = True
+
+    return ron
 
 
 def check_tsumo(player: Player, new_tile: Tile):
@@ -54,8 +56,21 @@ def check_yaku(player: Player):
     return True
 
 
-def check_furiten():
-    pass
+def check_furiten(player: Player, winning_tile: Tile) -> bool:
+    """Helper function to check if a winning hand is furiten
+    The hand in tenpai is furiten if any of that player's winning tiles
+    are present in one's own discard pile which includes Naki, or another
+    player's discard pile during a turn or after its own riichi.
+
+    Args:
+        player (Player): Current player, 手牌 副露 棄牌
+        winning_tile (Tile): potential winning tile
+
+    Returns:
+        bool: True for Furiten, False otherwise.
+    """
+    # TODO: incomplete, need to check Naki? or after riichi?
+    return winning_tile in player.kawa
 
 
 def check_ankan(player: Player, new_tile: Tile) -> List[Tile]:
