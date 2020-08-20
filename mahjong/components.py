@@ -32,6 +32,19 @@ class Naki(Enum):
     KAN = 2
 
 
+@unique
+class Action(Enum):
+    NOACT = 0
+    CHII = 1
+    PON = 2
+    DAMINKAN = 3
+    CHAKAN = 4
+    ANKAN = 5
+    RIICHI = 6
+    RON = 7
+    TSUMO = 8
+
+
 class Tile:
     def __init__(self, suit: int, rank: int):
         self.suit = suit
@@ -121,6 +134,11 @@ class Stack:
 
         random.shuffle(self.stack)
         self.add_dora_indicator()
+
+    def draw(self, from_rinshan: bool = False) -> Tile:
+        if from_rinshan:
+            return next(self.rinshanpai)
+        return next(self.playling_wall)
 
     def add_dora_indicator(self):
         if self.can_add_dora_indicator():
