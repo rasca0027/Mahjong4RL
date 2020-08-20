@@ -22,7 +22,8 @@ def check_ron(player: Player, new_tile: Tile) -> bool:
     possible_sets = check_tenpai(player)
     if new_tile in possible_sets:
         if not check_furiten(player, new_tile):
-            if check_yaku(player, new_tile) > 0 : #include riichi in check_yaku?
+            if check_yaku(player, new_tile) > 0 : 
+                #include riichi in check_yaku?
                 return True 
     return False
 
@@ -35,9 +36,11 @@ def check_yaku():
 
 
 def check_furiten(player: Player, new_tile: Tile) -> bool:
+    # only check normal furiten. do not consider Kyoku furiten 同巡振聽 
+    # Riichi furiten 立直振聽 
     # 1. use turn input instead of player input ?
     # 2. add new player attribute and method to identify furiten state ?
-    return new_tile in player.kawa #only check normal furiten. do not consider Kyoku furiten 同巡振聽 Riichi furiten 立直振聽 
+    return new_tile in player.kawa
 
 
 def check_ankan(player: Player, new_tile: Tile) -> List[Tile]:
