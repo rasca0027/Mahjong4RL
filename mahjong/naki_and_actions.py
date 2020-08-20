@@ -5,7 +5,7 @@ from .components import Tile, Suit, Naki
 from .player import Player
 
 
-def check_ron(player, new_tile):
+def check_ron(player: Player, new_tile: Tile) -> bool:
     """Helper function to check if new tile is a winning hand
     The hand must have a valid yaku and it's not furiten 振聴
 
@@ -27,14 +27,14 @@ def check_ron(player, new_tile):
     return False
 
 
-def check_tsumo(player: Player, new_tile: Tile) -> List[Tile]:
+def check_tsumo(player: Player, new_tile: Tile) -> bool:
     return new_tile in check_tenpai(player)
 
 def check_yaku():
     pass
 
 
-def check_furiten(player: Player, new_tile: Tile) -> List[Tile]:
+def check_furiten(player: Player, new_tile: Tile) -> bool:
     # 1. use turn input instead of player input ?
     # 2. add new player attribute and method to identify furiten state ?
     return new_tile in player.kawa #only check normal furiten. do not consider Kyoku furiten 同巡振聽 Riichi furiten 立直振聽 
