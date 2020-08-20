@@ -3,7 +3,7 @@ import unittest
 from mahjong.components import Tile, Suit, Jihai, Naki, Huro
 from mahjong.player import Player, Position
 from mahjong.naki_and_actions import (
-    check_ron, check_tsumo, check_furiten,
+    check_ron, check_tsumo, check_own_discard_furiten,
     check_ankan, check_chakan, check_daminkan, check_pon, check_chii,
     check_tenpai, check_riichi)
 
@@ -81,15 +81,25 @@ class TestFuriten(unittest.TestCase):
         self.player = Player('test', Position.TON.value)
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 2
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 2
-        self.player.kawa.append(Tile(Suit.JIHAI.value, Jihai.TON.value))
+        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
+                                                Tile(Suit.SOUZU.value, 5),
+                                                Tile(Suit.SOUZU.value, 5)]))
+        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.PINZU.value, 5),
+                                                Tile(Suit.PINZU.value, 5),
+                                                Tile(Suit.PINZU.value, 5)]))
+        self.player.kabe.append(Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
+                                                 Tile(Suit.MANZU.value, 8),
+                                                 Tile(Suit.MANZU.value, 9)]))
+        self.player.kabe.append(Huro(Naki.CHII, [Tile(Suit.MANZU.value, 6),
+                                                 Tile(Suit.MANZU.value, 7),
+                                                 Tile(Suit.MANZU.value, 8)]))
 
     def test_furiten(self):
-        winning_tile = Tile(Suit.JIHAI.value, Jihai.TON.value)
-        self.assertEqual(check_furiten(self.player, winning_tile), True)
+        self.player.kawa.append(Tile(Suit.JIHAI.value, Jihai.TON.value))
+        self.assertEqual(check_own_discard_furiten(self.player), True)
 
     def test_no_furiten(self):
-        winning_tile = Tile(Suit.JIHAI.value, Jihai.NAN.value)
-        self.assertEqual(check_furiten(self.player, winning_tile), False)
+        self.assertEqual(check_own_discard_furiten(self.player), False)
 
 
 class TestAnkan(unittest.TestCase):

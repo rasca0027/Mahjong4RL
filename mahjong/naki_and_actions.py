@@ -21,7 +21,7 @@ def check_ron(player: Player, discarded_tile: Tile):
     """
     ron = False
     if discarded_tile in check_tenpai(player):
-        if not check_furiten(player, discarded_tile):
+        if not check_own_discard_furiten(player):
             if check_yaku(player):
                 ron = True
 
@@ -56,21 +56,35 @@ def check_yaku(player: Player):
     return True
 
 
-def check_furiten(player: Player, winning_tile: Tile) -> bool:
-    """Helper function to check if a winning hand is furiten
-    The hand in tenpai is furiten if any of that player's winning tiles
-    are present in one's own discard pile which includes Naki, or another
-    player's discard pile during a turn or after its own riichi.
+def check_own_discard_furiten(player: Player) -> bool:
+    """Helper function to check if the hand in tenpai is furiten
+    If any of that player's winning tiles are present in one's own discard
+    pile which includes Naki
 
     Args:
         player (Player): Current player, 手牌 副露 棄牌
-        winning_tile (Tile): potential winning tile
 
     Returns:
         bool: True for Furiten, False otherwise.
     """
-    # TODO: incomplete, need to check Naki? or after riichi?
-    return winning_tile in player.kawa
+    return any(tile in player.kawa for tile in check_tenpai(player))
+
+
+def temporary_furiten():
+    """Any player in tenpai has the option to ignore a winning tile.
+    By declining a call for ron, the player then becomes temporarily furiten
+    until their next discard.
+
+    """
+    ...
+
+
+def permanent_furiten():
+    """When a player has declared riichi, the state of temporary furiten does
+    not expire.
+
+    """
+    ...
 
 
 def check_ankan(player: Player, new_tile: Tile) -> List[Tile]:
