@@ -19,20 +19,25 @@ def check_ron(player, new_tile):
     ref:
       https://colab.research.google.com/drive/1ih1hU_EDRQ8z-NI0KJ7lVeORxJa7HmNf?usp=sharing
     """
-    ...
+    possible_sets = check_tenpai(player)
+    if new_tile in possible_sets:
+        if not check_furiten(player, new_tile):
+            if check_yaku(player, new_tile) > 0 : #include riichi in check_yaku?
+                return True 
+    return False
 
 
-def check_tsumo(player, new_tile):
-    test
-    pass
-
+def check_tsumo(player: Player, new_tile: Tile) -> List[Tile]:
+    return new_tile in check_tenpai(player)
 
 def check_yaku():
     pass
 
 
-def check_furiten():
-    pass
+def check_furiten(player: Player, new_tile: Tile) -> List[Tile]:
+    # 1. use turn input instead of player input ?
+    # 2. add new player attribute and method to identify furiten state ?
+    return new_tile in player.kawa #only check normal furiten. do not consider Kyoku furiten 同巡振聽 Riichi furiten 立直振聽 
 
 
 def check_ankan(player: Player, new_tile: Tile) -> List[Tile]:
