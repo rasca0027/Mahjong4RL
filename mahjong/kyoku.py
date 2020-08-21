@@ -14,6 +14,7 @@ class Turn:
     the wall and makes a discard, unless the hand is a winning hand with
     the declaration of tsumo. see flowchart in README
     """
+    ...
 
 
 class Kyoku:
