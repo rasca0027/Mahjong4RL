@@ -5,7 +5,7 @@ from mahjong.player import Player, Position
 from mahjong.naki_and_actions import (
     check_ron, check_tsumo, check_own_discard_furiten,
     check_ankan, check_chakan, check_daminkan, check_pon, check_chii,
-    check_tenpai, check_riichi)
+    check_tenpai, check_riichi, check_ron, check_tsumo)
 
 
 class TestRon(unittest.TestCase):
@@ -66,7 +66,7 @@ class TestTsumo(unittest.TestCase):
         self.assertEqual(check_tsumo(self.player, discard_1), True)
         self.assertEqual(check_tsumo(self.player, discard_2), True)
 
-    def test_no_ron(self):
+    def test_no_tsumo(self):
         discard_1 = Tile(Suit.MANZU.value, 4)
         self.assertEqual(check_tsumo(self.player, discard_1), False)
 

@@ -5,7 +5,6 @@ from .components import Tile, Suit, Naki
 from .player import Player
 
 
-
 def check_ron(player: Player, discarded_tile: Tile):
     """Helper function to check if discarded tile can form a winning hand
     The hand must have a valid yaku and it's not furiten 振聴
