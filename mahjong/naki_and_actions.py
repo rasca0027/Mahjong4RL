@@ -5,13 +5,14 @@ from .components import Tile, Suit, Naki
 from .player import Player
 
 
-def check_ron(player: Player, new_tile: Tile) -> bool:
-    """Helper function to check if new tile is a winning hand
+
+def check_ron(player: Player, discarded_tile: Tile):
+    """Helper function to check if discarded tile can form a winning hand
     The hand must have a valid yaku and it's not furiten 振聴
 
     Args:
         player (Player): Current player, 手牌 副露 棄牌
-        new_tile (Tile object): The potential winning hand
+        discarded_tile (Tile object): The potential winning hand
 
     Returns:
         bool: True for Ron, False otherwise.
@@ -19,28 +20,70 @@ def check_ron(player: Player, new_tile: Tile) -> bool:
     ref:
       https://colab.research.google.com/drive/1ih1hU_EDRQ8z-NI0KJ7lVeORxJa7HmNf?usp=sharing
     """
-    possible_sets = check_tenpai(player)
-    if new_tile in possible_sets:
-        if not check_furiten(player, new_tile):
-            if check_yaku(player, new_tile) > 0 : 
-                #include riichi in check_yaku?
-                return True 
+    if discarded_tile in check_tenpai(player):
+        if not check_own_discard_furiten(player):
+            if check_yaku(player):
+                return True
+
     return False
 
 
-def check_tsumo(player: Player, new_tile: Tile) -> bool:
-    return new_tile in check_tenpai(player)
+def check_tsumo(player: Player, new_tile: Tile):
+    """Helper function to check if new tile can form a winning hand
+    The hand must have a valid yaku
 
-def check_yaku():
-    pass
+    Args:
+        player (Player): Current player, 手牌 副露 棄牌
+        new_tile (Tile object): The potential winning hand
+
+    Returns:
+        bool: True for Ron, False otherwise.
+    """
+    if new_tile in check_tenpai(player):
+        return check_yaku(player)
+    else:
+        return False
 
 
-def check_furiten(player: Player, new_tile: Tile) -> bool:
-    # only check normal furiten. do not consider Kyoku furiten 同巡振聽 
-    # Riichi furiten 立直振聽 
-    # 1. use turn input instead of player input ?
-    # 2. add new player attribute and method to identify furiten state ?
-    return new_tile in player.kawa
+def check_yaku(player: Player):
+    """Helper function to check if a winning hand had more than 1 yaku
+    Args:
+        player (Player): Current player, 手牌 副露 棄牌
+
+    Returns:
+        bool: True for Yaku >= 1, False otherwise.
+    """
+    return True
+
+
+def check_own_discard_furiten(player: Player) -> bool:
+    """Helper function to check if the hand in tenpai is furiten
+    If any of that player's winning tiles are present in one's own discard
+    pile which includes Naki
+
+    Args:
+        player (Player): Current player, 手牌 副露 棄牌
+
+    Returns:
+        bool: True for Furiten, False otherwise.
+    """
+    return any(tile in player.kawa for tile in check_tenpai(player))
+
+
+def temporary_furiten():
+    """Any player in tenpai has the option to ignore a winning tile.
+    By declining a call for ron, the player then becomes temporarily furiten
+    until their next discard.
+
+    """
+    ...
+
+
+def permanent_furiten():
+    """When a player has declared riichi, the state of temporary furiten does
+    not expire.
+    """
+    ...
 
 
 def check_ankan(player: Player, new_tile: Tile) -> List[Tile]:
