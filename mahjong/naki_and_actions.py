@@ -5,6 +5,7 @@ from .components import Tile, Suit, Naki
 from .player import Player
 
 
+
 def check_ron(player: Player, discarded_tile: Tile):
     """Helper function to check if discarded tile can form a winning hand
     The hand must have a valid yaku and it's not furiten 振聴
@@ -19,13 +20,12 @@ def check_ron(player: Player, discarded_tile: Tile):
     ref:
       https://colab.research.google.com/drive/1ih1hU_EDRQ8z-NI0KJ7lVeORxJa7HmNf?usp=sharing
     """
-    ron = False
     if discarded_tile in check_tenpai(player):
         if not check_own_discard_furiten(player):
             if check_yaku(player):
-                ron = True
+                return True
 
-    return ron
+    return False
 
 
 def check_tsumo(player: Player, new_tile: Tile):
@@ -82,7 +82,6 @@ def temporary_furiten():
 def permanent_furiten():
     """When a player has declared riichi, the state of temporary furiten does
     not expire.
-
     """
     ...
 
