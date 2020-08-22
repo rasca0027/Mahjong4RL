@@ -4,10 +4,6 @@ from collections import defaultdict
 
 from .utils import get_values, get_name
 from .components import Huro, Tile, Action
-from .naki_and_actions import (
-    check_pon, check_daminkan, check_riichi, check_ron,
-    check_chakan, check_ankan,
-)
 
 
 @unique
@@ -28,6 +24,7 @@ class Player:
         self.kabe: List[Huro] = []  # 副露/鳴き
         self.kawa: List[Tile] = []  # 河 is formed by the discarded tiles.
         self.tmp_huro: Huro = None
+        # TODO: Build Player's connection (socket)?
 
     def __str__(self):
         return (
@@ -35,19 +32,24 @@ class Player:
             f"{ get_name(Position, self.seating_position) }"
         )
 
+    def add_kawa(self, tile: Tile) -> None:
+        if tile:
+            self.kawa.append(tile)
+        return
+
     @property
-    def seating_position(self):
+    def seating_position(self) -> int:
         return self._seating_position
 
     @seating_position.setter
-    def seating_position(self, value: Position):
+    def seating_position(self, value: Position) -> None:
         if not 0 <= value < 4:
             raise ValueError(
                 f"Seating Position should be in: "
                 f"{ get_values(Position) }")
         self._seating_position = value
 
-    def action_with_discard_tile(self, tile: Tile, pos: int):
+    def action_with_discard_tile(self, tile: Tile, pos: int) -> None:
         """"Player has to select an action reacting to
           the discarded tile.
         Args:
@@ -57,23 +59,15 @@ class Player:
           action: CHI/PON/DAMINKAN/RON
         """
         self.tmp_huro = None
-        # Check the tile with different situation
-        # Check Ron -> receive player's action?
-        # Check Daminkan
-        # Check Pon
-        # Check Chi
-        # Ron: directly put the tile into hand
+        # TODO: connect player's input with the action
         return
 
-    def action_with_new_tile(self, tile: Tile):
+    def action_with_new_tile(self, tile: Tile) -> None:
         self.tmp_huro = None
-        # Check Tsumo
-        # Check Riichi
-        # Check Ankan
-        # Check Chakan
+        # TODO: connect player's input with the action
         return
 
-    def action_with_naki(self, action: Action):
+    def action_with_naki(self, action: Action) -> None:
         # add tmp_huro to kabe
         self.kabe.append(self.tmp_huro)
         self.tmp_huro = None

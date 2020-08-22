@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 from .player import Player
 from .components import Stack, Tile, Action
@@ -22,34 +22,70 @@ class Turn:
         self.players = players
         self.stack = stack
 
-    def discard_flow(self, discard_tile: Tile, discard_pos: int):
+    def discard_flow(
+        self, discard_tile: Tile, discard_pos: int
+    ) -> Tuple[int, Tile]:
+        """ An event flow starting with a discard tile. It contains two flows,
+        Naki and Draw.
+        Args:
+          discard_tile: the tile discarded in previous turn
+          discard_pos: the seating position of the player discarded the tile
+        Return:
+          state: -1 -> 流局
+                  0 -> 繼續
+                  pos -> player at pos 胡牌
+          discard_tile: the discarded tile in this turn
+                if Ron/Tsumo/流局 -> None
+        """
         call_naki, player_pos, action = self.ensemble_actions(
             discard_tile, discard_pos)
         if call_naki:
-            state, discarded_tile = self.naki_flow(action)
+            state, discard_tile = self.naki_flow(action)
         else:
-            state, discarded_tile = self.draw_flow(
+            state, discard_tile = self.draw_flow(
                 self.players[next_player(discard_pos)])
-        return state, discarded_tile
+        return state, discard_tile
 
-    def naki_flow(self, player: Player, action: Action):
-        # different naki: CHII, PON, DAMINKAN, RON
-        is_end = False
+    def naki_flow(
+        self, player: Player, action: Action
+    ) -> Tuple[int, Tile]:
+        """An event flow deals with Naki process
+        Args:
+          player: The player that calls naki
+          action: The naki action from that player
+        Return:
+          state: -1 -> 流局
+                  0 -> 繼續
+                  pos -> player at pos 胡牌
+          discard_tile: the discarded tile in this turn
+                if Ron/Tsumo/流局 -> None
+        """
+        state = 0
         if action == Action.RON:
-            return True, None
+            return player.seating_position, None
 
         player.action_with_naki(action)
         if action == Action.DAMINKAN:
             if not self.stack.can_add_dora_indicator():
-                return True, None
+                return -1, None
             self.stack.add_dora_indicator()
-            is_end, discard_tile = self.draw_flow(player, from_rinshan=True)
+            state, discard_tile = self.draw_flow(player, from_rinshan=True)
         else:
             discard_tile = player.discard_after_naki()
-        return is_end, discard_tile
+        player.add_kawa(discard_tile)
+        return state, discard_tile
 
-    def ensemble_actions(self, discard_tile: Tile, discard_pos: int):
-        # actions from each player
+    def ensemble_actions(
+        self, discard_tile: Tile, discard_pos: int
+    ) -> Tuple[bool, int, Action]:
+        """This function ensembles the action from each player and return
+        the highest priority action.
+        Return:
+          is_naki: True if there's a naki action from player else False
+          pos: the position of the player with highest priority on naki action
+          action: the naki action from the player
+        """
+        # TODO: Make sure the naki action script like this works :P
         naki_actions = [
             (i, zip(**self.players[i].action_with_discard_tile(
                 discard_tile, discard_pos)))
@@ -62,21 +98,35 @@ class Turn:
             is_naki = True
         return is_naki, pos, action
 
-    def draw_flow(self, player, from_rinshan: bool = False):
-        # Give the player a new Tile and action with that
+    def draw_flow(
+        self, player, from_rinshan: bool = False
+    ) -> Tuple[int, Tile]:
+        """ An event flow that triggers a player to draw a tile and ends with
+        that player discarding a tile.
+        Args:
+          player: the player to draw a tile
+          from_rinshan: indicates this draw is from rinshan or not
+        Return:
+          state: -1 -> 流局
+                  0 -> 繼續
+                  pos -> player at pos 胡牌
+          discard_tile: the discarded tile in this turn
+                if Ron/Tsumo/流局 -> None
+        """
         new_tile = self.stack.draw(from_rinshan)
         action, discard_tile = player.action_with_new_tile(new_tile)
-        is_end = False
+        state = 0
         if 3 <= action.value <= 5:
             if not self.stack.can_add_dora_indicator():
                 return True, None
             self.stack.add_dora_indicator()
-            is_end, discard_tile = self.draw_flow(player, from_rinshan=True)
+            state, discard_tile = self.draw_flow(player, from_rinshan=True)
         elif action == Action.TSUMO or action == Action.RON:
-            is_end = True
+            state = player.seating_position
         else:
             pass
-        return is_end, discard_tile
+        player.add_kawa(discard_tile)
+        return state, discard_tile
 
 
 class Kyoku:
