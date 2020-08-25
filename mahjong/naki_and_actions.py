@@ -3,6 +3,7 @@ from typing import List, DefaultDict
 
 from .components import Tile, Suit, Naki
 from .player import Player
+from .kyoku import Kyoku
 
 
 def check_ron(player: Player, discarded_tile: Tile):
@@ -20,7 +21,7 @@ def check_ron(player: Player, discarded_tile: Tile):
       https://colab.research.google.com/drive/1ih1hU_EDRQ8z-NI0KJ7lVeORxJa7HmNf?usp=sharing
     """
     if discarded_tile in check_tenpai(player):
-        if not check_own_discard_furiten(player):
+        if not check_furiten(player):
             if check_yaku(player):
                 return True
 
@@ -55,6 +56,14 @@ def check_yaku(player: Player):
     return True
 
 
+def check_furiten(player: Player, discarder: Player, kyoku: Kyoku) -> bool:
+    """Check if the player is in any of the three kinds of furiten
+    """
+    return (check_own_discard_furiten(player) or
+            temporary_furiten(player, discarder, kyoku) or
+            permanent_furiten(player))
+
+
 def check_own_discard_furiten(player: Player) -> bool:
     """Helper function to check if the hand in tenpai is furiten
     If any of that player's winning tiles are present in one's own discard
@@ -69,13 +78,21 @@ def check_own_discard_furiten(player: Player) -> bool:
     return any(tile in player.kawa for tile in check_tenpai(player))
 
 
-def temporary_furiten():
+def temporary_furiten(player: Player, discarder: Player, kyoku: Kyoku) -> bool:
     """Any player in tenpai has the option to ignore a winning tile.
     By declining a call for ron, the player then becomes temporarily furiten
     until their next discard.
-
     """
-    ...
+    if discarder.seating_position == player.get_shimocha():
+        return False
+    if discarder.seating_position == player.get_toimen():
+        return player.get_shimocha().kawa[-1] in check_tenpai(player)
+    if discarder.seating_position == player.get_komicha():
+        tiles = [
+            kyoku.players[player.get_toimen()].kawa[-1],
+            kyoku.players[player.get_shimocha()].kawa[-1]
+        ]
+        return all(t not in check_tenpai(player) for t in tiles)
 
 
 def permanent_furiten():

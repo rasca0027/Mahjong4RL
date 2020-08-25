@@ -49,6 +49,15 @@ class Player:
                 f"{ get_values(Position) }")
         self._seating_position = value
 
+    def get_komicha(self) -> int:
+        return (self.seating_position - 1) % 4
+
+    def get_toimen(self) -> int:
+        return (self.seating_position + 2) % 4
+
+    def get_shimocha(self) -> int:
+        return (self.seating_position + 1) % 4
+
     def action_with_discard_tile(self, tile: Tile, pos: int) -> None:
         """"Player has to select an action reacting to
           the discarded tile.
