@@ -3,6 +3,7 @@ from typing import List, Tuple
 from .player import Player
 from .components import Stack, Tile, Action
 from .utils import next_player
+from .naki_and_actions import check_tenpai
 
 
 class Turn:
@@ -91,6 +92,13 @@ class Turn:
                 discard_tile, discard_pos)))
             for i in range(4) if i != discard_pos
         ]
+        # set temporary and permanent furiten
+        for i, action in naki_actions:
+            if action == Action.NOACT:
+                if discard_tile in check_tenpai(self.players[i]):
+                    self.players[i].temp_furiten = True
+                    if self.players[i].is_riichi:
+                        self.players[i].permanent_furiten = True
         pos, action = max(naki_actions, key=lambda x: x[1].value)
         if action == Action.NOACT:
             is_naki = False
@@ -114,6 +122,7 @@ class Turn:
                 if Ron/Tsumo/流局 -> None
         """
         new_tile = self.stack.draw(from_rinshan)
+        player.tmp_furiten = False
         action, discard_tile = player.action_with_new_tile(new_tile)
         state = 0
         if 3 <= action.value <= 5:

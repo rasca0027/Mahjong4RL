@@ -24,6 +24,8 @@ class Player:
         self.kabe: List[Huro] = []  # 副露/鳴き
         self.kawa: List[Tile] = []  # 河 is formed by the discarded tiles.
         self.tmp_huro: Huro = None
+        self.tmp_furiten: bool = False
+        self.permanent_furiten: bool = False
         # TODO: Build Player's connection (socket)?
 
     def __str__(self):

@@ -60,8 +60,7 @@ def check_furiten(player: Player, discarder: Player, kyoku: Kyoku) -> bool:
     """Check if the player is in any of the three kinds of furiten
     """
     return (check_own_discard_furiten(player) or
-            temporary_furiten(player, discarder, kyoku) or
-            permanent_furiten(player))
+            player.tmp_furiten or player.permanent_furiten)
 
 
 def check_own_discard_furiten(player: Player) -> bool:
@@ -76,30 +75,6 @@ def check_own_discard_furiten(player: Player) -> bool:
         bool: True for Furiten, False otherwise.
     """
     return any(tile in player.kawa for tile in check_tenpai(player))
-
-
-def temporary_furiten(player: Player, discarder: Player, kyoku: Kyoku) -> bool:
-    """Any player in tenpai has the option to ignore a winning tile.
-    By declining a call for ron, the player then becomes temporarily furiten
-    until their next discard.
-    """
-    if discarder.seating_position == player.get_shimocha():
-        return False
-    if discarder.seating_position == player.get_toimen():
-        return player.get_shimocha().kawa[-1] in check_tenpai(player)
-    if discarder.seating_position == player.get_komicha():
-        tiles = [
-            kyoku.players[player.get_toimen()].kawa[-1],
-            kyoku.players[player.get_shimocha()].kawa[-1]
-        ]
-        return all(t not in check_tenpai(player) for t in tiles)
-
-
-def permanent_furiten():
-    """When a player has declared riichi, the state of temporary furiten does
-    not expire.
-    """
-    ...
 
 
 def check_ankan(player: Player, new_tile: Tile) -> List[Tile]:
