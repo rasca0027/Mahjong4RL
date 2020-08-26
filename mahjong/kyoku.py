@@ -96,7 +96,7 @@ class Turn:
         for i, action in naki_actions:
             if action == Action.NOACT:
                 if discard_tile in check_tenpai(self.players[i]):
-                    self.players[i].temp_furiten = True
+                    self.players[i].tmp_furiten = True
                     if self.players[i].is_riichi:
                         self.players[i].permanent_furiten = True
         pos, action = max(naki_actions, key=lambda x: x[1].value)
