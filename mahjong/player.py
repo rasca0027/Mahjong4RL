@@ -8,10 +8,10 @@ from .components import Huro, Tile, Action
 
 @unique
 class Position(Enum):
-    TON = 0
-    NAN = 1
-    SHAA = 2
-    PEI = 3
+    TON = 1
+    NAN = 2
+    SHAA = 3
+    PEI = 4
 
 
 class Player:
@@ -43,7 +43,7 @@ class Player:
 
     @seating_position.setter
     def seating_position(self, value: Position) -> None:
-        if not 0 <= value < 4:
+        if not 1 <= value < 5:
             raise ValueError(
                 f"Seating Position should be in: "
                 f"{ get_values(Position) }")

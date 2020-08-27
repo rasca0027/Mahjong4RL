@@ -89,7 +89,7 @@ class Turn:
         naki_actions = [
             (i, zip(**self.players[i].action_with_discard_tile(
                 discard_tile, discard_pos)))
-            for i in range(4) if i != discard_pos
+            for i in range(1, 5) if i != discard_pos
         ]
         pos, action = max(naki_actions, key=lambda x: x[1].value)
         if action == Action.NOACT:
