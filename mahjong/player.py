@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from .utils import get_values, get_name
 from .components import Huro, Tile, Action
-from .naki_and_actions import check_tenpai
+# from .naki_and_actions import check_tenpai
 
 
 @unique
@@ -76,10 +76,12 @@ class Player:
         action = None  # temporary, otherwise linter doesn't let me through
         # set temporary and permanent furiten
         if action == Action.NOACT:
-            if tile in check_tenpai(self.hand, self.kabe):
-                self.tmp_furiten = True
-                if self.is_riichi:
-                    self.permanent_furiten = True
+            ...
+            # TODO: fix the circular import
+            # if tile in check_tenpai(self.hand, self.kabe):
+            #     self.tmp_furiten = True
+            #     if self.is_riichi:
+            #         self.permanent_furiten = True
         return action
 
     def action_with_new_tile(self, tile: Tile) -> None:

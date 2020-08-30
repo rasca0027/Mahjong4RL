@@ -3,7 +3,6 @@ from typing import List, DefaultDict
 
 from .components import Tile, Suit, Naki, Huro
 from .player import Player
-from .kyoku import Kyoku
 
 
 def check_ron(player: Player, discarded_tile: Tile):
@@ -20,7 +19,7 @@ def check_ron(player: Player, discarded_tile: Tile):
     ref:
       https://colab.research.google.com/drive/1ih1hU_EDRQ8z-NI0KJ7lVeORxJa7HmNf?usp=sharing
     """
-    if discarded_tile in check_tenpai(player):
+    if discarded_tile in check_tenpai(player.hand, player.kabe):
         if not check_furiten(player):
             if check_yaku(player):
                 return True
@@ -39,13 +38,13 @@ def check_tsumo(player: Player, new_tile: Tile):
     Returns:
         bool: True for Ron, False otherwise.
     """
-    if new_tile in check_tenpai(player):
-        return check_yaku(player)
+    if new_tile in check_tenpai(player.hand, player.kabe):
+        return check_yaku(player.hand)
     else:
         return False
 
 
-def check_yaku(hand: DefaultDict[int]):
+def check_yaku(hand: DefaultDict[int, int]):
     """Helper function to check if a winning hand had more than 1 yaku
     Args:
         player (Player): Current player, 手牌 副露 棄牌
@@ -56,11 +55,12 @@ def check_yaku(hand: DefaultDict[int]):
     return True
 
 
-def check_furiten(player: Player, discarder: Player, kyoku: Kyoku) -> bool:
+def check_furiten(player: Player) -> bool:
     """Check if the player is in any of the three kinds of furiten
     """
-    return (check_own_discard_furiten(player) or
-            player.tmp_furiten or player.permanent_furiten)
+    return (check_own_discard_furiten(player)
+            or player.tmp_furiten
+            or player.permanent_furiten)
 
 
 def check_own_discard_furiten(player: Player) -> bool:
@@ -74,11 +74,11 @@ def check_own_discard_furiten(player: Player) -> bool:
     Returns:
         bool: True for Furiten, False otherwise.
     """
-    return any(tile in player.kawa for tile in check_tenpai(
-        player.hand, player.kabe))
+    return any(tile in player.kawa for
+               tile in check_tenpai(player.hand, player.kabe))
 
 
-def check_ankan(hand: DefaultDict[int], new_tile: Tile) -> List[Tile]:
+def check_ankan(hand: DefaultDict[int, int], new_tile: Tile) -> List[Tile]:
     """Helper function to check if new hand tile
       can form a tile grouping of four identical tiles
       with current hand / 暗槓
@@ -102,9 +102,8 @@ def check_ankan(hand: DefaultDict[int], new_tile: Tile) -> List[Tile]:
     return sorted(possible_list)
 
 
-def check_chakan(
-        hand: DefaultDict[int], kabe: List[Huro], new_tile: Tile
-        ) -> List[Tile]:
+def check_chakan(hand: DefaultDict[int, int], kabe: List[Huro], new_tile: Tile
+                 ) -> List[Tile]:
     """Helper function to check if new tile can form
       a tile grouping of four identical tiles with current
       Huros / 加槓
@@ -130,7 +129,7 @@ def check_chakan(
     return sorted(possible_list)
 
 
-def check_daminkan(hand: DefaultDict[int], discarded_tile: Tile) -> bool:
+def check_daminkan(hand: DefaultDict[int, int], discarded_tile: Tile) -> bool:
     """Helper function to check if discarded tile can
        form a tile grouping of four identical tiles with
        current hand
@@ -146,7 +145,7 @@ def check_daminkan(hand: DefaultDict[int], discarded_tile: Tile) -> bool:
     return hand[discarded_tile.index] == 3
 
 
-def check_pon(hand: DefaultDict[int], discarded_tile: Tile) -> bool:
+def check_pon(hand: DefaultDict[int, int], discarded_tile: Tile) -> bool:
     """Helper function to check if new tile can form a tile grouping of three
        identical tiles with current hand
 
@@ -160,7 +159,7 @@ def check_pon(hand: DefaultDict[int], discarded_tile: Tile) -> bool:
     return hand[discarded_tile.index] >= 2
 
 
-def check_chii(hand: DefaultDict[int], new_tile: Tile) -> List[List[Tile]]:
+def check_chii(hand: DefaultDict[int, int], new_tile: Tile) -> List[List[Tile]]:
     """Helper function to check if new tile can form a tile grouping of three
        sequential tiles with current hand
     上家（Kamicha）棄牌才能call
