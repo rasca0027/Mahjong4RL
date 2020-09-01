@@ -37,3 +37,37 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.assertEqual(self.discard_tile, Tile(0, 1))
         self.assertEqual(self.player_1.kawa[0], Tile(0, 1))
         self.assertEqual(len(self.tile_stack.dora), 2)
+
+    def test_chakan(self):
+        self.player_1.action_with_new_tile = MagicMock()
+        self.player_1.action_with_new_tile.side_effect = [
+            (Action.CHAKAN, None), (Action.NOACT, Tile(0, 1))]
+        self.state, self.discard_tile = self.turn.draw_flow(self.player_1)
+        self.assertEqual(self.state, 0)
+        self.assertEqual(self.discard_tile, Tile(0, 1))
+        self.assertEqual(self.player_1.kawa[0], Tile(0, 1))
+        self.assertEqual(len(self.tile_stack.dora), 2)
+
+    def test_ankan_twice(self):
+        self.player_1.action_with_new_tile = MagicMock()
+        self.player_1.action_with_new_tile.side_effect = [
+            (Action.ANKAN, None),
+            (Action.ANKAN, None),
+            (Action.NOACT, Tile(0, 1))]
+        self.state, self.discard_tile = self.turn.draw_flow(self.player_1)
+        self.assertEqual(self.state, 0)
+        self.assertEqual(self.discard_tile, Tile(0, 1))
+        self.assertEqual(self.player_1.kawa[0], Tile(0, 1))
+        self.assertEqual(len(self.tile_stack.dora), 3)
+
+    def test_suukaikan(self):
+        # is declared when four quads are formed by different players.
+        for _ in range(3):
+            self.tile_stack.add_dora_indicator()
+        self.player_1.action_with_new_tile = MagicMock()
+        self.player_1.action_with_new_tile.side_effect = [
+            (Action.ANKAN, None), (Action.NOACT, Tile(0, 1))]
+        self.state, self.discard_tile = self.turn.draw_flow(self.player_1)
+        self.assertEqual(self.state, -1)
+        self.assertEqual(self.discard_tile, None)
+        self.assertEqual(len(self.tile_stack.dora), 4)
