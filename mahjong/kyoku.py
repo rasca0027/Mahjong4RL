@@ -116,14 +116,15 @@ class Turn:
         new_tile = self.stack.draw(from_rinshan)
         action, discard_tile = player.action_with_new_tile(new_tile)
         state = 0
-        if 3 <= action.value <= 5:
+        if action == Action.CHAKAN or action == Action.ANKAN:
             if not self.stack.can_add_dora_indicator():
-                return True, None
+                return -1, None
             self.stack.add_dora_indicator()
             state, discard_tile = self.draw_flow(player, from_rinshan=True)
-        elif action == Action.TSUMO or action == Action.RON:
+        elif action == Action.TSUMO:
             state = player.seating_position
         else:
+            # TODO: invalid action, raise error?
             pass
         player.add_kawa(discard_tile)
         return state, discard_tile

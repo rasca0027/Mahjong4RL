@@ -1,5 +1,5 @@
 from enum import Enum, unique
-from typing import List, DefaultDict
+from typing import Tuple, List, DefaultDict
 from collections import defaultdict
 
 from .utils import get_values, get_name
@@ -62,9 +62,16 @@ class Player:
         # TODO: connect player's input with the action
         return
 
-    def action_with_new_tile(self, tile: Tile) -> None:
+    def action_with_new_tile(self, tile: Tile) -> Tuple[Action, Tile]:
+        """"Player has to select an action reacting to the new drawn tile.
+        Args:
+          tile: discarded tile
+        Returns:
+          action: TSUMO/ANKAN/CHAKAN
+          discard_tile: Tile
+        """
         self.tmp_huro = None
-        # TODO: connect player's input with the action
+        # TODO: check TSUMO/ANKAN/CHAKAN, else pick discard tile
         return
 
     def action_with_naki(self, action: Action) -> None:

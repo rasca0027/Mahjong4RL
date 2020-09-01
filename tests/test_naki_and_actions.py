@@ -5,7 +5,7 @@ from mahjong.player import Player, Position
 from mahjong.naki_and_actions import (
     check_ron, check_tsumo, check_own_discard_furiten,
     check_ankan, check_chakan, check_daminkan, check_pon, check_chii,
-    check_tenpai, check_riichi, check_ron, check_tsumo)
+    check_tenpai, check_riichi)
 
 
 class TestRon(unittest.TestCase):
