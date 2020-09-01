@@ -159,7 +159,8 @@ def check_pon(hand: DefaultDict[int, int], discarded_tile: Tile) -> bool:
     return hand[discarded_tile.index] >= 2
 
 
-def check_chii(hand: DefaultDict[int, int], new_tile: Tile) -> List[List[Tile]]:
+def check_chii(hand: DefaultDict[int, int],
+               new_tile: Tile) -> List[List[Tile]]:
     """Helper function to check if new tile can form a tile grouping of three
        sequential tiles with current hand
     上家（Kamicha）棄牌才能call
