@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from .player import Player
+from .player import Player, Position
 from .components import Stack, Tile, Action
 from .utils import next_player
 
@@ -133,14 +133,34 @@ class Kyoku:
     """A portion of the game, starting from the dealing of tiles
     and ends with the declaration of a win, aborted hand, or draw.
     """
-    def __init__(self, players: List[Player]):
+    def __init__(self, players: List[Player], oya_position: Position):
         self.winner = None
         self.players = players
         # initiate tile stack
         self.tile_stack = Stack()
+        self.oya_position = oya_position
 
-        # deal tiles to each player to produce their starting hands
-        pass
+    # dealing tiles to each player to produce their starting hands
+    def dealing_tiles(self):
+        for player in self.players:
+            tile_count = 13
+            for _ in range(tile_count):
+                tile = self.tile_stack.draw()
+                player.add_tile_to_hand(tile)
 
-    # The game begins with the dealer's initial discard.
-    # while self.winner, repeat Turn
+    # The game begins with the oya's initial drawing.
+    def start(self):
+        self.dealing_tiles()
+        self.tile_stack.add_dora_indicator()
+
+        # if self.players is sorted by the position
+        oya = self.players[self.oya_position-1]
+        turn = Turn(self.players, self.tile_stack)
+        state, discard_tile = turn.draw_flow(oya)
+        if state > 0:  # Tenhou
+            self.winner = state
+        while not self.winner:
+            state, discard_tile = turn.discard_flow(discard_tile)
+            if state != 0:
+                self.winner = state
+        return self.winner
