@@ -1,11 +1,12 @@
 import copy
-from typing import List, DefaultDict
+from typing import List, DefaultDict, TYPE_CHECKING
 
 from .components import Tile, Suit, Naki, Huro
-from .player import Player
+if TYPE_CHECKING:
+    from .player import Player
 
 
-def check_ron(player: Player, discarded_tile: Tile):
+def check_ron(player: 'Player', discarded_tile: Tile):
     """Helper function to check if discarded tile can form a winning hand
     The hand must have a valid yaku and it's not furiten 振聴
 
@@ -27,7 +28,7 @@ def check_ron(player: Player, discarded_tile: Tile):
     return False
 
 
-def check_tsumo(player: Player, new_tile: Tile):
+def check_tsumo(player: 'Player', new_tile: Tile):
     """Helper function to check if new tile can form a winning hand
     The hand must have a valid yaku
 
@@ -55,7 +56,7 @@ def check_yaku(hand: DefaultDict[int, int]):
     return True
 
 
-def check_furiten(player: Player) -> bool:
+def check_furiten(player: 'Player') -> bool:
     """Check if the player is in any of the three kinds of furiten
     """
     return (check_own_discard_furiten(player)
@@ -63,7 +64,7 @@ def check_furiten(player: Player) -> bool:
             or player.permanent_furiten)
 
 
-def check_own_discard_furiten(player: Player) -> bool:
+def check_own_discard_furiten(player: 'Player') -> bool:
     """Helper function to check if the hand in tenpai is furiten
     If any of that player's winning tiles are present in one's own discard
     pile which includes Naki
