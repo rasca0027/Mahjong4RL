@@ -49,7 +49,7 @@ class Player:
                 f"{ get_values(Position) }")
         self._seating_position = value
 
-    def action_with_discard_tile(self, tile: Tile, pos: int) -> None:
+    def action_with_discard_tile(self, tile: Tile, pos: int) -> Action:
         """"Player has to select an action reacting to
           the discarded tile.
         Args:
