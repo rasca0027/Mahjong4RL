@@ -2,7 +2,6 @@ from typing import List, Tuple
 
 from .player import Player
 from .components import Stack, Tile, Action
-from .utils import next_player
 
 
 class Turn:
@@ -40,8 +39,9 @@ class Turn:
         """
         player_pos, action = self.ensemble_actions(discard_tile, discard_pos)
         if action == Action.NOACT:
+            discarder = self.players[discard_pos]
             state, discard_tile = self.draw_flow(
-                self.players[next_player(discard_pos)])
+                self.players[discarder.get_shimocha()])
         else:
             state, discard_tile = self.naki_flow(action)
 
@@ -117,6 +117,7 @@ class Turn:
                 if Ron/Tsumo/流局 -> None
         """
         new_tile = self.stack.draw(from_rinshan)
+        player.tmp_furiten = False
         action, discard_tile = player.action_with_new_tile(new_tile)
         state = 0
         if action == Action.CHAKAN or action == Action.ANKAN:
