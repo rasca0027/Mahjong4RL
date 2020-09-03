@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from .player import Player
+from .player import Player, Position
 from .components import Stack, Tile, Action
 from .utils import next_player
 
@@ -40,7 +40,7 @@ class Turn:
         call_naki, player_pos, action = self.ensemble_actions(
             discard_tile, discard_pos)
         if call_naki:
-            state, discard_tile = self.naki_flow(action)
+            state, discard_tile = self.naki_flow(self.players[player_pos], action)
         else:
             state, discard_tile = self.draw_flow(
                 self.players[next_player(discard_pos)])
@@ -133,14 +133,59 @@ class Kyoku:
     """A portion of the game, starting from the dealing of tiles
     and ends with the declaration of a win, aborted hand, or draw.
     """
-    def __init__(self, players: List[Player]):
+    def __init__(self, players: List[Player], honba: int = 0) -> None:
         self.winner = None
         self.players = players
-        # initiate tile stack
+        self.oya_player = self.get_oya_player()
+        self.oya_honba = honba
         self.tile_stack = Stack()
-
-        # deal tiles to each player to produce their starting hands
         pass
 
-    # The game begins with the dealer's initial discard.
-    # while self.winner, repeat Turn
+    def deal(self) -> None:
+        for player in self.players:
+            player.hand([self.tile_stack.draw() for _ in range(13)])
+        return
+
+    def start(self):
+        # initialize players' hand
+        self.deal()
+
+        # 莊家 oya draw flow
+        turn = Turn(self.players, self.tile_stack)
+        state, discard_tile, discard_pos = turn.draw_flow(self.oya_player)
+
+        while state == 0:
+            state, distard_tile, discard_pos = turn.discard_flow(
+                discard_tile, discard_pos)
+
+        next_oya = self.oya_player.get_shimocha()
+        if state == -1:
+            # TODO: deal with Ryuukyoku
+            # nagashi mangan 流局滿貫
+            # if check_nagashi():
+            # return self.oya_player, 1
+            # Ryuukyoku 流局
+            # else:
+            return self.oya_player.get_shimocha()
+        else:
+            # TODO: Check Yaku and calculate the amount.
+            return next_player
+            # TODO: setup next oya
+
+        return next_oya
+
+    def get_oya_player(self):
+        for player in self.players:
+            if player.seating_position == Position.TON:
+                return player
+        return self.players[0]
+
+
+class Game:
+    def __init__(self):
+
+        return
+
+
+if __name__ == "__main__":
+    Game()
