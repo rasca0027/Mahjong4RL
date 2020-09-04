@@ -59,6 +59,7 @@ def check_yaku(hand: DefaultDict[int, int]):
 def check_furiten(player: 'Player') -> bool:
     """Check if the player is in any of the three kinds of furiten
     """
+    # TODO: add test when finish tmp_furiten and permanent_furiten
     return (check_own_discard_furiten(player)
             or player.tmp_furiten
             or player.permanent_furiten)
