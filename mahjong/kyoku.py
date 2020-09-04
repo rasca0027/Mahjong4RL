@@ -119,9 +119,9 @@ class Turn:
         action, discard_tile = player.action_with_new_tile(new_tile)
         state = 0
         if action == Action.CHAKAN or action == Action.ANKAN:
+            player.action_with_naki(action)
             if self.check_suukaikan(player.kabe):
                 return -1, None
-            player.action_with_naki(action)
             state, discard_tile = self.draw_flow(player, from_rinshan=True)
         elif action == Action.TSUMO:
             state = player.seating_position
@@ -134,7 +134,7 @@ class Turn:
     def check_suukaikan(self, kabe: List[Huro]) -> int:
         if not self.stack.can_add_dora_indicator():
             if len([huro for huro in kabe if huro.naki_type == Naki.KAN]) != 4:
-                # Suukaikan
+                # Suukaikan: four KAN are called by different player
                 return True
             # else
             # Suukantsu: If all four quads are called by one player, play
