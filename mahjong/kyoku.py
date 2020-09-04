@@ -70,11 +70,13 @@ class Turn:
         if action == Action.DAMINKAN:
             if self.check_suukaikan(player.kabe):
                 return -1, None
-            self.stack.add_dora_indicator()
             state, discard_tile = self.draw_flow(player, from_rinshan=True)
-        else:
+        elif action in (Action.CHII, Action.PON):
             # TODO: add test when finish discard_after_naki()
             discard_tile = player.discard_after_naki()
+        else:
+            # TODO: invalid action, raise error
+            pass
         player.add_kawa(discard_tile)
         return state, discard_tile
 
@@ -119,26 +121,27 @@ class Turn:
         if action == Action.CHAKAN or action == Action.ANKAN:
             if self.check_suukaikan(player.kabe):
                 return -1, None
-            self.stack.add_dora_indicator()
-            # TODO: rinshan kaihou (TSUMO after KAN)
+            player.action_with_naki(action)
             state, discard_tile = self.draw_flow(player, from_rinshan=True)
         elif action == Action.TSUMO:
             state = player.seating_position
         else:
-            # TODO: invalid action, raise error?
+            # TODO: invalid action, raise error
             pass
         player.add_kawa(discard_tile)
         return state, discard_tile
 
     def check_suukaikan(self, kabe: List[Huro]) -> int:
         if not self.stack.can_add_dora_indicator():
-            if len([huro for huro in kabe if huro.naki_type == Naki.KAN]) == 4:
-                # Suukantsu: If all four quads are called by one player, play
-                # continues to give the player the opportunity to win
-                return False
-            else:
+            if len([huro for huro in kabe if huro.naki_type == Naki.KAN]) != 4:
                 # Suukaikan
                 return True
+            # else
+            # Suukantsu: If all four quads are called by one player, play
+            # continues to give the player the opportunity to win
+        else:
+            self.stack.add_dora_indicator()
+            return False
 
 
 class Kyoku:
