@@ -17,10 +17,13 @@ class Turn:
     def __init__(
         self, players: List[Player],
         stack: Stack,
+        atamahane=True
     ) -> None:
         # TODO: make sure players are sorted by seating position
         self.players = players
         self.stack = stack
+        self.atamahane = atamahane
+        self.winner = None
 
     def discard_flow(
         self, discard_tile: Tile, discard_pos: int
@@ -45,6 +48,8 @@ class Turn:
         else:
             state, discard_tile = self.naki_flow(action)
 
+        if state > 0:
+            self.winner = [state]
         return state, discard_tile
 
     def naki_flow(
@@ -98,6 +103,10 @@ class Turn:
             for i in range(1, 5) if i != discard_pos
         ]
         pos, action = max(naki_actions, key=lambda x: x[1].value)
+        if action == Action.RON and not self.atamahane:
+            ron_players = [i[0] for i in naki_actions if i[1] == Action.RON]
+            if len(ron_players) > 1:
+                self.winner = ron_players
 
         return pos, action
 
@@ -134,7 +143,12 @@ class Turn:
         else:
             # TODO: invalid action, raise error?
             pass
-        player.add_kawa(discard_tile)
+
+        if state > 0:
+            self.winner = [state]
+        else:
+            player.add_kawa(discard_tile)
+
         return state, discard_tile
 
 
@@ -142,11 +156,14 @@ class Kyoku:
     """A portion of the game, starting from the dealing of tiles
     and ends with the declaration of a win, aborted hand, or draw.
     """
-    def __init__(self, players: List[Player]):
+    def __init__(self, players: List[Player], atamahane=True):
         self.winner = None
         self.players = players
         # initiate tile stack
         self.tile_stack = Stack()
+        # Atamahane 「頭跳ね」 is more known as the "head bump" rule.
+        # http://arcturus.su/wiki/Atamahane
+        self.atamahane = atamahane
 
         # deal tiles to each player to produce their starting hands
         pass
