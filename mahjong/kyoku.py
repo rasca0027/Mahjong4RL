@@ -40,7 +40,8 @@ class Turn:
         call_naki, player_pos, action = self.ensemble_actions(
             discard_tile, discard_pos)
         if call_naki:
-            state, discard_tile = self.naki_flow(self.players[player_pos], action)
+            state, discard_tile = self.naki_flow(
+                self.players[player_pos], action)
         else:
             state, discard_tile = self.draw_flow(
                 self.players[next_player(discard_pos)])
@@ -131,15 +132,37 @@ class Turn:
 
 class Kyoku:
     """A portion of the game, starting from the dealing of tiles
-    and ends with the declaration of a win, aborted hand, or draw.
+    and ends with the declaration of a win, Ryuukyoku, or draw.
     """
-    def __init__(self, players: List[Player], honba: int = 0) -> None:
+    def __init__(
+        self, players: List[Player],
+        honba: int = 0, bakaze: Position = Position.TON
+    ) -> None:
         self.winner = None
         self.players = players
-        self.oya_player = self.get_oya_player()
-        self.oya_honba = honba
+        # Assume the player is sorted as TON NAN SHII PEI
+        self.oya_player = players[0]
+        self.honba = honba
+        self.bakaze = bakaze
         self.tile_stack = Stack()
         pass
+
+    @property
+    def honba(self):
+        return self._honba
+
+    @honba.setter
+    def honba(self, honba: int):
+        self._honba = honba
+
+    @property
+    def bakaze(self):
+        return self._bakaze
+
+    @bakaze.setter
+    def bakaze(self, position: Position):
+        self._bakaze = position
+        return
 
     def deal(self) -> None:
         for player in self.players:
@@ -147,18 +170,21 @@ class Kyoku:
         return
 
     def start(self):
+        """
+        Return:
+          state: -1 as Ryuukyoku, others as winning player
+        """
         # initialize players' hand
         self.deal()
 
         # 莊家 oya draw flow
         turn = Turn(self.players, self.tile_stack)
         state, discard_tile, discard_pos = turn.draw_flow(self.oya_player)
-
+        # Tenhoo
         while state == 0:
             state, distard_tile, discard_pos = turn.discard_flow(
                 discard_tile, discard_pos)
 
-        next_oya = self.oya_player.get_shimocha()
         if state == -1:
             # TODO: deal with Ryuukyoku
             # nagashi mangan 流局滿貫
@@ -171,21 +197,10 @@ class Kyoku:
             # TODO: Check Yaku and calculate the amount.
             return next_player
             # TODO: setup next oya
-
-        return next_oya
-
-    def get_oya_player(self):
-        for player in self.players:
-            if player.seating_position == Position.TON:
-                return player
-        return self.players[0]
+        return state
 
 
 class Game:
     def __init__(self):
 
         return
-
-
-if __name__ == "__main__":
-    Game()
