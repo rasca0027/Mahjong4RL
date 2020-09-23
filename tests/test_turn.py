@@ -83,33 +83,21 @@ class TestTurnDrawFlow(unittest.TestCase):
     def test_suukantsu(self):
         for _ in range(3):
             self.tile_stack.add_dora_indicator()
-        kan_1 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5),
-                                Tile(Suit.SOUZU.value, 5),
-                                Tile(Suit.SOUZU.value, 5),
-                                Tile(Suit.SOUZU.value, 5)])
-        kan_2 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 6),
-                                Tile(Suit.SOUZU.value, 6),
-                                Tile(Suit.SOUZU.value, 6),
-                                Tile(Suit.SOUZU.value, 6)])
-        kan_3 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7),
-                                Tile(Suit.SOUZU.value, 7),
-                                Tile(Suit.SOUZU.value, 7),
-                                Tile(Suit.SOUZU.value, 7)])
-        kan_4 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7),
-                                Tile(Suit.SOUZU.value, 7),
-                                Tile(Suit.SOUZU.value, 7),
-                                Tile(Suit.SOUZU.value, 7)])
+        kan_1 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
+        kan_2 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 6)] * 4)
+        kan_3 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7)] * 4)
+        kan_4 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7)] * 4)
         self.player_1.kabe.append(kan_1)
         self.player_1.kabe.append(kan_2)
         self.player_1.kabe.append(kan_3)
         self.player_1.action_with_new_tile = MagicMock()
         self.player_1.action_with_new_tile.side_effect = [
             (Action.ANKAN, None), (Action.NOACT, Tile(0, 1))]
-        self.player_1.action_with_naki = MagicMock(
-            self.player_1.kabe.append(kan_4)
-        )
-        print(len([huro for huro in self.player_1.kabe if huro.naki_type == Naki.KAN]))
+        self.player_1.action_with_naki = MagicMock()
 
+        def m(_):
+            self.player_1.kabe.append(kan_4)
+        self.player_1.action_with_naki.side_effect = m
         state, discard_tile = self.turn.draw_flow(self.player_1)
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
