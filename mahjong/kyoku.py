@@ -139,6 +139,7 @@ class Turn:
             # else
             # Suukantsu: If all four quads are called by one player, play
             # continues to give the player the opportunity to win
+            return False
         else:
             self.stack.add_dora_indicator()
             return False

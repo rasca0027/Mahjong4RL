@@ -103,6 +103,23 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.assertEqual(discard_tile, Tile(0, 1))
         self.assertEqual(len(self.tile_stack.dora), 4)
 
+    def test_suukaikan_2(self):
+        for _ in range(3):
+            self.tile_stack.add_dora_indicator()
+        kan = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
+        kabe = [kan]
+        self.assertEqual(self.turn.check_suukaikan(kabe), True)
+
+    def test_suukantsu_2(self):
+        for _ in range(3):
+            self.tile_stack.add_dora_indicator()
+        kan_1 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
+        kan_2 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 6)] * 4)
+        kan_3 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7)] * 4)
+        kan_4 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7)] * 4)
+        kabe = [kan_1, kan_2, kan_3, kan_4]
+        self.assertEqual(self.turn.check_suukaikan(kabe), False)
+
     def test_rinshan_kaihou(self):
         self.player_1.action_with_new_tile = MagicMock()
         self.player_1.action_with_new_tile.side_effect = [
