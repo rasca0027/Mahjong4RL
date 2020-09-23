@@ -2,7 +2,6 @@ from typing import List, Tuple
 
 from .player import Player, Position
 from .components import Stack, Tile, Action
-from .utils import next_player
 
 
 class Turn:
@@ -18,9 +17,13 @@ class Turn:
     def __init__(
         self, players: List[Player],
         stack: Stack,
+        atamahane=True
     ) -> None:
+        # TODO: make sure players are sorted by seating position
         self.players = players
         self.stack = stack
+        self.atamahane = atamahane
+        self.winner = None
 
     def discard_flow(
         self, discard_tile: Tile, discard_pos: int
@@ -37,14 +40,17 @@ class Turn:
           discard_tile: the discarded tile in this turn
                 if Ron/Tsumo/流局 -> None
         """
-        call_naki, player_pos, action = self.ensemble_actions(
-            discard_tile, discard_pos)
-        if call_naki:
-            state, discard_tile = self.naki_flow(
-                self.players[player_pos], action)
-        else:
+
+        player_pos, action = self.ensemble_actions(discard_tile, discard_pos)
+        if action == Action.NOACT:
+            discarder = self.players[discard_pos]
             state, discard_tile = self.draw_flow(
-                self.players[next_player(discard_pos)])
+                self.players[discarder.get_shimocha()])
+        else:
+            state, discard_tile = self.naki_flow(action)
+
+        if state > 0:
+            self.winner = [state]
         return state, discard_tile
 
     def naki_flow(
@@ -65,13 +71,19 @@ class Turn:
         if action == Action.RON:
             return player.seating_position, None
 
+        # TODO: add test when finish action_with_naki()
         player.action_with_naki(action)
         if action == Action.DAMINKAN:
             if not self.stack.can_add_dora_indicator():
+                # TODO: If all four quads are called by one player, play
+                # continues to give the player the opportunity to score the
+                # yakuman, suukantsu.
+                # This part should be consolidate with KAN logic in draw_flow()
                 return -1, None
             self.stack.add_dora_indicator()
             state, discard_tile = self.draw_flow(player, from_rinshan=True)
         else:
+            # TODO: add test when finish discard_after_naki()
             discard_tile = player.discard_after_naki()
         player.add_kawa(discard_tile)
         return state, discard_tile
@@ -86,18 +98,18 @@ class Turn:
           pos: the position of the player with highest priority on naki action
           action: the naki action from the player
         """
-        # TODO: Make sure the naki action script like this works :P
         naki_actions = [
-            (i, zip(**self.players[i].action_with_discard_tile(
-                discard_tile, discard_pos)))
+            (i, self.players[i - 1].action_with_discard_tile(
+                discard_tile, discard_pos))
             for i in range(1, 5) if i != discard_pos
         ]
         pos, action = max(naki_actions, key=lambda x: x[1].value)
-        if action == Action.NOACT:
-            is_naki = False
-        else:
-            is_naki = True
-        return is_naki, pos, action
+        if action == Action.RON and not self.atamahane:
+            ron_players = [i[0] for i in naki_actions if i[1] == Action.RON]
+            if len(ron_players) > 1:
+                self.winner = ron_players
+
+        return pos, action
 
     def draw_flow(
         self, player, from_rinshan: bool = False
@@ -115,18 +127,29 @@ class Turn:
                 if Ron/Tsumo/流局 -> None
         """
         new_tile = self.stack.draw(from_rinshan)
+        player.tmp_furiten = False
         action, discard_tile = player.action_with_new_tile(new_tile)
         state = 0
-        if 3 <= action.value <= 5:
+        if action == Action.CHAKAN or action == Action.ANKAN:
             if not self.stack.can_add_dora_indicator():
-                return True, None
+                # TODO: If all four quads are called by one player, play
+                # continues to give the player the opportunity to score the
+                # yakuman, suukantsu.
+                return -1, None
             self.stack.add_dora_indicator()
+            # TODO: rinshan kaihou (TSUMO after KAN)
             state, discard_tile = self.draw_flow(player, from_rinshan=True)
-        elif action == Action.TSUMO or action == Action.RON:
+        elif action == Action.TSUMO:
             state = player.seating_position
         else:
+            # TODO: invalid action, raise error?
             pass
-        player.add_kawa(discard_tile)
+
+        if state > 0:
+            self.winner = [state]
+        else:
+            player.add_kawa(discard_tile)
+
         return state, discard_tile
 
 
@@ -134,10 +157,8 @@ class Kyoku:
     """A portion of the game, starting from the dealing of tiles
     and ends with the declaration of a win, Ryuukyoku, or draw.
     """
-    def __init__(
-        self, players: List[Player],
-        honba: int = 0, bakaze: Position = Position.TON
-    ) -> None:
+
+    def __init__(self, players: List[Player], atamahane=True):
         self.winner = None
         self.players = players
         # Assume the player is sorted as TON NAN SHII PEI
@@ -145,6 +166,13 @@ class Kyoku:
         self.honba = honba
         self.bakaze = bakaze
         self.tile_stack = Stack()
+
+        # Atamahane 「頭跳ね」 is more known as the "head bump" rule.
+        # http://arcturus.su/wiki/Atamahane
+        self.atamahane = atamahane
+
+        # deal tiles to each player to produce their starting hands
+
         pass
 
     @property

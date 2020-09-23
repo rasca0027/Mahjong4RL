@@ -1,9 +1,10 @@
 from enum import Enum, unique
-from typing import List, DefaultDict
+from typing import Tuple, List, DefaultDict
 from collections import defaultdict
 
 from .utils import get_values, get_name
 from .components import Huro, Tile, Action
+from .naki_and_actions import check_tenpai
 
 
 @unique
@@ -24,6 +25,8 @@ class Player:
         self.kabe: List[Huro] = []  # 副露/鳴き
         self.kawa: List[Tile] = []  # 河 is formed by the discarded tiles.
         self.tmp_huro: Huro = None
+        self.tmp_furiten: bool = False
+        self.permanent_furiten: bool = False
         # TODO: Build Player's connection (socket)?
 
     def __str__(self):
@@ -59,7 +62,16 @@ class Player:
                 f"{ get_values(Position) }")
         self._seating_position = value
 
-    def action_with_discard_tile(self, tile: Tile, pos: int) -> None:
+    def get_komicha(self) -> int:
+        return (self.seating_position - 1) % 4
+
+    def get_toimen(self) -> int:
+        return (self.seating_position + 2) % 4
+
+    def get_shimocha(self) -> int:
+        return (self.seating_position + 1) % 4
+
+    def action_with_discard_tile(self, tile: Tile, pos: int) -> Action:
         """"Player has to select an action reacting to
           the discarded tile.
         Args:
@@ -70,12 +82,26 @@ class Player:
         """
         self.tmp_huro = None
         # TODO: connect player's input with the action
-        # possible_actions = get_possible_acts(hands, tile)
-        return
 
-    def action_with_new_tile(self, tile: Tile) -> None:
+        action = None  # temporary, otherwise linter doesn't let me through
+        # set temporary and permanent furiten
+        if action == Action.NOACT:
+            if tile in check_tenpai(self.hand, self.kabe):
+                self.tmp_furiten = True
+                if self.is_riichi:
+                    self.permanent_furiten = True
+        return action
+
+    def action_with_new_tile(self, tile: Tile) -> Tuple[Action, Tile]:
+        """"Player has to select an action reacting to the new drawn tile.
+        Args:
+          tile: discarded tile
+        Returns:
+          action: TSUMO/ANKAN/CHAKAN
+          discard_tile: Tile
+        """
         self.tmp_huro = None
-        # TODO: connect player's input with the action
+        # TODO: check TSUMO/ANKAN/CHAKAN, else pick discard tile
         return
 
     def action_with_naki(self, action: Action) -> None:
