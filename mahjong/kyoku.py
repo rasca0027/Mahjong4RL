@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from .player import Player
+from .player import Player, Position
 from .components import Stack, Tile, Action
 
 
@@ -40,6 +40,7 @@ class Turn:
           discard_tile: the discarded tile in this turn
                 if Ron/Tsumo/流局 -> None
         """
+
         player_pos, action = self.ensemble_actions(discard_tile, discard_pos)
         if action == Action.NOACT:
             discarder = self.players[discard_pos]
@@ -154,19 +155,80 @@ class Turn:
 
 class Kyoku:
     """A portion of the game, starting from the dealing of tiles
-    and ends with the declaration of a win, aborted hand, or draw.
+    and ends with the declaration of a win, Ryuukyoku, or draw.
     """
+
     def __init__(self, players: List[Player], atamahane=True):
         self.winner = None
         self.players = players
-        # initiate tile stack
+        # Assume the player is sorted as TON NAN SHII PEI
+        self.oya_player = players[0]
+        self.honba = honba
+        self.bakaze = bakaze
         self.tile_stack = Stack()
+
         # Atamahane 「頭跳ね」 is more known as the "head bump" rule.
         # http://arcturus.su/wiki/Atamahane
         self.atamahane = atamahane
 
         # deal tiles to each player to produce their starting hands
+
         pass
 
-    # The game begins with the dealer's initial discard.
-    # while self.winner, repeat Turn
+    @property
+    def honba(self):
+        return self._honba
+
+    @honba.setter
+    def honba(self, honba: int):
+        self._honba = honba
+
+    @property
+    def bakaze(self):
+        return self._bakaze
+
+    @bakaze.setter
+    def bakaze(self, position: Position):
+        self._bakaze = position
+        return
+
+    def deal(self) -> None:
+        for player in self.players:
+            player.hand([self.tile_stack.draw() for _ in range(13)])
+        return
+
+    def start(self):
+        """
+        Return:
+          state: -1 as Ryuukyoku, others as winning player
+        """
+        # initialize players' hand
+        self.deal()
+
+        # 莊家 oya draw flow
+        turn = Turn(self.players, self.tile_stack)
+        state, discard_tile, discard_pos = turn.draw_flow(self.oya_player)
+        # Tenhoo
+        while state == 0:
+            state, distard_tile, discard_pos = turn.discard_flow(
+                discard_tile, discard_pos)
+
+        if state == -1:
+            # TODO: deal with Ryuukyoku
+            # nagashi mangan 流局滿貫
+            # if check_nagashi():
+            # return self.oya_player, 1
+            # Ryuukyoku 流局
+            # else:
+            return self.oya_player.get_shimocha()
+        else:
+            # TODO: Check Yaku and calculate the amount.
+            return next_player
+            # TODO: setup next oya
+        return state
+
+
+class Game:
+    def __init__(self):
+
+        return
