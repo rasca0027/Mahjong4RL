@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import MagicMock
 
 from mahjong.player import Player, Position
-from mahjong.components import Stack, Tile, Action
+from mahjong.components import Stack, Tile, Action, Suit, Naki, Huro
 from mahjong.kyoku import Turn
 
 
@@ -37,7 +37,7 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
         self.assertEqual(self.player_1.kawa[0], Tile(0, 1))
-        self.assertEqual(len(self.tile_stack.dora), 2)
+        self.assertEqual(len(self.tile_stack.doras), 2)
 
     def test_chakan(self):
         self.player_1.action_with_new_tile = MagicMock()
@@ -47,7 +47,7 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
         self.assertEqual(self.player_1.kawa[0], Tile(0, 1))
-        self.assertEqual(len(self.tile_stack.dora), 2)
+        self.assertEqual(len(self.tile_stack.doras), 2)
 
     def test_ankan_twice(self):
         self.player_1.action_with_new_tile = MagicMock()
@@ -59,22 +59,82 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
         self.assertEqual(self.player_1.kawa[0], Tile(0, 1))
-        self.assertEqual(len(self.tile_stack.dora), 3)
+        self.assertEqual(len(self.tile_stack.doras), 3)
 
-    def test_suukaikan(self):
+    def test_draw_flow_suukaikan(self):
         # is declared when four quads are formed by different players.
         for _ in range(3):
             self.tile_stack.add_dora_indicator()
+        kan = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5),
+                              Tile(Suit.SOUZU.value, 5),
+                              Tile(Suit.SOUZU.value, 5),
+                              Tile(Suit.SOUZU.value, 5)])
         self.player_1.action_with_new_tile = MagicMock()
         self.player_1.action_with_new_tile.side_effect = [
             (Action.ANKAN, None), (Action.NOACT, Tile(0, 1))]
+        self.player_1.action_with_naki = MagicMock(
+            self.player_1.kabe.append(kan)
+        )
         state, discard_tile = self.turn.draw_flow(self.player_1)
         self.assertEqual(state, -1)
         self.assertEqual(discard_tile, None)
-        self.assertEqual(len(self.tile_stack.dora), 4)
+        self.assertEqual(len(self.tile_stack.doras), 4)
+
+    def test_draw_flow_suukantsu(self):
+        for _ in range(3):
+            self.tile_stack.add_dora_indicator()
+        kan_1 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
+        kan_2 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 6)] * 4)
+        kan_3 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7)] * 4)
+        kan_4 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7)] * 4)
+        self.player_1.kabe.append(kan_1)
+        self.player_1.kabe.append(kan_2)
+        self.player_1.kabe.append(kan_3)
+        self.player_1.action_with_new_tile = MagicMock()
+        self.player_1.action_with_new_tile.side_effect = [
+            (Action.ANKAN, None), (Action.NOACT, Tile(0, 1))]
+        self.player_1.action_with_naki = MagicMock()
+
+        def m(_):
+            self.player_1.kabe.append(kan_4)
+        self.player_1.action_with_naki.side_effect = m
+        state, discard_tile = self.turn.draw_flow(self.player_1)
+        self.assertEqual(state, 0)
+        self.assertEqual(discard_tile, Tile(0, 1))
+        self.assertEqual(len(self.tile_stack.doras), 5)
+
+    def test_suukantsu_other_player(self):
+        for _ in range(4):
+            self.tile_stack.add_dora_indicator()
+        kan = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
+        kabe = [kan]
+        self.assertEqual(len(self.tile_stack.doras), 5)
+        self.assertEqual(self.turn.check_suukaikan(kabe), True)
+
+    def test_suukaikan(self):
+        for _ in range(3):
+            self.tile_stack.add_dora_indicator()
+        kan = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
+        kabe = [kan]
+        self.assertEqual(len(self.tile_stack.doras), 4)
+        self.assertEqual(self.turn.check_suukaikan(kabe), True)
 
     def test_suukantsu(self):
-        ...
+        for _ in range(3):
+            self.tile_stack.add_dora_indicator()
+        kan_1 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
+        kan_2 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 6)] * 4)
+        kan_3 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7)] * 4)
+        kan_4 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7)] * 4)
+        kabe = [kan_1, kan_2, kan_3, kan_4]
+        self.assertEqual(len(self.tile_stack.doras), 4)
+        self.assertEqual(self.turn.check_suukaikan(kabe), False)
+
+    def test_no_suukaikan(self):
+        self.tile_stack.add_dora_indicator()
+        kan = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
+        kabe = [kan]
+        self.assertEqual(self.turn.check_suukaikan(kabe), False)
 
     def test_rinshan_kaihou(self):
         self.player_1.action_with_new_tile = MagicMock()
@@ -223,7 +283,7 @@ class TestTurnNakiFlow(unittest.TestCase):
             self.player_1, Action.DAMINKAN)
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
-        self.assertEqual(len(self.tile_stack.dora), 2)
+        self.assertEqual(len(self.tile_stack.doras), 2)
         self.assertEqual(self.player_1.kawa[0], Tile(0, 1))
 
     def test_suukaikan(self):
@@ -235,10 +295,38 @@ class TestTurnNakiFlow(unittest.TestCase):
 
         self.assertEqual(state, -1)
         self.assertEqual(discard_tile, None)
-        self.assertEqual(len(self.tile_stack.dora), 4)
+        self.assertEqual(len(self.tile_stack.doras), 4)
 
-    def test_suukantsu(self):
-        ...
+    # def test_suukantsu(self):
+    #     for _ in range(3):
+    #         self.tile_stack.add_dora_indicator()
+    #     kan_1 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5),
+    #                             Tile(Suit.SOUZU.value, 5),
+    #                             Tile(Suit.SOUZU.value, 5),
+    #                             Tile(Suit.SOUZU.value, 5)])
+    #     kan_2 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 6),
+    #                             Tile(Suit.SOUZU.value, 6),
+    #                             Tile(Suit.SOUZU.value, 6),
+    #                             Tile(Suit.SOUZU.value, 6)])
+    #     kan_3 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7),
+    #                             Tile(Suit.SOUZU.value, 7),
+    #                             Tile(Suit.SOUZU.value, 7),
+    #                             Tile(Suit.SOUZU.value, 7)])
+    #     kan_4 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7),
+    #                             Tile(Suit.SOUZU.value, 7),
+    #                             Tile(Suit.SOUZU.value, 7),
+    #                             Tile(Suit.SOUZU.value, 7)])
+    #     self.player_1.kabe.append(kan_1)
+    #     self.player_1.kabe.append(kan_2)
+    #     self.player_1.kabe.append(kan_3)
+    #     self.player_1.action_with_naki = MagicMock(
+    #         self.player_1.kabe.append(kan_4))
+    #     self.turn.draw_flow = MagicMock(return_value=(0, Tile(0, 1)))
+    #     state, discard_tile = self.turn.naki_flow(
+    #         self.player_1, Action.DAMINKAN)
+    #     self.assertEqual(state, 0)
+    #     self.assertEqual(discard_tile, Tile(0, 1))
+    #     self.assertEqual(len(self.tile_stack.dora), 4)
 
     def test_chii(self):
         self.player_1.action_with_naki = MagicMock(return_value=None)

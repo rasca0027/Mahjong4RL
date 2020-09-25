@@ -1,7 +1,8 @@
 from typing import List, Tuple
 
+
 from .player import Player, Position
-from .components import Stack, Tile, Action
+from .components import Stack, Tile, Action, Huro, Naki
 
 
 class Turn:
@@ -74,17 +75,15 @@ class Turn:
         # TODO: add test when finish action_with_naki()
         player.action_with_naki(action)
         if action == Action.DAMINKAN:
-            if not self.stack.can_add_dora_indicator():
-                # TODO: If all four quads are called by one player, play
-                # continues to give the player the opportunity to score the
-                # yakuman, suukantsu.
-                # This part should be consolidate with KAN logic in draw_flow()
+            if self.check_suukaikan(player.kabe):
                 return -1, None
-            self.stack.add_dora_indicator()
             state, discard_tile = self.draw_flow(player, from_rinshan=True)
-        else:
+        elif action in (Action.CHII, Action.PON):
             # TODO: add test when finish discard_after_naki()
             discard_tile = player.discard_after_naki()
+        else:
+            # TODO: invalid action, raise error
+            pass
         player.add_kawa(discard_tile)
         return state, discard_tile
 
@@ -131,18 +130,14 @@ class Turn:
         action, discard_tile = player.action_with_new_tile(new_tile)
         state = 0
         if action == Action.CHAKAN or action == Action.ANKAN:
-            if not self.stack.can_add_dora_indicator():
-                # TODO: If all four quads are called by one player, play
-                # continues to give the player the opportunity to score the
-                # yakuman, suukantsu.
+            player.action_with_naki(action)
+            if self.check_suukaikan(player.kabe):
                 return -1, None
-            self.stack.add_dora_indicator()
-            # TODO: rinshan kaihou (TSUMO after KAN)
             state, discard_tile = self.draw_flow(player, from_rinshan=True)
         elif action == Action.TSUMO:
             state = player.seating_position
         else:
-            # TODO: invalid action, raise error?
+            # TODO: invalid action, raise error
             pass
 
         if state > 0:
@@ -151,6 +146,14 @@ class Turn:
             player.add_kawa(discard_tile)
 
         return state, discard_tile
+
+    def check_suukaikan(self, kabe: List[Huro]) -> bool:
+        if len(self.stack.doras) >= 4:  # 場上已經有三或四個槓子
+            if len([huro for huro in kabe if huro.naki_type == Naki.KAN]) != 4:
+                # Suukaikan: four KAN are called by different player
+                return True  # 流局
+        self.stack.add_dora_indicator()
+        return False
 
 
 class Kyoku:
