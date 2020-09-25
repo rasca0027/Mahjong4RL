@@ -21,7 +21,7 @@ class Player:
         self.seating_position = seating_position
         self.points: int = 25_000
         self.is_riichi: bool = False
-        self.hand: DefaultDict[int] = defaultdict(int)
+        # self.hand: DefaultDict[int] = defaultdict(int)
         self.kabe: List[Huro] = []  # 副露/鳴き
         self.kawa: List[Tile] = []  # 河 is formed by the discarded tiles.
         self.tmp_huro: Huro = None
@@ -39,6 +39,16 @@ class Player:
         if tile:
             self.kawa.append(tile)
         return
+
+    @property
+    def hand(self):
+        return self._hand
+
+    @hand.setter
+    def hand(self, tiles: List[Tile]) -> None:
+        self._hand = defaultdict(int)
+        for tile in tiles:
+            self._hand[tile.index] += 1
 
     @property
     def seating_position(self) -> int:
@@ -101,4 +111,19 @@ class Player:
         return
 
     def discard_after_naki(self) -> Tile:
+        return
+
+    def get_input(self):
+        # TODO: get input from player
+        # input()
+        # socket.request()
+        return
+
+    def validate_input(self):
+        # TODO: validate each input
+        input_ = input()
+        try:
+            int(input_)
+        except ValueError:
+            print("digit please :(")
         return

@@ -3,9 +3,9 @@ import unittest
 from mahjong.components import Tile, Suit, Jihai, Naki, Huro
 from mahjong.player import Player, Position
 from mahjong.naki_and_actions import (
-    check_ron, check_tsumo, check_own_discard_furiten,
+    check_ron, check_tsumo, check_furiten, check_own_discard_furiten,
     check_ankan, check_chakan, check_daminkan, check_pon, check_chii,
-    check_tenpai, check_riichi)
+    check_riichi, check_tenpai, check_remains_are_sets)
 
 
 class TestRon(unittest.TestCase):
@@ -96,9 +96,16 @@ class TestFuriten(unittest.TestCase):
 
     def test_furiten(self):
         self.player.kawa.append(Tile(Suit.JIHAI.value, Jihai.TON.value))
-        self.assertEqual(check_own_discard_furiten(self.player), True)
+        self.assertEqual(check_furiten(self.player), True)
 
     def test_no_furiten(self):
+        self.assertEqual(check_furiten(self.player), False)
+
+    def test_own_discard_furiten(self):
+        self.player.kawa.append(Tile(Suit.JIHAI.value, Jihai.TON.value))
+        self.assertEqual(check_own_discard_furiten(self.player), True)
+
+    def test_no_own_discard_furiten(self):
         self.assertEqual(check_own_discard_furiten(self.player), False)
 
 
@@ -424,3 +431,36 @@ class TestRiichi(unittest.TestCase):
 
         machi = check_tenpai(self.player.hand, self.player.kabe)
         self.assertEqual(check_riichi(self.player.kabe, machi), False)
+
+
+class TestRemainsAreSets(unittest.TestCase):
+
+    def setUp(self):
+        # tenpai: 3 MANZU 5 SOUZU
+        self.player_1 = Player('test_1', Position.TON.value)
+        self.player_1.hand[Tile(Suit.PINZU.value, 1).index] += 1
+        self.player_1.hand[Tile(Suit.PINZU.value, 2).index] += 1
+        self.player_1.hand[Tile(Suit.PINZU.value, 3).index] += 1
+        self.player_1.hand[Tile(Suit.PINZU.value, 4).index] += 1
+        self.player_1.hand[Tile(Suit.PINZU.value, 5).index] += 1
+        self.player_1.hand[Tile(Suit.PINZU.value, 6).index] += 1
+        self.player_1.hand[Tile(Suit.PINZU.value, 7).index] += 1
+        self.player_1.hand[Tile(Suit.PINZU.value, 8).index] += 1
+        self.player_1.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player_1.hand[Tile(Suit.MANZU.value, 3).index] += 2
+        self.player_1.hand[Tile(Suit.SOUZU.value, 5).index] += 2
+
+    def test_remains_are_sets(self):
+        self.player_1.hand[Tile(Suit.MANZU.value, 3).index] += 1
+        self.player_1.hand[Tile(Suit.SOUZU.value, 5).index] -= 2
+        remain_tiles = self.player_1.hand
+        huro_count = len(self.player_1.kabe)
+        self.assertEqual(
+            check_remains_are_sets(remain_tiles, huro_count), True)
+
+    def test_remains_are_not_sets(self):
+        self.player_1.hand[Tile(Suit.SOUZU.value, 5).index] -= 2
+        remain_tiles = self.player_1.hand
+        huro_count = len(self.player_1.kabe)
+        self.assertEqual(
+            check_remains_are_sets(remain_tiles, huro_count), False)

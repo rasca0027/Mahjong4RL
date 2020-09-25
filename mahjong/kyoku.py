@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
-from .player import Player
+
+from .player import Player, Position
 from .components import Stack, Tile, Action, Huro, Naki
 
 
@@ -17,10 +18,13 @@ class Turn:
     def __init__(
         self, players: List[Player],
         stack: Stack,
+        atamahane=True
     ) -> None:
         # TODO: make sure players are sorted by seating position
         self.players = players
         self.stack = stack
+        self.atamahane = atamahane
+        self.winner = None
 
     def discard_flow(
         self, discard_tile: Tile, discard_pos: int
@@ -37,6 +41,7 @@ class Turn:
           discard_tile: the discarded tile in this turn
                 if Ron/Tsumo/流局 -> None
         """
+
         player_pos, action = self.ensemble_actions(discard_tile, discard_pos)
         if action == Action.NOACT:
             discarder = self.players[discard_pos]
@@ -45,6 +50,8 @@ class Turn:
         else:
             state, discard_tile = self.naki_flow(action)
 
+        if state > 0:
+            self.winner = [state]
         return state, discard_tile
 
     def naki_flow(
@@ -96,6 +103,10 @@ class Turn:
             for i in range(1, 5) if i != discard_pos
         ]
         pos, action = max(naki_actions, key=lambda x: x[1].value)
+        if action == Action.RON and not self.atamahane:
+            ron_players = [i[0] for i in naki_actions if i[1] == Action.RON]
+            if len(ron_players) > 1:
+                self.winner = ron_players
 
         return pos, action
 
@@ -128,7 +139,12 @@ class Turn:
         else:
             # TODO: invalid action, raise error
             pass
-        player.add_kawa(discard_tile)
+
+        if state > 0:
+            self.winner = [state]
+        else:
+            player.add_kawa(discard_tile)
+
         return state, discard_tile
 
     def check_suukaikan(self, kabe: List[Huro]) -> bool:
@@ -142,16 +158,80 @@ class Turn:
 
 class Kyoku:
     """A portion of the game, starting from the dealing of tiles
-    and ends with the declaration of a win, aborted hand, or draw.
+    and ends with the declaration of a win, Ryuukyoku, or draw.
     """
-    def __init__(self, players: List[Player]):
+
+    def __init__(self, players: List[Player], atamahane=True):
         self.winner = None
         self.players = players
-        # initiate tile stack
+        # Assume the player is sorted as TON NAN SHII PEI
+        self.oya_player = players[0]
+        self.honba = honba
+        self.bakaze = bakaze
         self.tile_stack = Stack()
 
+        # Atamahane 「頭跳ね」 is more known as the "head bump" rule.
+        # http://arcturus.su/wiki/Atamahane
+        self.atamahane = atamahane
+
         # deal tiles to each player to produce their starting hands
+
         pass
 
-    # The game begins with the dealer's initial discard.
-    # while self.winner, repeat Turn
+    @property
+    def honba(self):
+        return self._honba
+
+    @honba.setter
+    def honba(self, honba: int):
+        self._honba = honba
+
+    @property
+    def bakaze(self):
+        return self._bakaze
+
+    @bakaze.setter
+    def bakaze(self, position: Position):
+        self._bakaze = position
+        return
+
+    def deal(self) -> None:
+        for player in self.players:
+            player.hand([self.tile_stack.draw() for _ in range(13)])
+        return
+
+    def start(self):
+        """
+        Return:
+          state: -1 as Ryuukyoku, others as winning player
+        """
+        # initialize players' hand
+        self.deal()
+
+        # 莊家 oya draw flow
+        turn = Turn(self.players, self.tile_stack)
+        state, discard_tile, discard_pos = turn.draw_flow(self.oya_player)
+        # Tenhoo
+        while state == 0:
+            state, distard_tile, discard_pos = turn.discard_flow(
+                discard_tile, discard_pos)
+
+        if state == -1:
+            # TODO: deal with Ryuukyoku
+            # nagashi mangan 流局滿貫
+            # if check_nagashi():
+            # return self.oya_player, 1
+            # Ryuukyoku 流局
+            # else:
+            return self.oya_player.get_shimocha()
+        else:
+            # TODO: Check Yaku and calculate the amount.
+            return next_player
+            # TODO: setup next oya
+        return state
+
+
+class Game:
+    def __init__(self):
+
+        return
