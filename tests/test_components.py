@@ -65,10 +65,9 @@ class TestStack(unittest.TestCase):
 
     def test_tiles_in_stack(self):
         self.assertEqual(len(self.test_stack.stack), 136)
-        self.assertEqual(len(self.test_stack.dora_indicator), 1)
-        self.assertEqual(len(self.test_stack.unadora_indicator), 1)
-        self.assertEqual(len(self.test_stack.dora), 1)
-        self.assertEqual(len(self.test_stack.unadora), 1)
+        self.assertEqual(len(self.test_stack.dora_indicators), 1)
+        self.assertEqual(len(self.test_stack.doras), 1)
+        self.assertEqual(len(self.test_stack.uradoras), 1)
         self.assertEqual(next(self.test_stack.playling_wall),
                          self.test_stack.stack[0])
         self.assertEqual(next(self.test_stack.rinshanpai),
@@ -76,14 +75,10 @@ class TestStack(unittest.TestCase):
 
     def test_add_dora(self):
         self.test_stack.add_dora_indicator()
-        self.assertEqual(len(self.test_stack.dora_indicator), 2)
-        self.assertEqual(len(self.test_stack.unadora_indicator), 2)
-        self.assertEqual(len(self.test_stack.dora), 2)
-        self.assertEqual(len(self.test_stack.unadora), 2)
-
-        self.assertEqual(self.test_stack.can_add_dora_indicator(), True)
-        self.test_stack.dora_index = -12
-        self.assertEqual(self.test_stack.can_add_dora_indicator(), False)
+        self.assertEqual(len(self.test_stack.dora_indicators), 2)
+        self.assertEqual(len(self.test_stack.uradora_indicators), 2)
+        self.assertEqual(len(self.test_stack.doras), 2)
+        self.assertEqual(len(self.test_stack.uradoras), 2)
 
     def test_compute_dora(self):
         dora_indicator1 = Tile(Suit.JIHAI.value, Jihai.HAKU.value)

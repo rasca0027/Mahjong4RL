@@ -131,18 +131,13 @@ class Turn:
         player.add_kawa(discard_tile)
         return state, discard_tile
 
-    def check_suukaikan(self, kabe: List[Huro]) -> int:
-        if not self.stack.can_add_dora_indicator():
+    def check_suukaikan(self, kabe: List[Huro]) -> bool:
+        if len(self.stack.doras) >= 4:  # 場上已經有三或四個槓子
             if len([huro for huro in kabe if huro.naki_type == Naki.KAN]) != 4:
                 # Suukaikan: four KAN are called by different player
-                return True
-            # else
-            # Suukantsu: If all four quads are called by one player, play
-            # continues to give the player the opportunity to win
-            return False
-        else:
-            self.stack.add_dora_indicator()
-            return False
+                return True  # 流局
+        self.stack.add_dora_indicator()
+        return False
 
 
 class Kyoku:

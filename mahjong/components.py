@@ -116,10 +116,10 @@ class Stack:
         self.stack = []
 
         self.dora_index = -5
-        self.dora_indicator = []
-        self.unadora_indicator = []
-        self.dora = []
-        self.unadora = []
+        self.dora_indicators = []
+        self.uradora_indicators = []
+        self.doras = []
+        self.uradoras = []
 
         self.initiate()
         self.playling_wall = iter(self.stack[:122])
@@ -141,38 +141,33 @@ class Stack:
         return next(self.playling_wall)
 
     def add_dora_indicator(self):
-        if self.can_add_dora_indicator():
+        if len(self.doras) < 5:
             next_dora_ind = self.stack[self.dora_index]
-            self.dora_indicator.append(next_dora_ind)
+            self.dora_indicators.append(next_dora_ind)
 
-            next_unadora_ind = self.stack[self.dora_index - 1]
-            self.unadora_indicator.append(next_unadora_ind)
+            next_uradora_ind = self.stack[self.dora_index - 1]
+            self.uradora_indicators.append(next_uradora_ind)
 
-            self.dora.append(self.compute_dora(next_dora_ind))
-            self.unadora.append(self.compute_dora(next_unadora_ind))
+            self.doras.append(self.compute_dora(next_dora_ind))
+            self.uradoras.append(self.compute_dora(next_uradora_ind))
             self.dora_index -= 2
         else:
             raise ValueError(
-                "Number of doras could only be less than 4"
+                "Number of doras could only be less than 5"
             )
         return
 
     def get_dora_indicator(self):
-        return self.dora_indicator
+        return self.dora_indicators
 
     def get_unadora_indicator(self):
-        return self.unadora_indicator
+        return self.uradora_indicators
 
     def get_dora(self):
-        return self.dora
+        return self.doras
 
     def get_unadora(self):
-        return self.unadora
-
-    def can_add_dora_indicator(self):
-        if self.dora_index < -11:
-            return False
-        return True
+        return self.uradoras
 
     @staticmethod
     def compute_dora(tile: Tile):
