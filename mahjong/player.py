@@ -20,7 +20,7 @@ class Player:
         self.name: str = name
         self.seating_position = seating_position  # 固定座位順序
         # jikaze 自風, dealer seat (東風) rotates among players
-        self.jikaze = get_name(SeatWind, seating_position)
+        self.jikaze = SeatWind.TON.value
         self.points: int = 25_000
         self.is_riichi: bool = False
         self.hand: DefaultDict[int] = defaultdict(int)
@@ -33,7 +33,7 @@ class Player:
 
     def __str__(self):
         return (
-            f"Player: { self.name }, Seating SeatWind: "
+            f"Player: { self.name }, Seating Position: "
             f"{ get_name(SeatWind, self.seating_position) }"
         )
 
@@ -49,6 +49,7 @@ class Player:
     @hand.setter
     def hand(self, tiles: List[Tile]) -> None:
         self._hand = defaultdict(int)
+        # TODO: raise error when len(hand) > 13
         for tile in tiles:
             self._hand[tile.index] += 1
 
@@ -64,14 +65,26 @@ class Player:
                 f"{ get_values(SeatWind) }")
         self._seating_position = value
 
+    @property
+    def jikaze(self) -> SeatWind:
+        return self._jikaze
+
+    @jikaze.setter
+    def jikaze(self, value) -> None:
+        if not 1 <= value < 5:
+            raise ValueError(
+                f"Seating position should be in: "
+                f"{ get_values(SeatWind) }")
+        self._jikaze = get_name(SeatWind, value)
+
     def get_komicha(self) -> int:
-        return (self.seating_position - 1) % 4
+        return (self.seating_position + 2) % 4 + 1
 
     def get_toimen(self) -> int:
-        return (self.seating_position + 2) % 4
+        return (self.seating_position + 1) % 4 + 1
 
     def get_shimocha(self) -> int:
-        return (self.seating_position + 1) % 4
+        return (self.seating_position % 4) + 1
 
     def action_with_discard_tile(self, tile: Tile, pos: int) -> Action:
         """"Player has to select an action reacting to
