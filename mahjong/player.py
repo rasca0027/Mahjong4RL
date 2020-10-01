@@ -8,7 +8,7 @@ from .naki_and_actions import check_tenpai
 
 
 @unique
-class Position(Enum):
+class SeatWind(Enum):
     TON = 1
     NAN = 2
     SHAA = 3
@@ -18,10 +18,12 @@ class Position(Enum):
 class Player:
     def __init__(self, name, seating_position):
         self.name: str = name
-        self.seating_position = seating_position
+        self.seating_position = seating_position  # 固定座位順序
+        # jikaze 自風, dealer seat (東風) rotates among players
+        self.jikaze = get_name(SeatWind, seating_position)
         self.points: int = 25_000
         self.is_riichi: bool = False
-        # self.hand: DefaultDict[int] = defaultdict(int)
+        self.hand: DefaultDict[int] = defaultdict(int)
         self.kabe: List[Huro] = []  # 副露/鳴き
         self.kawa: List[Tile] = []  # 河 is formed by the discarded tiles.
         self.tmp_huro: Huro = None
@@ -31,8 +33,8 @@ class Player:
 
     def __str__(self):
         return (
-            f"Player: { self.name }, Seating Position: "
-            f"{ get_name(Position, self.seating_position) }"
+            f"Player: { self.name }, Seating SeatWind: "
+            f"{ get_name(SeatWind, self.seating_position) }"
         )
 
     def add_kawa(self, tile: Tile) -> None:
@@ -55,11 +57,11 @@ class Player:
         return self._seating_position
 
     @seating_position.setter
-    def seating_position(self, value: Position) -> None:
+    def seating_position(self, value: SeatWind) -> None:
         if not 1 <= value < 5:
             raise ValueError(
-                f"Seating Position should be in: "
-                f"{ get_values(Position) }")
+                f"Seating position should be in: "
+                f"{ get_values(SeatWind) }")
         self._seating_position = value
 
     def get_komicha(self) -> int:
