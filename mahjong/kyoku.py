@@ -1,8 +1,8 @@
-from typing import List, Tuple
-
+from typing import List, Tuple, Optional
 
 from .player import Player, Position
 from .components import Stack, Tile, Action, Huro, Naki
+from .utils import roundup
 
 
 class Turn:
@@ -161,12 +161,13 @@ class Kyoku:
     and ends with the declaration of a win, Ryuukyoku, or draw.
     """
 
-    def __init__(self, players: List[Player], atamahane=True):
+    def __init__(self, players: List[Player], honba: int, atamahane: Optional[bool] = True):
         self.winner = None
         self.players = players
         # Assume the player is sorted as TON NAN SHII PEI
         self.oya_player = players[0]
         self.honba = honba
+        self.kyotaku = 0 # 供託
         self.bakaze = bakaze
         self.tile_stack = Stack()
 
@@ -223,12 +224,57 @@ class Kyoku:
             # return self.oya_player, 1
             # Ryuukyoku 流局
             # else:
-            return self.oya_player.get_shimocha()
+            # TODO: 檢查流局是否聽牌 
+            return next_oya, self.kyotaku, self.honba
         else:
             # TODO: Check Yaku and calculate the amount.
-            return next_player
-            # TODO: setup next oya
+            han, fu = calculate_yaku()
+            self.apply_points(han, fu, tsumo, loser)
+            # handle 連莊?
+            if self.winner == self.oya_player:
+                # return next oya, kyotaku, honba
+                return self.winner, 0, self.honba + 1 
+            return self.winner.get_shimocha, 0, 0
         return state
+    
+    def calculate_base_points(self, han: int, fu: int) -> int:
+        points = fu * 2**(han + 2)
+        if points > 2_000:
+            if han <= 5: # mangan
+                points = 2_000
+            elif han == 6 or han == 7:
+                points = 3_000
+            elif han >= 8 and han <= 10:
+                points = 4_000
+            elif han == 11 or han == 12:
+                points = 6_000
+            elif han >= 13:
+                points = 8_000 # 還要handle 雙倍役滿?
+        return points
+       
+    def apply_points(self, han: int, fu: int, tsumo: bool, loser: Optional[Player] = None):
+        pt = self.calculate_base_points(han, fu)
+        if self.winner == self.oya_player:
+            if tsumo:
+                self.winner.points += roundup(pt * 2) * 3 + 300 * self.honba
+                for i in range(1, 4):
+                    self.players[i].points -= roundup(pt * 2) + 100 * self.honba
+            else:
+                self.winner.points += roundup(pt * 6) + 300 * self.honba
+                loser.points -= roundup(pt * 6) + 300 * self.honba
+        else: # 子家
+            if tsumo:
+                self.winner.points += roundup(pt * 2) * 4 + 100 * self.honba
+                self.oya_player.points -= roundup(pt * 2) + 100 * self.honba
+                for i in range(1, 4):
+                    if self.players[i] != winner:
+                        self.players[i].points -= roundup(pt) + 100 * self.honba
+            else:
+                self.winner.points += roundup(pt * 4) + 300 * self.honba
+                loser.points -= roundup(pt * 4) + 300 * self.honba
+        if self.kyotaku > 0:
+            self.winner.points += self.kyotaku * 1_000
+        return
 
 
 class Game:
