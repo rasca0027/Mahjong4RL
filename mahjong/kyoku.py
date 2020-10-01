@@ -24,7 +24,7 @@ class Turn:
         self.players = players
         self.stack = stack
         self.atamahane = atamahane
-        self.winner = None
+        self.winner = []
 
     def discard_flow(
         self, discard_tile: Tile, discard_pos: int
@@ -162,7 +162,7 @@ class Kyoku:
     """
 
     def __init__(self, players: List[Player], atamahane=True):
-        self.winner = None
+        self.winner = []
         self.players = players
         # Assume the player is sorted as TON NAN SHII PEI
         self.oya_player = players[0]
@@ -225,6 +225,7 @@ class Kyoku:
             # else:
             return self.oya_player.get_shimocha()
         else:
+            # TODO: 三家和流局: if len(sef.winner) == 3
             # TODO: Check Yaku and calculate the amount.
             return next_player
             # TODO: setup next oya
