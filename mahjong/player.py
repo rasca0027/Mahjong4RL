@@ -113,6 +113,14 @@ class Player:
     def discard_after_naki(self) -> Tile:
         return
 
+    def action_with_chakan(self, kan_tile, kan_type) -> Tile:
+        """Player reacts with oya player's CHAKAN or ANKAN.
+        Returns:
+          action: NOACT or RON
+        """
+        # can react with RON (CHANKAN)
+        return Action.NOACT
+
     def get_input(self):
         # TODO: get input from player
         # input()
