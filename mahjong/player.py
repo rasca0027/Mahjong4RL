@@ -1,26 +1,17 @@
-from enum import Enum, unique
 from typing import Tuple, List, DefaultDict
 from collections import defaultdict
 
-from .utils import get_values, get_name
-from .components import Huro, Tile, Action
+from .utils import get_name
+from .components import Huro, Tile, Action, Jihai
 from .naki_and_actions import check_tenpai
-
-
-@unique
-class SeatWind(Enum):
-    TON = 1
-    NAN = 2
-    SHAA = 3
-    PEI = 4
 
 
 class Player:
     def __init__(self, name, seating_position):
         self.name: str = name
-        self.seating_position = seating_position  # 固定座位順序
+        self._seating_position = seating_position  # 固定座位順序
         # jikaze 自風, dealer seat (東風) rotates among players
-        self.jikaze = SeatWind.TON.value
+        self.jikaze: Jihai = Jihai[get_name(Jihai, seating_position + 3)]
         self.points: int = 25_000
         self.is_riichi: bool = False
         self.hand: DefaultDict[int] = defaultdict(int)
@@ -34,7 +25,7 @@ class Player:
     def __str__(self):
         return (
             f"Player: { self.name }, Seating Position: "
-            f"{ get_name(SeatWind, self.seating_position) }"
+            f"{ get_name(Jihai, self.seating_position + 3) }"
         )
 
     def add_kawa(self, tile: Tile) -> None:
@@ -57,25 +48,23 @@ class Player:
     def seating_position(self) -> int:
         return self._seating_position
 
-    @seating_position.setter
-    def seating_position(self, value: SeatWind) -> None:
-        if not 1 <= value < 5:
-            raise ValueError(
-                f"Seating position should be in: "
-                f"{ get_values(SeatWind) }")
-        self._seating_position = value
+    # @seating_position.setter
+    # def seating_position(self, value: Jihai) -> None:
+    #     # TODO: make this immutable after init
+    #     if not 1 <= value < 5:
+    #         raise ValueError("Seating position should be in: 1, 2, 3, 4")
+    #     self._seating_position = value
 
     @property
-    def jikaze(self) -> SeatWind:
+    def jikaze(self) -> Jihai:
         return self._jikaze
 
     @jikaze.setter
     def jikaze(self, value) -> None:
-        if not 1 <= value < 5:
-            raise ValueError(
-                f"Seating position should be in: "
-                f"{ get_values(SeatWind) }")
-        self._jikaze = get_name(SeatWind, value)
+        if value not in (jikaze_value := [Jihai.TON, Jihai.NAN,
+                                          Jihai.SHAA, Jihai.PEI]):
+            raise ValueError(f"Jikaze should be in: {jikaze_value}")
+        self._jikaze = value
 
     def get_komicha(self) -> int:
         return (self.seating_position + 2) % 4 + 1

@@ -1,13 +1,14 @@
 import unittest
 
-from mahjong.player import Player, SeatWind
-from mahjong.components import Stack, Tile, Suit, Naki, Huro, Action
+from mahjong.player import Player
+from mahjong.components import Stack, Tile, Suit, Naki, Huro, Action, Jihai
 
 
 class TestPlayer(unittest.TestCase):
 
     def setUp(self):
-        self.player = Player('test player', SeatWind.TON.value)
+        self.player = Player('test player', 1)
+        self.player_2 = Player('test player 2', 2)
 
     def test_att(self):
         tile_stack = Stack()
@@ -15,7 +16,7 @@ class TestPlayer(unittest.TestCase):
             self.player.hand[tile_stack.draw().index] += 1
         self.assertEqual(self.player.name, 'test player')
         self.assertEqual(self.player.seating_position, 1)
-        self.assertEqual(self.player.jikaze, 'TON')
+        self.assertEqual(self.player.jikaze, Jihai.TON)
         self.assertEqual(self.player.points, 25_000)
         self.assertEqual(self.player.is_riichi, False)
         self.assertEqual(sum(self.player.hand.values()), 13)
@@ -45,32 +46,32 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(self.player.hand[Tile(0, 2).index], 1)
 
     def test_seating_position_setter(self):
-        self.player.seating_position = 2
-        self.assertEqual(self.player.seating_position, 2)
-        with self.assertRaises(ValueError):
-            self.player.seating_position = 6
+        with self.assertRaises(AttributeError):
+            self.player.seating_position = 2
 
     def test_jikaze_setter(self):
-        self.assertEqual(self.player.jikaze, 'TON')
-        self.player.jikaze = SeatWind.NAN.value
-        self.assertEqual(self.player.jikaze, 'NAN')
+        self.assertEqual(self.player.jikaze, Jihai.TON)
+        self.player.jikaze = Jihai.NAN
+        self.assertEqual(self.player.jikaze, Jihai.NAN)
+        self.player.jikaze = Jihai((self.player.jikaze.value - 3) % 4 + 4)
+        self.assertEqual(self.player.jikaze, Jihai.SHAA)
+
         with self.assertRaises(ValueError):
-            self.player.jikaze = 5
+            self.player.jikaze = Jihai.HAKU
+        with self.assertRaises(ValueError):
+            self.player.jikaze = 1
 
     def test_get_komicha(self):
         self.assertEqual(self.player.get_komicha(), 4)
-        self.player.seating_position = 2
-        self.assertEqual(self.player.get_komicha(), 1)
+        self.assertEqual(self.player_2.get_komicha(), 1)
 
     def test_get_toimen(self):
         self.assertEqual(self.player.get_toimen(), 3)
-        self.player.seating_position = 2
-        self.assertEqual(self.player.get_toimen(), 4)
+        self.assertEqual(self.player_2.get_toimen(), 4)
 
     def test_get_shimocha(self):
         self.assertEqual(self.player.get_shimocha(), 2)
-        self.player.seating_position = 2
-        self.assertEqual(self.player.get_shimocha(), 3)
+        self.assertEqual(self.player_2.get_shimocha(), 3)
 
     def test_action_with_discard_tile(self):
         ...

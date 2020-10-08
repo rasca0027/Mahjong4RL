@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
 
-from mahjong.player import Player, SeatWind
+from mahjong.player import Player
 from mahjong.components import Stack, Tile, Action, Suit, Naki, Huro
 from mahjong.kyoku import Turn
 
@@ -9,10 +9,10 @@ from mahjong.kyoku import Turn
 class TestTurnDrawFlow(unittest.TestCase):
 
     def setUp(self):
-        self.player_1 = Player('player 1', SeatWind.TON.value)
-        self.player_2 = Player('player 2', SeatWind.NAN.value)
-        self.player_3 = Player('player 3', SeatWind.SHAA.value)
-        self.player_4 = Player('player 4', SeatWind.PEI.value)
+        self.player_1 = Player('player 1', 1)
+        self.player_2 = Player('player 2', 2)
+        self.player_3 = Player('player 3', 3)
+        self.player_4 = Player('player 4', 4)
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()
@@ -149,10 +149,10 @@ class TestTurnDrawFlow(unittest.TestCase):
 class TestTurnEnsembleActions(unittest.TestCase):
 
     def setUp(self):
-        self.player_1 = Player('player 1', SeatWind.TON.value)
-        self.player_2 = Player('player 2', SeatWind.NAN.value)
-        self.player_3 = Player('player 3', SeatWind.SHAA.value)
-        self.player_4 = Player('player 4', SeatWind.PEI.value)
+        self.player_1 = Player('player 1', 1)
+        self.player_2 = Player('player 2', 2)
+        self.player_3 = Player('player 3', 3)
+        self.player_4 = Player('player 4', 4)
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()
@@ -257,10 +257,10 @@ class TestTurnEnsembleActions(unittest.TestCase):
 class TestTurnNakiFlow(unittest.TestCase):
 
     def setUp(self):
-        self.player_1 = Player('player 1', SeatWind.TON.value)
-        self.player_2 = Player('player 2', SeatWind.NAN.value)
-        self.player_3 = Player('player 3', SeatWind.SHAA.value)
-        self.player_4 = Player('player 4', SeatWind.PEI.value)
+        self.player_1 = Player('player 1', 1)
+        self.player_2 = Player('player 2', 2)
+        self.player_3 = Player('player 3', 3)
+        self.player_4 = Player('player 4', 4)
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()
@@ -341,10 +341,10 @@ class TestTurnNakiFlow(unittest.TestCase):
 class TestTurnDiscardFlow(unittest.TestCase):
 
     def setUp(self):
-        self.player_1 = Player('player 1', SeatWind.TON.value)
-        self.player_2 = Player('player 2', SeatWind.NAN.value)
-        self.player_3 = Player('player 3', SeatWind.SHAA.value)
-        self.player_4 = Player('player 4', SeatWind.PEI.value)
+        self.player_1 = Player('player 1', 1)
+        self.player_2 = Player('player 2', 2)
+        self.player_3 = Player('player 3', 3)
+        self.player_4 = Player('player 4', 4)
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()

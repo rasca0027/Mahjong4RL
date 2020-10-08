@@ -1,8 +1,7 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
-from .utils import get_values
-from .player import Player, SeatWind
-from .components import Stack, Tile, Action, Huro, Naki
+from .player import Player
+from .components import Stack, Tile, Action, Huro, Naki, Jihai
 
 
 class Turn:
@@ -161,13 +160,20 @@ class Kyoku:
     and ends with the declaration of a win, Ryuukyoku, or draw.
     """
 
-    def __init__(self, players: List[Player], atamahane=True):
+    def __init__(
+        self,
+        players: List[Player],
+        honba: int,
+        bakaze: Jihai,
+        atamahane: Optional[bool] = True,
+    ):
         self.winner = None
         self.players = players
         # Assume the players is sorted by seating_position
         self.oya_player = players[0]
-        self.honba = 0
-        self.bakaze = SeatWind.TON.value
+        self.honba = honba
+        self.kyotaku = 0  # 供託
+        self.bakaze = bakaze
         self.tile_stack = Stack()
 
         # Atamahane 「頭跳ね」 is more known as the "head bump" rule.
@@ -191,7 +197,7 @@ class Kyoku:
         return self._bakaze
 
     @bakaze.setter
-    def bakaze(self, value: SeatWind) -> None:
+    def bakaze(self, value: Jihai) -> None:
         if not 1 <= value <= 2:
             raise ValueError(
                 "Bakaze should be 1 in Tonpuusen, should be 1 or 2 in Hanchan")
