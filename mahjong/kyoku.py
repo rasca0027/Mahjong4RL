@@ -38,21 +38,19 @@ class Turn:
         Return:
           state: -1 -> 流局
                   0 -> 繼續
-                  pos -> player at pos 胡牌
+                  1 -> somebody RON or TSUMO
           discard_tile: the discarded tile in this turn
                 if Ron/Tsumo/流局 -> None
         """
 
         player_pos, action = self.ensemble_actions(discard_tile, discard_pos)
+
         if action == Action.NOACT:
             discarder = self.players[discard_pos]
             state, discard_tile = self.draw_flow(
                 self.players[discarder.get_shimocha()])
         else:
             state, discard_tile = self.naki_flow(action)
-
-        if state > 0:
-            self.winner = [state]
         return state, discard_tile
 
     def naki_flow(
@@ -71,6 +69,7 @@ class Turn:
         """
         state = 0
         if action == Action.RON:
+            self.winner.append(player)
             return player.seating_position, None
 
         # TODO: add test when finish action_with_naki()
@@ -108,8 +107,28 @@ class Turn:
             ron_players = [i[0] for i in naki_actions if i[1] == Action.RON]
             if len(ron_players) > 1:
                 self.winner = ron_players
-
         return pos, action
+
+    def kan_flow(self, kan_player, kan_tile, kan_type):
+        """ An event flow followed by a player ankans or chakans
+        Other players could Chankan. There are only two posible actions,
+        RON and NOACT.
+        Args:
+          kan_player: the player who Kans
+          kan_tile: the kan tile
+          kan_type: two different actions may occur: CHAKAN / ANKAN
+        Return:
+          state: 0 -> 繼續
+                 1 -> somebody CHANKAN, RON
+        """
+        # walk through 3 other players
+        p = kan_player
+        for i in range(3):
+            p = p.get_shimocha()
+            act = p.action_with_chakan(kan_tile, kan_type)
+            if act == Action.RON:
+                self.winner.append(p.seating_position)
+        return 1 if self.winner else 0
 
     def draw_flow(
         self, player, from_rinshan: bool = False
@@ -128,25 +147,27 @@ class Turn:
         """
         new_tile = self.stack.draw(from_rinshan)
         player.tmp_furiten = False
-        action, discard_tile = player.action_with_new_tile(new_tile)
+        action, action_tile = player.action_with_new_tile(new_tile)
         state = 0
         if action == Action.CHAKAN or action == Action.ANKAN:
+            state2 = self.kan_flow(player, action_tile, action)
             player.action_with_naki(action)
+            if state2:
+                return state2, None
             if self.check_suukaikan(player.kabe):
                 return -1, None
             state, discard_tile = self.draw_flow(player, from_rinshan=True)
         elif action == Action.TSUMO:
-            state = player.seating_position
+            state = 1
+            self.winner.append(player)
         else:
             # TODO: invalid action, raise error
             pass
 
-        if state > 0:
-            self.winner = [state]
-        else:
-            player.add_kawa(discard_tile)
+        if state < 1:
+            player.add_kawa(action_tile)
 
-        return state, discard_tile
+        return state, action_tile
 
     def check_suukaikan(self, kabe: List[Huro]) -> bool:
         if len(self.stack.doras) >= 4:  # 場上已經有三或四個槓子
@@ -162,7 +183,13 @@ class Kyoku:
     and ends with the declaration of a win, Ryuukyoku, or draw.
     """
 
-    def __init__(self, players: List[Player], honba: int, atamahane: Optional[bool] = True):
+    def __init__(
+        self,
+        players: List[Player],
+        honba: int,
+        bakaze: Jihai,
+        atamahane: Optional[bool]=True,
+    ):
         self.winner = []
         self.players = players
         # Assume the player is sorted as TON NAN SHII PEI
@@ -236,13 +263,13 @@ class Kyoku:
         else:
             # TODO: 三家和流局: if len(sef.winner) == 3
             # TODO: Check Yaku and calculate the amount.
+
             han, fu = calculate_yaku()
             self.apply_points(han, fu, tsumo, loser)
             if self.oya_player in self.winner:
                 # return next oya, kyotaku, honba
                 return True, 0, self.honba + 1 
             return False, 0, 0
-        return state
     
     def calculate_base_points(self, han: int, fu: int) -> int:
         points = fu * 2**(han + 2)
