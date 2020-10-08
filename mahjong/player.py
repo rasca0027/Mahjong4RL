@@ -48,13 +48,6 @@ class Player:
     def seating_position(self) -> int:
         return self._seating_position
 
-    # @seating_position.setter
-    # def seating_position(self, value: Jihai) -> None:
-    #     # TODO: make this immutable after init
-    #     if not 1 <= value < 5:
-    #         raise ValueError("Seating position should be in: 1, 2, 3, 4")
-    #     self._seating_position = value
-
     @property
     def jikaze(self) -> Jihai:
         return self._jikaze
