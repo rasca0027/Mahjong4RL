@@ -3,6 +3,7 @@ from typing import List, Tuple, Optional
 from .player import Player, Position
 from .components import Stack, Tile, Action, Huro, Naki
 from .utils import roundup
+from .naki_and_actions import check_tenpai
 
 
 class Turn:
@@ -204,7 +205,9 @@ class Kyoku:
     def start(self):
         """
         Return:
-          state: -1 as Ryuukyoku, others as winning player
+            renchan: bool, if the oya is same player or not
+            kyotaku: int, how many kyotakus still exist
+            honba: int, what's the honba for next Kyoku
         """
         # initialize players' hand
         self.deal()
@@ -225,16 +228,19 @@ class Kyoku:
             # Ryuukyoku 流局
             # else:
             # TODO: 檢查流局是否聽牌 
-            return next_oya, self.kyotaku, self.honba
+            if check_tenpai(self.oya_player.hand, self.oya_player.kabe):
+                return True, self.kyotaku, self.honba + 1
+            else:
+                return False, self.kyotaku, 0
+            
         else:
             # TODO: Check Yaku and calculate the amount.
             han, fu = calculate_yaku()
             self.apply_points(han, fu, tsumo, loser)
-            # handle 連莊?
-            if self.winner == self.oya_player:
+            if self.oya_player in self.winner:
                 # return next oya, kyotaku, honba
-                return self.winner, 0, self.honba + 1 
-            return self.winner.get_shimocha, 0, 0
+                return True, 0, self.honba + 1 
+            return False, 0, 0
         return state
     
     def calculate_base_points(self, han: int, fu: int) -> int:
@@ -254,6 +260,7 @@ class Kyoku:
        
     def apply_points(self, han: int, fu: int, tsumo: bool, loser: Optional[Player] = None):
         pt = self.calculate_base_points(han, fu)
+        # TODO: only handle atamahane for now
         if self.winner == self.oya_player:
             if tsumo:
                 self.winner.points += roundup(pt * 2) * 3 + 300 * self.honba
@@ -264,7 +271,7 @@ class Kyoku:
                 loser.points -= roundup(pt * 6) + 300 * self.honba
         else: # 子家
             if tsumo:
-                self.winner.points += roundup(pt * 2) * 4 + 100 * self.honba
+                self.winner.points += roundup(pt * 2) + roundup(pt) + 100 * self.honba
                 self.oya_player.points -= roundup(pt * 2) + 100 * self.honba
                 for i in range(1, 4):
                     if self.players[i] != winner:
