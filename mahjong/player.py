@@ -1,27 +1,20 @@
-from enum import Enum, unique
 from typing import Tuple, List, DefaultDict
 from collections import defaultdict
 
-from .utils import get_values, get_name
-from .components import Huro, Tile, Action
+from .utils import get_name
+from .components import Huro, Tile, Action, Jihai
 from .naki_and_actions import check_tenpai
-
-
-@unique
-class Position(Enum):
-    TON = 1
-    NAN = 2
-    SHAA = 3
-    PEI = 4
 
 
 class Player:
     def __init__(self, name, seating_position):
         self.name: str = name
-        self.seating_position = seating_position
+        self._seating_position = seating_position  # 固定座位順序
+        # jikaze 自風, dealer seat (東風) rotates among players
+        self.jikaze: Jihai = Jihai[get_name(Jihai, seating_position + 3)]
         self.points: int = 25_000
         self.is_riichi: bool = False
-        # self.hand: DefaultDict[int] = defaultdict(int)
+        self.hand: DefaultDict[int] = defaultdict(int)
         self.kabe: List[Huro] = []  # 副露/鳴き
         self.kawa: List[Tile] = []  # 河 is formed by the discarded tiles.
         self.tmp_huro: Huro = None
@@ -32,7 +25,7 @@ class Player:
     def __str__(self):
         return (
             f"Player: { self.name }, Seating Position: "
-            f"{ get_name(Position, self.seating_position) }"
+            f"{ get_name(Jihai, self.seating_position + 3) }"
         )
 
     def add_kawa(self, tile: Tile) -> None:
@@ -47,6 +40,7 @@ class Player:
     @hand.setter
     def hand(self, tiles: List[Tile]) -> None:
         self._hand = defaultdict(int)
+        # TODO: raise error when len(hand) > 13
         for tile in tiles:
             self._hand[tile.index] += 1
 
@@ -54,22 +48,25 @@ class Player:
     def seating_position(self) -> int:
         return self._seating_position
 
-    @seating_position.setter
-    def seating_position(self, value: Position) -> None:
-        if not 1 <= value < 5:
-            raise ValueError(
-                f"Seating Position should be in: "
-                f"{ get_values(Position) }")
-        self._seating_position = value
+    @property
+    def jikaze(self) -> Jihai:
+        return self._jikaze
+
+    @jikaze.setter
+    def jikaze(self, value) -> None:
+        if value not in (jikaze_value := [Jihai.TON, Jihai.NAN,
+                                          Jihai.SHAA, Jihai.PEI]):
+            raise ValueError(f"Jikaze should be in: {jikaze_value}")
+        self._jikaze = value
 
     def get_komicha(self) -> int:
-        return (self.seating_position - 1) % 4
+        return (self.seating_position + 2) % 4 + 1
 
     def get_toimen(self) -> int:
-        return (self.seating_position + 2) % 4
+        return (self.seating_position + 1) % 4 + 1
 
     def get_shimocha(self) -> int:
-        return (self.seating_position + 1) % 4
+        return (self.seating_position % 4) + 1
 
     def action_with_discard_tile(self, tile: Tile, pos: int) -> Action:
         """"Player has to select an action reacting to

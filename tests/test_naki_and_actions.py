@@ -1,7 +1,7 @@
 import unittest
 
 from mahjong.components import Tile, Suit, Jihai, Naki, Huro
-from mahjong.player import Player, Position
+from mahjong.player import Player
 from mahjong.naki_and_actions import (
     check_ron, check_tsumo, check_furiten, check_own_discard_furiten,
     check_ankan, check_chakan, check_daminkan, check_pon, check_chii,
@@ -12,7 +12,7 @@ class TestRon(unittest.TestCase):
 
     def setUp(self):
         # tenpai: 3 MANZU 5 SOUZU
-        self.player = Player('test', Position.TON.value)
+        self.player = Player('test', 1)
         self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
         self.player.hand[Tile(Suit.PINZU.value, 2).index] += 1
         self.player.hand[Tile(Suit.PINZU.value, 3).index] += 1
@@ -46,7 +46,7 @@ class TestTsumo(unittest.TestCase):
 
     def setUp(self):
         # tenpai: 3 MANZU 5 SOUZU
-        self.player = Player('test', Position.TON.value)
+        self.player = Player('test', 1)
         self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
         self.player.hand[Tile(Suit.PINZU.value, 2).index] += 1
         self.player.hand[Tile(Suit.PINZU.value, 3).index] += 1
@@ -78,7 +78,7 @@ class TestYaku(unittest.TestCase):
 class TestFuriten(unittest.TestCase):
     def setUp(self):
         # tenpai: TON and NAN
-        self.player = Player('test', Position.TON.value)
+        self.player = Player('test', 1)
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 2
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 2
         self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
@@ -112,7 +112,7 @@ class TestFuriten(unittest.TestCase):
 class TestAnkan(unittest.TestCase):
 
     def setUp(self):
-        self.player = Player('test', Position.TON.value)
+        self.player = Player('test', 1)
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 3
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 2
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
@@ -139,7 +139,7 @@ class TestAnkan(unittest.TestCase):
 class TestChakan(unittest.TestCase):
 
     def setUp(self):
-        self.player = Player('test', Position.TON.value)
+        self.player = Player('test', 1)
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 3
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 2
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
@@ -175,7 +175,7 @@ class TestChakan(unittest.TestCase):
 class TestDaminkan(unittest.TestCase):
 
     def setUp(self):
-        self.player = Player('test', Position.TON.value)
+        self.player = Player('test', 1)
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 3
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 2
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
@@ -194,7 +194,7 @@ class TestDaminkan(unittest.TestCase):
 class TestPon(unittest.TestCase):
 
     def setUp(self):
-        self.player = Player('test', Position.TON.value)
+        self.player = Player('test', 1)
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 3
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 2
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
@@ -211,7 +211,7 @@ class TestPon(unittest.TestCase):
 class TestChii(unittest.TestCase):
 
     def setUp(self):
-        self.player = Player('test', Position.TON.value)
+        self.player = Player('test', 1)
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 2
         self.player.hand[Tile(Suit.MANZU.value, 2).index] += 1
         self.player.hand[Tile(Suit.MANZU.value, 3).index] += 1
@@ -264,7 +264,7 @@ class TestTenpai(unittest.TestCase):
 
     def setUp(self):
         # tenpai: 3 MANZU 5 SOUZU
-        self.player_1 = Player('test_1', Position.TON.value)
+        self.player_1 = Player('test_1', 1)
         self.player_1.hand[Tile(Suit.PINZU.value, 1).index] += 1
         self.player_1.hand[Tile(Suit.PINZU.value, 2).index] += 1
         self.player_1.hand[Tile(Suit.PINZU.value, 3).index] += 1
@@ -277,7 +277,7 @@ class TestTenpai(unittest.TestCase):
         self.player_1.hand[Tile(Suit.MANZU.value, 3).index] += 2
         self.player_1.hand[Tile(Suit.SOUZU.value, 5).index] += 2
         # tenpai: PEI 4 PINZU 7 PINZU
-        self.player_2 = Player('test_2', Position.TON.value)
+        self.player_2 = Player('test_2', 2)
         self.player_2.hand[Tile(Suit.PINZU.value, 5).index] += 1
         self.player_2.hand[Tile(Suit.PINZU.value, 6).index] += 1
         self.player_2.hand[Tile(Suit.PINZU.value, 7).index] += 3
@@ -285,7 +285,7 @@ class TestTenpai(unittest.TestCase):
         self.player_2.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 3
         self.player_2.hand[Tile(Suit.JIHAI.value, Jihai.PEI.value).index] += 2
         # tenpai: 1 SOUZU 4 SOUZU 7 SOUZU
-        self.player_3 = Player('test_3', Position.TON.value)
+        self.player_3 = Player('test_3', 3)
         self.player_3.hand[Tile(Suit.MANZU.value, 1).index] += 3
         self.player_3.hand[Tile(Suit.SOUZU.value, 2).index] += 1
         self.player_3.hand[Tile(Suit.SOUZU.value, 3).index] += 1
@@ -295,7 +295,7 @@ class TestTenpai(unittest.TestCase):
         self.player_3.hand[Tile(Suit.PINZU.value, 8).index] += 3
         self.player_3.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 2
         # tenpai: NAN 2 SOUZU
-        self.player_4 = Player('test_4', Position.TON.value)
+        self.player_4 = Player('test_4', 4)
         self.player_4.hand[Tile(Suit.SOUZU.value, 2).index] += 2
         self.player_4.hand[Tile(Suit.SOUZU.value, 3).index] += 1
         self.player_4.hand[Tile(Suit.SOUZU.value, 4).index] += 1
@@ -306,7 +306,7 @@ class TestTenpai(unittest.TestCase):
                                                   Tile(Suit.SOUZU.value, 5),
                                                   Tile(Suit.SOUZU.value, 5)]))
         # tenpai: 2 MANZU
-        self.player_5 = Player('test_5', Position.TON.value)
+        self.player_5 = Player('test_5', 1)
         self.player_5.hand[Tile(Suit.PINZU.value, 9).index] += 2
         self.player_5.hand[Tile(Suit.MANZU.value, 1).index] += 1
         self.player_5.hand[Tile(Suit.MANZU.value, 3).index] += 1
@@ -320,7 +320,7 @@ class TestTenpai(unittest.TestCase):
                                                    Tile(Suit.MANZU.value, 8),
                                                    Tile(Suit.MANZU.value, 9)]))
         # tenpai: TON
-        self.player_6 = Player('test_6', Position.TON.value)
+        self.player_6 = Player('test_6', 2)
         self.player_6.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 1
         self.player_6.kabe.append(
             Huro(Naki.PON, [Tile(Suit.JIHAI.value, Jihai.SHAA.value),
@@ -336,7 +336,7 @@ class TestTenpai(unittest.TestCase):
                                                    Tile(Suit.MANZU.value, 8),
                                                    Tile(Suit.MANZU.value, 9)]))
         # tenpai: 1 MANZU 4 MANZU 空聴（カラテン）
-        self.player_7 = Player('test_7', Position.TON.value)
+        self.player_7 = Player('test_7', 3)
         self.player_7.hand[Tile(Suit.MANZU.value, 1).index] += 4
         self.player_7.hand[Tile(Suit.MANZU.value, 2).index] += 1
         self.player_7.hand[Tile(Suit.MANZU.value, 3).index] += 1
@@ -405,7 +405,7 @@ class TestTenpai(unittest.TestCase):
 class TestRiichi(unittest.TestCase):
     def setUp(self):
         # tenpai: 3 MANZU 5 SOUZU
-        self.player = Player('test', Position.TON.value)
+        self.player = Player('test', 1)
         self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
         self.player.hand[Tile(Suit.PINZU.value, 2).index] += 1
         self.player.hand[Tile(Suit.PINZU.value, 3).index] += 1
@@ -437,7 +437,7 @@ class TestRemainsAreSets(unittest.TestCase):
 
     def setUp(self):
         # tenpai: 3 MANZU 5 SOUZU
-        self.player_1 = Player('test_1', Position.TON.value)
+        self.player_1 = Player('test_1', 1)
         self.player_1.hand[Tile(Suit.PINZU.value, 1).index] += 1
         self.player_1.hand[Tile(Suit.PINZU.value, 2).index] += 1
         self.player_1.hand[Tile(Suit.PINZU.value, 3).index] += 1

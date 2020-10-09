@@ -1,7 +1,7 @@
 from typing import List, Tuple, Optional
 
-from .player import Player, Position
-from .components import Stack, Tile, Action, Huro, Naki
+from .player import Player
+from .components import Stack, Tile, Action, Huro, Naki, Jihai
 from .utils import roundup
 from .naki_and_actions import check_tenpai
 
@@ -188,14 +188,14 @@ class Kyoku:
         players: List[Player],
         honba: int,
         bakaze: Jihai,
-        atamahane: Optional[bool]=True,
+        atamahane: Optional[bool] = True,
     ):
         self.winner = []
         self.players = players
-        # Assume the player is sorted as TON NAN SHII PEI
+        # Assume the players is sorted by seating_position
         self.oya_player = players[0]
         self.honba = honba
-        self.kyotaku = 0 # 供託
+        self.kyotaku = 0  # 供託
         self.bakaze = bakaze
         self.tile_stack = Stack()
 
@@ -220,9 +220,11 @@ class Kyoku:
         return self._bakaze
 
     @bakaze.setter
-    def bakaze(self, position: Position):
-        self._bakaze = position
-        return
+    def bakaze(self, value: Jihai) -> None:
+        if not 1 <= value <= 2:
+            raise ValueError(
+                "Bakaze should be 1 in Tonpuusen, should be 1 or 2 in Hanchan")
+        self._bakaze = value
 
     def deal(self) -> None:
         for player in self.players:
