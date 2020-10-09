@@ -45,6 +45,34 @@ class TestTile(unittest.TestCase):
     def test_from_index(self):
         self.assertEqual(self.tile, Tile.from_index(self.tile.index))
 
+    def test_next_tile(self):
+        tile = Tile(Suit.MANZU.value, 1)
+        self.assertEqual(tile.next_tile(), Tile(Suit.MANZU.value, 2))
+        tile = Tile(Suit.MANZU.value, 9)
+        self.assertEqual(tile.next_tile(), Tile(Suit.MANZU.value, 1))
+        tile = Tile(Suit.JIHAI.value, 1)
+        self.assertEqual(tile.next_tile(), Tile(Suit.JIHAI.value, 2))
+        tile = Tile(Suit.JIHAI.value, 3)
+        self.assertEqual(tile.next_tile(), Tile(Suit.JIHAI.value, 1))
+        tile = Tile(Suit.JIHAI.value, 4)
+        self.assertEqual(tile.next_tile(), Tile(Suit.JIHAI.value, 5))
+        tile = Tile(Suit.JIHAI.value, 7)
+        self.assertEqual(tile.next_tile(), Tile(Suit.JIHAI.value, 4))
+
+    def test_prev_tile(self):
+        tile = Tile(Suit.MANZU.value, 1)
+        self.assertEqual(tile.prev_tile(), Tile(Suit.MANZU.value, 9))
+        tile = Tile(Suit.MANZU.value, 9)
+        self.assertEqual(tile.prev_tile(), Tile(Suit.MANZU.value, 8))
+        tile = Tile(Suit.JIHAI.value, 1)
+        self.assertEqual(tile.prev_tile(), Tile(Suit.JIHAI.value, 3))
+        tile = Tile(Suit.JIHAI.value, 3)
+        self.assertEqual(tile.prev_tile(), Tile(Suit.JIHAI.value, 2))
+        tile = Tile(Suit.JIHAI.value, 4)
+        self.assertEqual(tile.prev_tile(), Tile(Suit.JIHAI.value, 7))
+        tile = Tile(Suit.JIHAI.value, 7)
+        self.assertEqual(tile.prev_tile(), Tile(Suit.JIHAI.value, 6))
+
     def test_eq(self):
         self.assertEqual(self.tile == Tile(Suit.MANZU.value, 2), True)
         self.assertEqual(self.tile == Tile(Suit.MANZU.value, 3), False)
