@@ -12,6 +12,8 @@ class YakuTypes(ABC):
     def __init__(self, player: Player, bakaze):
         self.player = player
         self.bakaze = bakaze
+        self.agari_hand = copy.deepcopy(self.player.hand)
+        self.agari_hand[self.player.agari_tile.index] += 1
 
     @property
     @abstractmethod
@@ -188,14 +190,7 @@ class TeYaku(YakuTypes):
         http://arcturus.su/wiki/Chiitoitsu
         """
         han = 0
-        tmp_hand = copy.deepcopy(self.player.hand)
-        tmp_hand[self.player.agari_tile.index] += 1
-        toitsu_n = 0
-        for tile_index, tile_n in tmp_hand.items():
-            if tile_n == 2:
-                toitsu_n += 1
-
-        if toitsu_n == 7:
+        if len([k for k, v in self.agari_hand.items() if v == 2]) == 7:
             self.total_yaku += 1
             han = 2
 
