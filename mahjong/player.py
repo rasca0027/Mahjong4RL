@@ -20,12 +20,13 @@ class Player:
         self.tmp_huro: Huro = None
         self.tmp_furiten: bool = False
         self.permanent_furiten: bool = False
+        self.agari_tile: Tile = None
         # TODO: Build Player's connection (socket)?
 
     def __str__(self):
         return (
             f"Player: { self.name }, Seating Position: "
-            f"{ get_name(Jihai, self.seating_position + 3) }"
+            f"{ self.seating_position }, Jikaze: { self.jikaze.name }"
         )
 
     def add_kawa(self, tile: Tile) -> None:
@@ -87,6 +88,10 @@ class Player:
                 self.tmp_furiten = True
                 if self.is_riichi:
                     self.permanent_furiten = True
+
+        elif action == Action.RON:
+            self.agari_tile = tile
+
         return action
 
     def action_with_new_tile(self, tile: Tile) -> Tuple[Action, Tile]:
@@ -98,7 +103,11 @@ class Player:
           discard_tile: Tile
         """
         self.tmp_huro = None
+        action = None
         # TODO: check TSUMO/ANKAN/CHAKAN, else pick discard tile
+        if action == Action.RON:
+            self.agari_tile = tile
+
         return
 
     def action_with_naki(self, action: Action) -> None:
