@@ -164,7 +164,7 @@ class TeYaku(YakuTypes):
 
     @property
     def total_han(self):
-        return self._han
+        return self._total_han
 
     @total_han.setter
     def total_han(self, han):
