@@ -46,6 +46,16 @@ class Player:
             self._hand[tile.index] += 1
 
     @property
+    def agari_tile(self):
+        return self._agari_tile
+
+    @agari_tile.setter
+    def agari_tile(self, tile: Tile) -> None:
+        if not isinstance(tile, Tile) and tile is not None:
+            raise TypeError("Agari tile must be a Tile")
+        self._agari_tile = tile
+
+    @property
     def seating_position(self) -> int:
         return self._seating_position
 
