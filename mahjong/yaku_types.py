@@ -1,3 +1,4 @@
+import copy
 from abc import ABC, abstractmethod
 from .player import Player
 
@@ -186,7 +187,19 @@ class TeYaku(YakuTypes):
         2 han
         http://arcturus.su/wiki/Chiitoitsu
         """
-        return NotImplemented
+        han = 0
+        tmp_hand = copy.deepcopy(self.player.hand)
+        tmp_hand[self.player.agari_tile.index] += 1
+        toitsu_n = 0
+        for tile_index, tile_n in tmp_hand.items():
+            if tile_n == 2:
+                toitsu_n += 1
+
+        if toitsu_n == 7:
+            self.total_yaku += 1
+            han = 2
+
+        return han
 
     def ikkitsuukan(self):  # 一気通貫
         """Three distinct tile groups containing 123, 456, 789 of one suit.
