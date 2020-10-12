@@ -124,7 +124,7 @@ class Turn:
         # walk through 3 other players
         p = kan_player
         for i in range(3):
-            p = p.get_shimocha()
+            p = self.players[p.get_shimocha() - 1]
             act = p.action_with_chakan(kan_tile, kan_type)
             if act == Action.RON:
                 self.winner.append(p.seating_position)
@@ -156,7 +156,7 @@ class Turn:
                 return state2, None
             if self.check_suukaikan(player.kabe):
                 return -1, None
-            state, discard_tile = self.draw_flow(player, from_rinshan=True)
+            state, action_tile = self.draw_flow(player, from_rinshan=True)
         elif action == Action.TSUMO:
             state = 1
             self.winner.append(player)
