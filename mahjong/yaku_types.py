@@ -1,3 +1,4 @@
+import copy
 from abc import ABC, abstractmethod
 from .player import Player
 
@@ -11,6 +12,8 @@ class YakuTypes(ABC):
     def __init__(self, player: Player, bakaze):
         self.player = player
         self.bakaze = bakaze
+        self.agari_hand = copy.deepcopy(self.player.hand)
+        self.agari_hand[self.player.agari_tile.index] += 1
 
     @property
     @abstractmethod
@@ -196,7 +199,7 @@ class TeYaku(YakuTypes):
         """
         return NotImplemented
 
-    def pinfu():  # 平和
+    def pinfu(self):  # 平和
         """Defined by having 0 fu aside from the base 20 fu, or 30 fu in
         the case of a closed ron.
         1 han (closed only)
@@ -204,12 +207,23 @@ class TeYaku(YakuTypes):
         """
         return NotImplemented
 
-    def tanyao():  # 断么九
+    def tanyao(self):  # 断么九
         """A hand contain only numbered tiles 2-8 from any of the three main suits.
         1 han
         http://arcturus.su/wiki/Honroutou
         """
-        return NotImplemented
+        for k in self.agari_hand.keys():
+            suit = k//10
+            rank = k % 10
+            if suit == 0:
+                return False
+            else:
+                if rank == 1 or rank == 9:
+                    return False
+
+        self.total_yaku = 'tanyao'
+        self.total_han = 1
+        return True
 
 
 class Yakuhai(TeYaku):
@@ -225,7 +239,13 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Tsuuiisou
         """
-        return NotImplemented
+        suit = set([k//10 for k in self.agari_hand.keys()])
+        if len(suit) == 1 and list(suit)[0] == 0:
+            self.total_yaku = 'tsuuiisou'
+            # self.total_han =
+            # self.yakuman_count =
+            return True
+        return False
 
     def shousuushii(self):  # 小四喜
         """This hand has three groups (triplets or quads)
@@ -374,7 +394,12 @@ class Somete(TeYaku):
         5 han (open)
         http://arcturus.su/wiki/Sanankou
         """
-        return NotImplemented
+        suit = set([k//10 for k in self.agari_hand.keys()])
+        if len(suit) == 1 and list(suit)[0] != 0:
+            self.total_yaku = 'chiniisou'
+            self.total_han = 6  # or 5 (open)
+            return True
+        return False
 
     def honiisou(self):  # 混一色
         """A hand composed only of honour tiles and tiles of a single suit.
@@ -382,4 +407,9 @@ class Somete(TeYaku):
         2 han (open)
         http://arcturus.su/wiki/Honiisou
         """
-        return NotImplemented
+        suit_not_jihai = [k//10 for k in self.agari_hand.keys() if k//10 != 0]
+        if len(set(suit_not_jihai)) == 1:
+            self.total_yaku = 'honiisou'
+            self.total_han = 3  # or 2 (open)
+            return True
+        return False
