@@ -188,14 +188,14 @@ class Kyoku:
         players: List[Player],
         honba: int,
         bakaze: Jihai,
+        kyotaku: kyotaku,
         atamahane: Optional[bool] = True,
     ):
         self.winner = []
         self.players = players
-        # Assume the players is sorted by seating_position
-        self.oya_player = players[0]
+        self.oya_player = self.get_oya_player()
         self.honba = honba
-        self.kyotaku = 0  # 供託
+        self.kyotaku = kyotaku  # 供託
         self.bakaze = bakaze
         self.tile_stack = Stack()
 
@@ -225,6 +225,9 @@ class Kyoku:
             raise ValueError(
                 "Bakaze should be 1 in Tonpuusen, should be 1 or 2 in Hanchan")
         self._bakaze = value
+
+    def get_oya_player(self):
+        return list(filter(lambda p: p.jilaze == Jihai.TON, self.players))[0]
 
     def deal(self) -> None:
         for player in self.players:
@@ -256,8 +259,15 @@ class Kyoku:
             # return self.oya_player, 1
             # Ryuukyoku 流局
             # else:
-            # TODO: 檢查流局是否聽牌 
-            if check_tenpai(self.oya_player.hand, self.oya_player.kabe):
+            # 檢查流局是否聽牌 
+            tenpai_players = []
+            noten_players = []
+            for player in self.players:
+                if check_tenpai(player.hand, player.kabe):
+                    tenpai_players.append(player)
+                else: noten_players.append(player)
+            self.apply_noten_points(tenpai_players, noten_players)        
+            if self.oya_player in tenpai_players:
                 return True, self.kyotaku, self.honba + 1
             else:
                 return False, self.kyotaku, 0
@@ -272,7 +282,22 @@ class Kyoku:
                 # return next oya, kyotaku, honba
                 return True, 0, self.honba + 1 
             return False, 0, 0
-    
+   
+    def apply_noten_points(tenpai: List[Player], noten: List[Player]):
+        if len(tenpai) == 1:
+            for player in noten:
+                player.points -= 1_000
+            tenpai[0].points += 3_000
+        elif len(tenpai) == 2:
+            for player in noten:
+                player.points -= 1_500
+            for player in tenpai:
+                player.points += 1_500
+        elif len(tenpai) == 3:
+            for player in tenpai:
+                player.points += 1_000
+            noten[0].points -= 3_000
+
     def calculate_base_points(self, han: int, fu: int) -> int:
         points = fu * 2**(han + 2)
         if points > 2_000:
@@ -316,5 +341,39 @@ class Kyoku:
 
 class Game:
     def __init__(self):
+        self.bakaze = Jihai.TON
+        self.kyoku_num = 1  # e.g.東1局
+        self.players = self.get_init_players()
+        self.current_kyoku = Kyoku(players, 0, self.bakaze, 0)
+        self.start_game()
 
-        return
+    def get_init_players():
+        pass
+
+    def start_game():
+        while True:
+            renchan, kyotaku, honba = self.current_kyoku.start()
+            if check_tobu():  # 有人被飛
+                break
+            if renchan:
+                # oya same player, don't increase kyoku_num or bakaze, increase honba
+                honba += 1
+            else:
+                if self.kyoku_num == 4:
+                    if self.bakaze == Jihai.NAN:
+                        break # end game
+                    elif self.bakaze == Jihai.TON:
+                        self.bakaze = Jihai.NAN
+                        self.kyoku_num = 1
+                else:
+                    self.kyoku_num += 1
+                # TODO: advance player jikaze
+            self.current_kyoku = Kyoku(players, honba, self.bakaze, kyotaku)
+        # 遊戲結束
+        self.end_game()
+
+    def check_tobu():
+        return any(filter(lambda p: p.points < 0, self.players))
+
+    def end_game():
+        ...
