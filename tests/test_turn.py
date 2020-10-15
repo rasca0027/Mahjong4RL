@@ -9,10 +9,10 @@ from mahjong.kyoku import Turn
 class TestTurnDrawFlow(unittest.TestCase):
 
     def setUp(self):
-        self.player_1 = Player('player 1', 1)
-        self.player_2 = Player('player 2', 2)
-        self.player_3 = Player('player 3', 3)
-        self.player_4 = Player('player 4', 4)
+        self.player_1 = Player('player 1', 0)
+        self.player_2 = Player('player 2', 1)
+        self.player_3 = Player('player 3', 2)
+        self.player_4 = Player('player 4', 3)
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()
@@ -26,8 +26,7 @@ class TestTurnDrawFlow(unittest.TestCase):
     def test_tsumo(self):
         self.player_1.action_with_new_tile = MagicMock(
             return_value=(Action.TSUMO, None))
-        self.assertEqual(self.turn.draw_flow(self.player_1),
-                         (self.player_1.seating_position, None))
+        self.assertEqual(self.turn.draw_flow(self.player_1), (1, None))
 
     # def test_ankan(self):
     #     self.player_1.action_with_new_tile = MagicMock()
@@ -136,23 +135,23 @@ class TestTurnDrawFlow(unittest.TestCase):
         kabe = [kan]
         self.assertEqual(self.turn.check_suukaikan(kabe), False)
 
-    # def test_rinshan_kaihou(self):
-    #     self.player_1.action_with_new_tile = MagicMock()
-    #     self.player_1.action_with_new_tile.side_effect = [
-    #         (Action.ANKAN, None),
-    #         (Action.TSUMO, None)]
-    #     state, discard_tile = self.turn.draw_flow(self.player_1)
-    #     self.assertEqual(state, self.player_1.seating_position)
-    #     self.assertEqual(discard_tile, None)
+    def test_rinshan_kaihou(self):
+        self.player_1.action_with_new_tile = MagicMock()
+        self.player_1.action_with_new_tile.side_effect = [
+            (Action.ANKAN, None),
+            (Action.TSUMO, None)]
+        state, discard_tile = self.turn.draw_flow(self.player_1)
+        self.assertEqual(state, 1)
+        self.assertEqual(discard_tile, None)
 
 
 class TestTurnEnsembleActions(unittest.TestCase):
 
     def setUp(self):
-        self.player_1 = Player('player 1', 1)
-        self.player_2 = Player('player 2', 2)
-        self.player_3 = Player('player 3', 3)
-        self.player_4 = Player('player 4', 4)
+        self.player_1 = Player('player 1', 0)
+        self.player_2 = Player('player 2', 1)
+        self.player_3 = Player('player 3', 2)
+        self.player_4 = Player('player 4', 3)
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()
@@ -175,7 +174,7 @@ class TestTurnEnsembleActions(unittest.TestCase):
         pos, action = self.turn.ensemble_actions(
             discard_tile,
             discard_player.seating_position)
-        self.assertEqual(pos, 2)
+        self.assertEqual(pos, 1)
         self.assertEqual(action, Action.NOACT)
 
     def test_shimocha_chii(self):
@@ -190,7 +189,7 @@ class TestTurnEnsembleActions(unittest.TestCase):
         pos, action = self.turn.ensemble_actions(
             discard_tile,
             discard_player.seating_position)
-        self.assertEqual(pos, 2)
+        self.assertEqual(pos, 1)
         self.assertEqual(action, Action.CHII)
 
     def test_toimen_pon(self):
@@ -205,7 +204,7 @@ class TestTurnEnsembleActions(unittest.TestCase):
         pos, action = self.turn.ensemble_actions(
             discard_tile,
             discard_player.seating_position)
-        self.assertEqual(pos, 3)
+        self.assertEqual(pos, 2)
         self.assertEqual(action, Action.PON)
 
     def test_kamicha_pon(self):
@@ -220,7 +219,7 @@ class TestTurnEnsembleActions(unittest.TestCase):
         pos, action = self.turn.ensemble_actions(
             discard_tile,
             discard_player.seating_position)
-        self.assertEqual(pos, 4)
+        self.assertEqual(pos, 3)
         self.assertEqual(action, Action.PON)
 
     def test_shimocha_ron(self):
@@ -235,7 +234,7 @@ class TestTurnEnsembleActions(unittest.TestCase):
         pos, action = self.turn.ensemble_actions(
             discard_tile,
             discard_player.seating_position)
-        self.assertEqual(pos, 2)
+        self.assertEqual(pos, 1)
         self.assertEqual(action, Action.RON)
 
     def test_kamicha_ron(self):
@@ -250,17 +249,17 @@ class TestTurnEnsembleActions(unittest.TestCase):
         pos, action = self.turn.ensemble_actions(
             discard_tile,
             discard_player.seating_position)
-        self.assertEqual(pos, 4)
+        self.assertEqual(pos, 3)
         self.assertEqual(action, Action.RON)
 
 
 class TestTurnNakiFlow(unittest.TestCase):
 
     def setUp(self):
-        self.player_1 = Player('player 1', 1)
-        self.player_2 = Player('player 2', 2)
-        self.player_3 = Player('player 3', 3)
-        self.player_4 = Player('player 4', 4)
+        self.player_1 = Player('player 1', 0)
+        self.player_2 = Player('player 2', 1)
+        self.player_3 = Player('player 3', 2)
+        self.player_4 = Player('player 4', 3)
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()
@@ -341,10 +340,10 @@ class TestTurnNakiFlow(unittest.TestCase):
 class TestTurnDiscardFlow(unittest.TestCase):
 
     def setUp(self):
-        self.player_1 = Player('player 1', 1)
-        self.player_2 = Player('player 2', 2)
-        self.player_3 = Player('player 3', 3)
-        self.player_4 = Player('player 4', 4)
+        self.player_1 = Player('player 1', 0)
+        self.player_2 = Player('player 2', 1)
+        self.player_3 = Player('player 3', 2)
+        self.player_4 = Player('player 4', 3)
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()
