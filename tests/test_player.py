@@ -25,10 +25,11 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(self.player.tmp_huro, None)
         self.assertEqual(self.player.tmp_furiten, False)
         self.assertEqual(self.player.permanent_furiten, False)
+        self.assertEqual(self.player.agari_tile, None)
 
     def test_str(self):
-        self.assertEqual(str(self.player),
-                         "Player: test player, Seating Position: TON")
+        player_str = "Player: test player, Seating Position: 1, Jikaze: TON"
+        self.assertEqual(str(self.player), player_str)
 
     def test_add_kawa(self):
         discard_tile = Tile(0, 1)
