@@ -25,6 +25,7 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(self.player.tmp_huro, None)
         self.assertEqual(self.player.tmp_furiten, False)
         self.assertEqual(self.player.permanent_furiten, False)
+        self.assertEqual(self.player.agari_tile, None)
 
     def test_str(self):
         player_str = "Player: test player, Seating Position: 0, Jikaze: TON"

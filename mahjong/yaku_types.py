@@ -1,9 +1,11 @@
+import copy
 from abc import ABC, abstractmethod
 from .player import Player
 
 
 class YakuTypes(ABC):
-    _total_yaku = 0
+    _total_yaku = []
+    _total_han = 0
     _yakuman_count = 0
     _player = None
     _bakaze = None
@@ -11,6 +13,8 @@ class YakuTypes(ABC):
     def __init__(self, player: Player, bakaze):
         self.player = player
         self.bakaze = bakaze
+        self.agari_hand = copy.deepcopy(self.player.hand)
+        self.agari_hand[self.player.agari_tile.index] += 1
 
     @property
     @abstractmethod
@@ -20,6 +24,16 @@ class YakuTypes(ABC):
     @total_yaku.setter
     @abstractmethod
     def total_yaku(self, yaku):
+        return NotImplemented
+
+    @property
+    @abstractmethod
+    def total_han(self):
+        return NotImplemented
+
+    @total_han.setter
+    @abstractmethod
+    def total_han(self, han):
         return NotImplemented
 
     @property
@@ -145,8 +159,16 @@ class TeYaku(YakuTypes):
         return self._total_yaku
 
     @total_yaku.setter
-    def total_yaku(self, yaku):
-        self._total_yaku = yaku
+    def total_yaku(self, yaku_name):
+        self._total_yaku.append(yaku_name)
+
+    @property
+    def total_han(self):
+        return self._total_han
+
+    @total_han.setter
+    def total_han(self, han):
+        self._total_han += han
 
     def ryuuiisou(self):  # 緑一色
         """A hand composed entirely of green tiles: 2, 3, 4, 6 and 8 Sou and/or Hatsu.
@@ -186,7 +208,12 @@ class TeYaku(YakuTypes):
         2 han
         http://arcturus.su/wiki/Chiitoitsu
         """
-        return NotImplemented
+        if len([k for k, v in self.agari_hand.items() if v == 2]) == 7:
+            self.total_yaku = 'chiitoitsu'
+            self.total_han = 2
+            return True
+
+        return False
 
     def ikkitsuukan(self):  # 一気通貫
         """Three distinct tile groups containing 123, 456, 789 of one suit.

@@ -20,6 +20,7 @@ class Player:
         self.tmp_huro: Huro = None
         self.tmp_furiten: bool = False
         self.permanent_furiten: bool = False
+        self.agari_tile: Tile = None
         # TODO: Build Player's connection (socket)?
 
     def __str__(self):
@@ -43,6 +44,16 @@ class Player:
         # TODO: raise error when len(hand) > 13
         for tile in tiles:
             self._hand[tile.index] += 1
+
+    @property
+    def agari_tile(self):
+        return self._agari_tile
+
+    @agari_tile.setter
+    def agari_tile(self, tile: Tile) -> None:
+        if not isinstance(tile, Tile) and tile is not None:
+            raise TypeError("Agari tile must be a Tile")
+        self._agari_tile = tile
 
     @property
     def seating_position(self) -> int:
@@ -87,6 +98,10 @@ class Player:
                 self.tmp_furiten = True
                 if self.is_riichi:
                     self.permanent_furiten = True
+
+        elif action == Action.RON:
+            self.agari_tile = tile
+
         return action
 
     def action_with_new_tile(self, tile: Tile) -> Tuple[Action, Tile]:
@@ -98,7 +113,11 @@ class Player:
           discard_tile: Tile
         """
         self.tmp_huro = None
+        action = None
         # TODO: check TSUMO/ANKAN/CHAKAN, else pick discard tile
+        if action == Action.RON:
+            self.agari_tile = tile
+
         return
 
     def action_with_naki(self, action: Action) -> None:
