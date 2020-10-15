@@ -98,9 +98,9 @@ class Turn:
           action: the naki action from the player
         """
         naki_actions = [
-            (i, self.players[i - 1].action_with_discard_tile(
+            (i, self.players[i].action_with_discard_tile(
                 discard_tile, discard_pos))
-            for i in range(1, 5) if i != discard_pos
+            for i in range(0, 4) if i != discard_pos
         ]
         pos, action = max(naki_actions, key=lambda x: x[1].value)
         if action == Action.RON and not self.atamahane:
@@ -124,7 +124,7 @@ class Turn:
         # walk through 3 other players
         p = kan_player
         for i in range(3):
-            p = self.players[p.get_shimocha() - 1]
+            p = self.players[p.get_shimocha()]
             act = p.action_with_chakan(kan_tile, kan_type)
             if act == Action.RON:
                 self.winner.append(p.seating_position)

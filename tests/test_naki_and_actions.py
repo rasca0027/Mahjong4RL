@@ -295,7 +295,7 @@ class TestTenpai(unittest.TestCase):
         self.player_3.hand[Tile(Suit.PINZU.value, 8).index] += 3
         self.player_3.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 2
         # tenpai: NAN 2 SOUZU
-        self.player_4 = Player('test_4', 4)
+        self.player_4 = Player('test_4', 0)
         self.player_4.hand[Tile(Suit.SOUZU.value, 2).index] += 2
         self.player_4.hand[Tile(Suit.SOUZU.value, 3).index] += 1
         self.player_4.hand[Tile(Suit.SOUZU.value, 4).index] += 1

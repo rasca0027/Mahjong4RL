@@ -9,9 +9,9 @@ from .naki_and_actions import check_tenpai
 class Player:
     def __init__(self, name, seating_position):
         self.name: str = name
-        self._seating_position = seating_position  # 固定座位順序
+        self._seating_position = seating_position  # 固定座位順序 (0~3)
         # jikaze 自風, dealer seat (東風) rotates among players
-        self.jikaze: Jihai = Jihai[get_name(Jihai, seating_position + 3)]
+        self.jikaze: Jihai = Jihai[get_name(Jihai, seating_position + 4)]
         self.points: int = 25_000
         self.is_riichi: bool = False
         self.hand: DefaultDict[int] = defaultdict(int)
@@ -25,7 +25,7 @@ class Player:
     def __str__(self):
         return (
             f"Player: { self.name }, Seating Position: "
-            f"{ get_name(Jihai, self.seating_position + 3) }"
+            f"{ self.seating_position }, Jikaze: { self.jikaze.name }"
         )
 
     def add_kawa(self, tile: Tile) -> None:
@@ -60,13 +60,13 @@ class Player:
         self._jikaze = value
 
     def get_komicha(self) -> int:
-        return (self.seating_position + 2) % 4 + 1
+        return (self.seating_position - 1) % 4
 
     def get_toimen(self) -> int:
-        return (self.seating_position + 1) % 4 + 1
+        return (self.seating_position + 2) % 4
 
     def get_shimocha(self) -> int:
-        return (self.seating_position % 4) + 1
+        return (self.seating_position + 1) % 4
 
     def action_with_discard_tile(self, tile: Tile, pos: int) -> Action:
         """"Player has to select an action reacting to
