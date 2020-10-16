@@ -421,6 +421,41 @@ class TestTenpai(unittest.TestCase):
         self.assert_tenpai(self.player, tenpai)
 
     def test_tenpai_11(self):
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 1
+        tenpai = []
+        # no tenpai: test kokushi musou single wait
+        self.assert_tenpai(self.player, tenpai)
+
+    def test_tenpai_12(self):
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 0
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.PEI.value).index] += 1
+        tenpai = []
+        # no tenpai: test kokushi musou single wait
+        self.assert_tenpai(self.player, tenpai)
+
+    def test_tenpai_13(self):
         self.player.hand[Tile(Suit.MANZU.value, 1).index] += 1
         self.player.hand[Tile(Suit.MANZU.value, 9).index] += 1
         self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1

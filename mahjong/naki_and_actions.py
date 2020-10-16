@@ -224,7 +224,7 @@ def check_tenpai(hand: DefaultDict, kabe: List[Huro]) -> List[Tile]:
 
     Returns:
         possible_tiles:
-            every possible tile's index that could complete the hand
+            every possible tiles that could complete the hand
     """
     possible_tiles = []
     huro_count = len(kabe)
@@ -241,33 +241,15 @@ def check_tenpai(hand: DefaultDict, kabe: List[Huro]) -> List[Tile]:
         yaochuuhai = honor_tiles + terminal_tiles
         machi_tiles = []
 
-        # single wait
-        honor_tiles_n = 0
-        for tile in honor_tiles:
-            if (n := current_hand[tile.index]) <= 2:
-                honor_tiles_n += n
-            else:
-                break
-        if honor_tiles_n == 8:
-            terminal_tiles_n = 0
-            for tile in terminal_tiles:
-                if (n := current_hand[tile.index]) <= 1:
-                    terminal_tiles_n += n
-                else:
-                    break
-            if terminal_tiles_n == 5:
-                for tile in terminal_tiles:
-                    if (current_hand[tile.index]) == 0:
-                        return [tile]
-
-        # 13-way wait
-        kokushi_musou_13_wait = True
-        for tile in yaochuuhai:
-            if current_hand[tile.index] != 1:
-                kokushi_musou_13_wait = False
-                break
-        if kokushi_musou_13_wait:
+        yaochuu_in_hand = {k: v for (k, v) in current_hand.items()
+                           if Tile.from_index(k) in yaochuuhai}
+        single_yaochuu_n = sum(v == 1 for v in yaochuu_in_hand.values())
+        if single_yaochuu_n == 13:  # 13-way wait
             machi_tiles = yaochuuhai
+        elif single_yaochuu_n == 11:  # single wait
+            if len([v for v in yaochuu_in_hand.values() if v == 2]) == 1:
+                machi_tiles = [i for i in yaochuuhai
+                               if i.index not in yaochuu_in_hand.keys()]
 
         return machi_tiles
 
