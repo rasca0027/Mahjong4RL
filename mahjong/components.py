@@ -1,6 +1,6 @@
 import itertools
 import random
-from typing import List
+from typing import Tuple, List
 from enum import Enum, unique
 
 from .utils import get_values, get_name
@@ -52,7 +52,7 @@ class Tile:
         self.index = self.calc_index()
 
     def __str__(self):
-        if self._suit == 0:
+        if self._suit == Suit.JIHAI.value:
             return f"Tile of { get_name(Jihai, self._rank) }"
         else:
             return f"Tile of { self._rank } { get_name(Suit, self._suit) }"
@@ -73,7 +73,7 @@ class Tile:
 
     @rank.setter
     def rank(self, value: int):
-        if self._suit == 0:  # Jihai
+        if self._suit == Suit.JIHAI.value:  # Jihai
             if not 1 <= value < 8:
                 raise ValueError(
                     f"Value for Jihai should be in: "
@@ -91,6 +91,20 @@ class Tile:
     @classmethod
     def from_index(cls, ind):
         return cls(ind // 10, ind % 10)
+
+    @staticmethod
+    def get_yaochuuhai() -> Tuple[List, List]:
+        honor_tiles = []
+        terminal_tiles = []
+        for suit in Suit:
+            if suit == Suit.JIHAI:
+                for rank in Jihai:
+                    honor_tiles.append(Tile(suit.value, rank.value))
+            else:
+                terminal_tiles.append(Tile(suit.value, 1))
+                terminal_tiles.append(Tile(suit.value, 9))
+
+        return honor_tiles, terminal_tiles
 
     def akadora(self):
         # red dora setter
