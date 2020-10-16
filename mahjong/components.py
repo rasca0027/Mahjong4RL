@@ -110,6 +110,26 @@ class Tile:
         # red dora setter
         pass
 
+    def next_tile(self):
+        if self._suit == Suit.JIHAI.value:
+            if self._rank <= Jihai.CHUN.value:
+                new_rank = (self._rank % 3) + 1  # Sangenpai
+            else:
+                new_rank = (self._rank - 3) % 4 + 4  # Kazehai
+        else:
+            new_rank = (self.rank % 9) + 1  # MANZU, SOUZU, PINZU 1~9
+        return self.from_index(self._suit * 10 + new_rank)
+
+    def prev_tile(self):
+        if self._suit == Suit.JIHAI.value:
+            if self._rank <= Jihai.CHUN.value:
+                new_rank = (self._rank + 1) % 3 + 1  # Sangenpai
+            else:
+                new_rank = (self._rank + 3) % 4 + 4  # Kazehai
+        else:
+            new_rank = (self.rank + 7) % 9 + 1  # MANZU, SOUZU, PINZU 1~9
+        return self.from_index(self._suit * 10 + new_rank)
+
     def __eq__(self, other):
         return self.rank == other.rank and self.suit == other.suit
 
@@ -185,19 +205,7 @@ class Stack:
 
     @staticmethod
     def compute_dora(tile: Tile):
-        target_rank = 0
-        if tile.suit == Suit.JIHAI.value:
-            if tile.rank <= Jihai.CHUN.value:
-                # Sangenpai
-                target_rank = tile.rank % 3 + 1
-            else:
-                # Kazehai
-                target_rank = (tile.rank - 3) % 4 + 4
-        else:
-            # others
-            target_rank = tile.rank % 9 + 1
-
-        return Tile(tile.suit, target_rank)
+        return tile.next_tile()
 
 
 class Huro:

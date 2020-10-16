@@ -7,15 +7,15 @@ from mahjong.components import Stack, Tile, Suit, Naki, Huro, Action, Jihai
 class TestPlayer(unittest.TestCase):
 
     def setUp(self):
-        self.player = Player('test player', 1)
-        self.player_2 = Player('test player 2', 2)
+        self.player = Player('test player', 0)
+        self.player_2 = Player('test player 2', 1)
 
     def test_att(self):
         tile_stack = Stack()
         for i in range(13):
             self.player.hand[tile_stack.draw().index] += 1
         self.assertEqual(self.player.name, 'test player')
-        self.assertEqual(self.player.seating_position, 1)
+        self.assertEqual(self.player.seating_position, 0)
         self.assertEqual(self.player.jikaze, Jihai.TON)
         self.assertEqual(self.player.points, 25_000)
         self.assertEqual(self.player.is_riichi, False)
@@ -25,10 +25,11 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(self.player.tmp_huro, None)
         self.assertEqual(self.player.tmp_furiten, False)
         self.assertEqual(self.player.permanent_furiten, False)
+        self.assertEqual(self.player.agari_tile, None)
 
     def test_str(self):
-        self.assertEqual(str(self.player),
-                         "Player: test player, Seating Position: TON")
+        player_str = "Player: test player, Seating Position: 0, Jikaze: TON"
+        self.assertEqual(str(self.player), player_str)
 
     def test_add_kawa(self):
         discard_tile = Tile(0, 1)
@@ -62,16 +63,16 @@ class TestPlayer(unittest.TestCase):
             self.player.jikaze = 1
 
     def test_get_komicha(self):
-        self.assertEqual(self.player.get_komicha(), 4)
-        self.assertEqual(self.player_2.get_komicha(), 1)
+        self.assertEqual(self.player.get_komicha(), 3)
+        self.assertEqual(self.player_2.get_komicha(), 0)
 
     def test_get_toimen(self):
-        self.assertEqual(self.player.get_toimen(), 3)
-        self.assertEqual(self.player_2.get_toimen(), 4)
+        self.assertEqual(self.player.get_toimen(), 2)
+        self.assertEqual(self.player_2.get_toimen(), 3)
 
     def test_get_shimocha(self):
-        self.assertEqual(self.player.get_shimocha(), 2)
-        self.assertEqual(self.player_2.get_shimocha(), 3)
+        self.assertEqual(self.player.get_shimocha(), 1)
+        self.assertEqual(self.player_2.get_shimocha(), 2)
 
     def test_action_with_discard_tile(self):
         ...
