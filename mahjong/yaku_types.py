@@ -197,11 +197,10 @@ class TeYaku(YakuTypes):
                 # 13-way wait
                 self.total_yaku = 'kokushi musou 13-way wait'
                 self.yakuman_count = 2
-                return True
             else:  # single wait
                 self.total_yaku = 'kokushi musou'
                 self.yakuman_count = 1
-                return True
+            return True
 
         return False
 
