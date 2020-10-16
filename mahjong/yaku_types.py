@@ -1,6 +1,7 @@
 import copy
 from abc import ABC, abstractmethod
 from .player import Player
+from .components import Tile
 
 
 class YakuTypes(ABC):
@@ -58,7 +59,7 @@ class YakuTypes(ABC):
 
     @yakuman_count.setter
     def yakuman_count(self, yakuman_count):
-        self._yakuman_count = yakuman_count
+        self._yakuman_count += yakuman_count
 
 
 class JouKyouYaku(YakuTypes):
@@ -184,7 +185,25 @@ class TeYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Kokushi_musou
         """
-        return NotImplemented
+        honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
+        yaochuuhai = honor_tiles + terminal_tiles
+
+        yaochuu_in_hand = {k: v for (k, v) in self.agari_hand.items()
+                           if Tile.from_index(k) in yaochuuhai}
+        single_yaochuu_n = sum(v == 1 for v in yaochuu_in_hand.values())
+        pair_yaochuu_keys = [k for (k, v) in yaochuu_in_hand.items() if v == 2]
+        if (single_yaochuu_n == 12) and (len(pair_yaochuu_keys) == 1):
+            if pair_yaochuu_keys[0] == self.player.agari_tile.index:
+                # 13-way wait
+                self.total_yaku = 'kokushi musou 13-way wait'
+                self.yakuman_count = 2
+                return True
+            else:  # single wait
+                self.total_yaku = 'kokushi musou'
+                self.yakuman_count = 1
+                return True
+
+        return False
 
     def chuuren_poutou(self):  # 九連宝燈 or 純正九蓮宝燈
         """A hand consisting of the tiles 1112345678999 in the same suit plus
