@@ -2,7 +2,7 @@ from typing import Tuple, List, DefaultDict
 from collections import defaultdict
 
 from .utils import get_name
-from .components import Huro, Tile, Action, Jihai
+from .components import Huro, Tile, Action, Jihai, Naki
 from .naki_and_actions import check_tenpai
 
 
@@ -17,6 +17,7 @@ class Player:
         self.hand: DefaultDict[int] = defaultdict(int)
         self.kabe: List[Huro] = []  # 副露/鳴き
         self.kawa: List[Tile] = []  # 河 is formed by the discarded tiles.
+        self.menzenchin: bool = True
         self.tmp_huro: Huro = None
         self.tmp_furiten: bool = False
         self.permanent_furiten: bool = False
@@ -79,7 +80,9 @@ class Player:
     def get_shimocha(self) -> int:
         return (self.seating_position + 1) % 4
 
-    def action_with_discard_tile(self, tile: Tile, pos: int) -> Action:
+    def action_with_discard_tile(
+        self, tile: Tile, pos: int
+    ) -> Tuple[Action, Naki]:
         """"Player has to select an action reacting to
           the discarded tile.
         Args:
@@ -91,7 +94,8 @@ class Player:
         self.tmp_huro = None
         # TODO: connect player's input with the action
 
-        action = None  # temporary, otherwise linter doesn't let me through
+        action = Action.NOACT  # tmp, otherwise linter doesn't let me through
+        naki = Naki.NONE
         # set temporary and permanent furiten
         if action == Action.NOACT:
             if tile in check_tenpai(self.hand, self.kabe):
@@ -102,27 +106,34 @@ class Player:
         elif action == Action.RON:
             self.agari_tile = tile
 
-        return action
+        return action, naki
 
-    def action_with_new_tile(self, tile: Tile) -> Tuple[Action, Tile]:
+    def action_with_new_tile(
+        self, tile: Tile
+    ) -> Tuple[Tuple[Action, Naki], Tile]:
         """"Player has to select an action reacting to the new drawn tile.
         Args:
           tile: discarded tile
         Returns:
-          action: TSUMO/ANKAN/CHAKAN
+          (action, naki): TSUMO/ANKAN/CHAKAN
           discard_tile: Tile
         """
         self.tmp_huro = None
         action = None
-        # TODO: check TSUMO/ANKAN/CHAKAN, else pick discard tile
-        if action == Action.RON:
+        naki = None
+        discard_tile = None
+        if action in Action.TSUMO:
             self.agari_tile = tile
+        else:
+            ...  # pick discard tile
 
-        return
+        return (action, naki), discard_tile
 
-    def action_with_naki(self, action: Action) -> None:
+    def action_with_naki(self, naki: Naki) -> None:
         # add tmp_huro to kabe
         self.kabe.append(self.tmp_huro)
+        if naki != Naki.ANKAN:
+            self.menzenchin = False
         self.tmp_huro = None
         return
 
@@ -134,6 +145,7 @@ class Player:
         Returns:
           action: NOACT or RON
         """
+        # TODO: add 國士無雙搶槓 flag
         # can react with RON (CHANKAN)
         return Action.NOACT
 
