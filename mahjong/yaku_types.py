@@ -1,4 +1,5 @@
 import copy
+from collections import defaultdict
 from abc import ABC, abstractmethod
 from .player import Player
 
@@ -13,7 +14,11 @@ class YakuTypes(ABC):
         self.player = player
         self.bakaze = bakaze
         self.agari_hand = copy.deepcopy(self.player.hand)
+        self.agari_hand = \
+            defaultdict(int, {k: v for k, v in self.agari_hand.items() if v > 0})
         self.agari_hand[self.player.agari_tile.index] += 1
+        self.huro_tiles = \
+            [tile for huro in self.player.kabe for tile in huro.tiles]
 
     @property
     @abstractmethod
@@ -47,7 +52,7 @@ class YakuTypes(ABC):
 
     @yakuman_count.setter
     def yakuman_count(self, yakuman_count):
-        self._yakuman_count = yakuman_count
+        self._yakuman_count += yakuman_count
 
 
 class JouKyouYaku(YakuTypes):
@@ -212,14 +217,24 @@ class TeYaku(YakuTypes):
         1 han
         http://arcturus.su/wiki/Honroutou
         """
+        def isYaochuu(suit: int, rank: int) -> bool:
+            if suit == 0:
+                return True
+            else:
+                if rank == 1 or rank == 9:
+                    return True
+
+        # check player's hand
         for k in self.agari_hand.keys():
             suit = k//10
             rank = k % 10
-            if suit == 0:
+            if isYaochuu(suit=suit, rank=rank):
                 return False
-            else:
-                if rank == 1 or rank == 9:
-                    return False
+
+        # check player's kabe
+        for tile in self.huro_tiles:
+            if isYaochuu(suit=tile.suit, rank=tile.rank):
+                return False
 
         self.total_yaku = 'tanyao'
         self.total_han = 1
@@ -239,11 +254,13 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Tsuuiisou
         """
-        suit = set([k//10 for k in self.agari_hand.keys()])
+        suit_in_hand = set([k//10 for k in self.agari_hand.keys()])
+        suit_in_huro = set([tile.suit for tile in self.huro_tiles])
+        suit = suit_in_hand | suit_in_huro
+
         if len(suit) == 1 and list(suit)[0] == 0:
             self.total_yaku = 'tsuuiisou'
-            # self.total_han =
-            # self.yakuman_count =
+            self.yakuman_count = 1
             return True
         return False
 
@@ -394,10 +411,16 @@ class Somete(TeYaku):
         5 han (open)
         http://arcturus.su/wiki/Sanankou
         """
-        suit = set([k//10 for k in self.agari_hand.keys()])
+        suit_in_hand = set([k//10 for k in self.agari_hand.keys()])
+        suit_in_huro = set([tile.suit for tile in self.huro_tiles])
+        suit = suit_in_hand | suit_in_huro
+
         if len(suit) == 1 and list(suit)[0] != 0:
             self.total_yaku = 'chiniisou'
-            self.total_han = 6  # or 5 (open)
+            if self.player.menzenchin:
+                self.total_han = 6
+            else:
+                self.total_han = 5
             return True
         return False
 
@@ -407,9 +430,16 @@ class Somete(TeYaku):
         2 han (open)
         http://arcturus.su/wiki/Honiisou
         """
-        suit_not_jihai = [k//10 for k in self.agari_hand.keys() if k//10 != 0]
-        if len(set(suit_not_jihai)) == 1:
+        suit_not_jihai_in_hand = \
+            set([k//10 for k in self.agari_hand.keys() if k//10 != 0])
+        suit_not_jihai_in_huro = \
+            set([tile.suit for tile in self.huro_tiles if tile.suit != 0])
+        suit_not_jihai = suit_not_jihai_in_hand | suit_not_jihai_in_huro
+        if len(suit_not_jihai) == 1:
             self.total_yaku = 'honiisou'
-            self.total_han = 3  # or 2 (open)
+            if self.player.menzenchin:
+                self.total_han = 3
+            else:
+                self.total_han = 2
             return True
         return False
