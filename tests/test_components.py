@@ -132,16 +132,23 @@ class TestStack(unittest.TestCase):
 class TestHuro(unittest.TestCase):
 
     def setUp(self):
-        self.huro_chii = Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
-                                          Tile(Suit.MANZU.value, 8),
-                                          Tile(Suit.MANZU.value, 9)])
-        self.huro_pon = Huro(Naki.PON, [Tile(Suit.MANZU.value, 2),
-                                        Tile(Suit.MANZU.value, 2),
-                                        Tile(Suit.MANZU.value, 2)])
-        self.huro_kan = Huro(Naki.KAN, [Tile(Suit.MANZU.value, 5),
-                                        Tile(Suit.MANZU.value, 5),
-                                        Tile(Suit.MANZU.value, 5),
-                                        Tile(Suit.MANZU.value, 5)])
+        chii_tile = Tile(Suit.MANZU.value, 7)
+        chii_tile.owner = 0
+        self.huro_chii = Huro(Naki.CHII,
+                              chii_tile,
+                              [Tile(Suit.MANZU.value, 7),
+                               Tile(Suit.MANZU.value, 8),
+                               Tile(Suit.MANZU.value, 9)])
+        pon_tile = Tile(Suit.MANZU.value, 2)
+        pon_tile.owner = 0
+        self.huro_pon = Huro(Naki.PON,
+                             pon_tile,
+                             [Tile(Suit.MANZU.value, 2) for i in range(3)])
+        kan_tile = Tile(Suit.MANZU.value, 5)
+        kan_tile.owner = 0
+        self.huro_kan = Huro(Naki.KAN,
+                             kan_tile,
+                             [Tile(Suit.MANZU.value, 5) for i in range(4)])
 
     def test_naki_type(self):
         self.assertEqual(self.huro_kan.naki_type, Naki.KAN)

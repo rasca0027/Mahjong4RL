@@ -50,6 +50,7 @@ class Tile:
         self.suit = suit
         self.rank = rank
         self.index = self.calc_index()
+        self.owner = None
 
     def __str__(self):
         if self._suit == Suit.JIHAI.value:
@@ -84,6 +85,19 @@ class Tile:
                     f"Value for { get_name(Suit, self._suit) }"
                     f"should be in: 1-9")
         self._rank = value
+
+    @property
+    def owner(self):
+        return self._owner
+
+    @owner.setter
+    def owner(self, seating_pos: int):
+        if seating_pos is not None:
+            if (not 0 <= seating_pos < 4) and seating_pos is not None:
+                raise ValueError(
+                    "Owner should be seating position (0~3) or None,"
+                    f"Got {seating_pos} instead.")
+        self._owner = seating_pos
 
     def calc_index(self):
         return self._suit * 10 + self._rank
@@ -209,8 +223,9 @@ class Stack:
 
 
 class Huro:
-    def __init__(self, naki_type: Naki, tiles: List[Tile]):
+    def __init__(self, naki_type: Naki, naki_tile: Tile, tiles: List[Tile]):
         self.naki_type = naki_type
+        self.naki_tile = naki_tile
         self.tiles = tiles
 
     @property

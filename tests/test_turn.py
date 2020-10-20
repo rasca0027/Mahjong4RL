@@ -64,10 +64,9 @@ class TestTurnDrawFlow(unittest.TestCase):
         # is declared when four quads are formed by different players.
         for _ in range(3):
             self.tile_stack.add_dora_indicator()
-        kan = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5),
-                              Tile(Suit.SOUZU.value, 5),
-                              Tile(Suit.SOUZU.value, 5),
-                              Tile(Suit.SOUZU.value, 5)])
+        naki_tile = Tile(Suit.SOUZU.value, 5)
+        naki_tile.owner = self.player_1.seating_position
+        kan = Huro(Naki.KAN, naki_tile, [Tile(Suit.SOUZU.value, 5) for i in range(4)])
         self.player_1.action_with_new_tile = MagicMock()
         self.player_1.action_with_new_tile.side_effect = [
             (Action.ANKAN, None), (Action.NOACT, Tile(0, 1))]
@@ -82,10 +81,18 @@ class TestTurnDrawFlow(unittest.TestCase):
     def test_draw_flow_suukantsu(self):
         for _ in range(3):
             self.tile_stack.add_dora_indicator()
-        kan_1 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
-        kan_2 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 6)] * 4)
-        kan_3 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7)] * 4)
-        kan_4 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7)] * 4)
+        naki_tile_1 = Tile(Suit.SOUZU.value, 5)
+        naki_tile_1.owner = self.player_1.seating_position
+        naki_tile_2 = Tile(Suit.SOUZU.value, 6)
+        naki_tile_2.owner = self.player_1.seating_position
+        naki_tile_3 = Tile(Suit.SOUZU.value, 7)
+        naki_tile_3.owner = self.player_1.seating_position
+        naki_tile_4 = Tile(Suit.SOUZU.value, 8)
+        naki_tile_4.owner = self.player_1.seating_position
+        kan_1 = Huro(Naki.KAN, naki_tile_1, [Tile(Suit.SOUZU.value, 5) for i in range(4)])
+        kan_2 = Huro(Naki.KAN, naki_tile_2, [Tile(Suit.SOUZU.value, 6) for i in range(4)])
+        kan_3 = Huro(Naki.KAN, naki_tile_3, [Tile(Suit.SOUZU.value, 7) for i in range(4)])
+        kan_4 = Huro(Naki.KAN, naki_tile_4, [Tile(Suit.SOUZU.value, 8) for i in range(4)])
         self.player_1.kabe.append(kan_1)
         self.player_1.kabe.append(kan_2)
         self.player_1.kabe.append(kan_3)
@@ -105,7 +112,9 @@ class TestTurnDrawFlow(unittest.TestCase):
     def test_suukantsu_other_player(self):
         for _ in range(4):
             self.tile_stack.add_dora_indicator()
-        kan = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
+        naki_tile = Tile(Suit.SOUZU.value, 5)
+        naki_tile.owner = self.player_1.seating_position
+        kan = Huro(Naki.KAN, naki_tile, [Tile(Suit.SOUZU.value, 5) for i in range(4)])
         kabe = [kan]
         self.assertEqual(len(self.tile_stack.doras), 5)
         self.assertEqual(self.turn.check_suukaikan(kabe), True)
@@ -113,7 +122,9 @@ class TestTurnDrawFlow(unittest.TestCase):
     def test_suukaikan(self):
         for _ in range(3):
             self.tile_stack.add_dora_indicator()
-        kan = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
+        naki_tile = Tile(Suit.SOUZU.value, 5)
+        naki_tile.owner = self.player_1.seating_position
+        kan = Huro(Naki.KAN, naki_tile, [Tile(Suit.SOUZU.value, 5) for i in range(4)])
         kabe = [kan]
         self.assertEqual(len(self.tile_stack.doras), 4)
         self.assertEqual(self.turn.check_suukaikan(kabe), True)
@@ -121,17 +132,27 @@ class TestTurnDrawFlow(unittest.TestCase):
     def test_suukantsu(self):
         for _ in range(3):
             self.tile_stack.add_dora_indicator()
-        kan_1 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
-        kan_2 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 6)] * 4)
-        kan_3 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7)] * 4)
-        kan_4 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7)] * 4)
+        naki_tile_1 = Tile(Suit.SOUZU.value, 5)
+        naki_tile_1.owner = self.player_1.seating_position
+        naki_tile_2 = Tile(Suit.SOUZU.value, 6)
+        naki_tile_2.owner = self.player_1.seating_position
+        naki_tile_3 = Tile(Suit.SOUZU.value, 7)
+        naki_tile_3.owner = self.player_1.seating_position
+        naki_tile_4 = Tile(Suit.SOUZU.value, 8)
+        naki_tile_4.owner = self.player_1.seating_position
+        kan_1 = Huro(Naki.KAN, naki_tile_1, [Tile(Suit.SOUZU.value, 5) for i in range(4)])
+        kan_2 = Huro(Naki.KAN, naki_tile_2, [Tile(Suit.SOUZU.value, 6) for i in range(4)])
+        kan_3 = Huro(Naki.KAN, naki_tile_3, [Tile(Suit.SOUZU.value, 7) for i in range(4)])
+        kan_4 = Huro(Naki.KAN, naki_tile_4, [Tile(Suit.SOUZU.value, 8) for i in range(4)])
         kabe = [kan_1, kan_2, kan_3, kan_4]
         self.assertEqual(len(self.tile_stack.doras), 4)
         self.assertEqual(self.turn.check_suukaikan(kabe), False)
 
     def test_no_suukaikan(self):
         self.tile_stack.add_dora_indicator()
-        kan = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5)] * 4)
+        naki_tile = Tile(Suit.SOUZU.value, 5)
+        naki_tile.owner = self.player_1.seating_position
+        kan = Huro(Naki.KAN, naki_tile, [Tile(Suit.SOUZU.value, 5) for i in range(4)])
         kabe = [kan]
         self.assertEqual(self.turn.check_suukaikan(kabe), False)
 
@@ -299,22 +320,18 @@ class TestTurnNakiFlow(unittest.TestCase):
     def test_suukantsu(self):
         for _ in range(3):
             self.tile_stack.add_dora_indicator()
-        kan_1 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 5),
-                                Tile(Suit.SOUZU.value, 5),
-                                Tile(Suit.SOUZU.value, 5),
-                                Tile(Suit.SOUZU.value, 5)])
-        kan_2 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 6),
-                                Tile(Suit.SOUZU.value, 6),
-                                Tile(Suit.SOUZU.value, 6),
-                                Tile(Suit.SOUZU.value, 6)])
-        kan_3 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7),
-                                Tile(Suit.SOUZU.value, 7),
-                                Tile(Suit.SOUZU.value, 7),
-                                Tile(Suit.SOUZU.value, 7)])
-        kan_4 = Huro(Naki.KAN, [Tile(Suit.SOUZU.value, 7),
-                                Tile(Suit.SOUZU.value, 7),
-                                Tile(Suit.SOUZU.value, 7),
-                                Tile(Suit.SOUZU.value, 7)])
+        naki_tile_1 = Tile(Suit.SOUZU.value, 5)
+        naki_tile_1.owner = self.player_1.seating_position
+        naki_tile_2 = Tile(Suit.SOUZU.value, 6)
+        naki_tile_2.owner = self.player_1.seating_position
+        naki_tile_3 = Tile(Suit.SOUZU.value, 7)
+        naki_tile_3.owner = self.player_1.seating_position
+        naki_tile_4 = Tile(Suit.SOUZU.value, 8)
+        naki_tile_4.owner = self.player_1.seating_position
+        kan_1 = Huro(Naki.KAN, naki_tile_1, [Tile(Suit.SOUZU.value, 5) for i in range(4)])
+        kan_2 = Huro(Naki.KAN, naki_tile_2, [Tile(Suit.SOUZU.value, 6) for i in range(4)])
+        kan_3 = Huro(Naki.KAN, naki_tile_3, [Tile(Suit.SOUZU.value, 7) for i in range(4)])
+        kan_4 = Huro(Naki.KAN, naki_tile_4, [Tile(Suit.SOUZU.value, 8) for i in range(4)])
         self.player_1.kabe.append(kan_1)
         self.player_1.kabe.append(kan_2)
         self.player_1.kabe.append(kan_3)
