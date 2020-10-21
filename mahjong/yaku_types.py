@@ -1,6 +1,8 @@
 import copy
 from abc import ABC, abstractmethod
 from .player import Player
+from .components import Suit, Tile
+from .naki_and_actions import check_remains_are_sets
 
 
 class YakuTypes(ABC):
@@ -221,7 +223,32 @@ class TeYaku(YakuTypes):
         1 han (open)
         http://arcturus.su/wiki/Ikkitsuukan
         """
-        return NotImplemented
+        for suit in Suit:
+            tmp_hand = copy.deepcopy(self.agari_hand)
+            if suit != Suit.JIHAI:
+                set_n = 0
+                start = 1
+                for i in range(3):
+                    got_tile_set = True
+                    tile_set = [Tile(suit.value, i)
+                                for i in range(start, start + 3)]
+                    for tile in tile_set:
+                        if tmp_hand[tile.index] < 1:
+                            got_tile_set = False
+                            break
+                        else:
+                            tmp_hand[tile.index] -= 1
+                    if got_tile_set:
+                        set_n += 1
+                    start += 3
+                if set_n == 3:
+                    for tile_index in tmp_hand.keys():
+                        if tmp_hand[tile_index] >= 2:
+                            tmp_hand[tile_index] -= 2
+                            if check_remains_are_sets(tmp_hand, 3):
+                                return True
+
+        return False
 
     def pinfu():  # 平和
         """Defined by having 0 fu aside from the base 20 fu, or 30 fu in
