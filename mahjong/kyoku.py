@@ -227,7 +227,7 @@ class Kyoku:
         self._bakaze = value
 
     def get_oya_player(self):
-        return list(filter(lambda p: p.jilaze == Jihai.TON, self.players))[0]
+        return next(filter(lambda p: p.jikaze == Jihai.TON, self.players))
 
     def deal(self) -> None:
         for player in self.players:
@@ -340,25 +340,24 @@ class Kyoku:
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, player_names: List[):
         self.bakaze = Jihai.TON
         self.kyoku_num = 1  # e.g.東1局
-        self.players = self.get_init_players()
-        self.current_kyoku = Kyoku(players, 0, self.bakaze, 0)
+        self.players = self.get_init_players(player_names)
+        self.current_kyoku = Kyoku(self.players, 0, self.bakaze, 0)
         self.start_game()
 
-    def get_init_players():
-        pass
+    def get_init_players(player_names):
+        for i, name in enumerate(player_names):
+            player = Player(name, i)
+            self.players.append(player)
 
     def start_game():
         while True:
             renchan, kyotaku, honba = self.current_kyoku.start()
             if check_tobu():  # 有人被飛
                 break
-            if renchan:
-                # oya same player, don't increase kyoku_num or bakaze, increase honba
-                honba += 1
-            else:
+            if not renchan:
                 if self.kyoku_num == 4:
                     if self.bakaze == Jihai.NAN:
                         break # end game
@@ -367,8 +366,10 @@ class Game:
                         self.kyoku_num = 1
                 else:
                     self.kyoku_num += 1
-                # TODO: advance player jikaze
-            self.current_kyoku = Kyoku(players, honba, self.bakaze, kyotaku)
+                # advance player jikaze
+                for player in self.players:
+                    player.jikaze = Jihai((player.jikaze.value - 3) % 4 + 4)
+            self.current_kyoku = Kyoku(self.players, honba, self.bakaze, kyotaku)
         # 遊戲結束
         self.end_game()
 
