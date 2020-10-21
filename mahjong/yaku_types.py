@@ -251,7 +251,7 @@ class Yakuhai(TeYaku):
         """
         huro_set = set(self.huro_tiles)
         for rank in [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN]:
-            tile = Tile(Suit.JIHAI, rank)
+            tile = Tile(Suit.JIHAI, rank.value)
             index = tile.index
             if self.agari_hand[index] >= 3:
                 continue
@@ -284,7 +284,20 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Daisuushii
         """
-        return NotImplemented
+        huro_set = set(self.huro_tiles)
+        four_winds = [Jihai.TON, Jihai.NAN, Jihai.SHAA, Jihai.PEI]
+        for rank in four_winds:
+            tile = Tile(Suit.JIHAI, rank.value)
+            index = tile.index
+            if self.agari_hand[index] >= 3:
+                continue
+            elif tile in huro_set:
+                continue
+            else:
+                return False
+        self.total_yaku = "daisuushii"
+        self.yakuman_count = 1
+        return True
 
     def shousuushii(self):  # 小四喜
         """This hand has three groups (triplets or quads)
