@@ -11,7 +11,7 @@ class Player:
         self.name: str = name
         self._seating_position = seating_position  # 固定座位順序
         # jikaze 自風, dealer seat (東風) rotates among players
-        self.jikaze: Jihai = Jihai[get_name(Jihai, seating_position + 3)]
+        self.jikaze: Jihai = Jihai[get_name(Jihai, seating_position + 4)]
         self.points: int = 25_000
         self.is_riichi: bool = False
         self.hand: DefaultDict[int] = defaultdict(int)

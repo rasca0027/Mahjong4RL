@@ -124,7 +124,7 @@ class Turn:
         # walk through 3 other players
         p = kan_player
         for i in range(3):
-            p = p.get_shimocha()
+            p = self.players[p.get_shimocha()]
             act = p.action_with_chakan(kan_tile, kan_type)
             if act == Action.RON:
                 self.winner.append(p.seating_position)
@@ -188,7 +188,7 @@ class Kyoku:
         players: List[Player],
         honba: int,
         bakaze: Jihai,
-        kyotaku: kyotaku,
+        kyotaku: int,
         atamahane: Optional[bool] = True,
     ):
         self.winner = []
@@ -221,7 +221,7 @@ class Kyoku:
 
     @bakaze.setter
     def bakaze(self, value: Jihai) -> None:
-        if not 1 <= value <= 2:
+        if not 4 <= value.value <= 5:
             raise ValueError(
                 "Bakaze should be 1 in Tonpuusen, should be 1 or 2 in Hanchan")
         self._bakaze = value
@@ -231,7 +231,7 @@ class Kyoku:
 
     def deal(self) -> None:
         for player in self.players:
-            player.hand([self.tile_stack.draw() for _ in range(13)])
+            player.hand = [self.tile_stack.draw() for _ in range(13)]
         return
 
     def start(self):
@@ -337,44 +337,3 @@ class Kyoku:
         if self.kyotaku > 0:
             self.winner.points += self.kyotaku * 1_000
         return
-
-
-class Game:
-    def __init__(self, player_names: List[):
-        self.bakaze = Jihai.TON
-        self.kyoku_num = 1  # e.g.東1局
-        self.players = self.get_init_players(player_names)
-        self.current_kyoku = Kyoku(self.players, 0, self.bakaze, 0)
-        self.start_game()
-
-    def get_init_players(player_names):
-        for i, name in enumerate(player_names):
-            player = Player(name, i)
-            self.players.append(player)
-
-    def start_game():
-        while True:
-            renchan, kyotaku, honba = self.current_kyoku.start()
-            if check_tobu():  # 有人被飛
-                break
-            if not renchan:
-                if self.kyoku_num == 4:
-                    if self.bakaze == Jihai.NAN:
-                        break # end game
-                    elif self.bakaze == Jihai.TON:
-                        self.bakaze = Jihai.NAN
-                        self.kyoku_num = 1
-                else:
-                    self.kyoku_num += 1
-                # advance player jikaze
-                for player in self.players:
-                    player.jikaze = Jihai((player.jikaze.value - 3) % 4 + 4)
-            self.current_kyoku = Kyoku(self.players, honba, self.bakaze, kyotaku)
-        # 遊戲結束
-        self.end_game()
-
-    def check_tobu():
-        return any(filter(lambda p: p.points < 0, self.players))
-
-    def end_game():
-        ...
