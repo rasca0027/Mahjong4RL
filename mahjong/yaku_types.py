@@ -246,6 +246,11 @@ class TeYaku(YakuTypes):
                         if tmp_hand[tile_index] >= 2:
                             tmp_hand[tile_index] -= 2
                             if check_remains_are_sets(tmp_hand, 3):
+                                self.total_yaku = 'ikkitsuukan'
+                                if self.player.menzenchin:  # added in #52
+                                    self.total_han = 2
+                                else:
+                                    self.total_han = 1
                                 return True
 
         return False
