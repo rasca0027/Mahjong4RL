@@ -1,5 +1,6 @@
 import copy
 from typing import List, DefaultDict, TYPE_CHECKING
+from itertools import groupby
 
 from .components import Tile, Suit, Naki, Huro
 if TYPE_CHECKING:
@@ -222,13 +223,37 @@ def check_tenpai(hand: DefaultDict, kabe: List[Huro]) -> List[Tile]:
         kabe: 副露
 
     Returns:
-        possible_list (List[Tile]):
-            every possible tile that could complete the hand (Ron or Tsumo)
+        possible_tiles:
+            every possible tiles that could complete the hand
     """
-    possible_list = []
+    possible_tiles = []
     huro_count = len(kabe)
 
-    def check_machi(machi_tile, current_hand):
+    def check_chiitoitsu(current_hand: DefaultDict) -> Tile:
+        machi_tile = None
+        if len([k for k, v in current_hand.items() if v == 2]) == 6:
+            machi_idx = [k for k, v in current_hand.items() if v == 1][0]
+            machi_tile = Tile.from_index(machi_idx)
+            possible_tiles.append(machi_tile)
+
+    def check_kokushi_musou(current_hand: DefaultDict) -> List[Tile]:
+        honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
+        yaochuuhai = honor_tiles + terminal_tiles
+        machi_tiles = []
+
+        yaochuu_in_hand = {k: v for (k, v) in current_hand.items()
+                           if Tile.from_index(k) in yaochuuhai}
+        single_yaochuu_n = sum(v == 1 for v in yaochuu_in_hand.values())
+        if single_yaochuu_n == 13:  # 13-way wait
+            machi_tiles = yaochuuhai
+        elif single_yaochuu_n == 11:  # single wait
+            if len([v for v in yaochuu_in_hand.values() if v == 2]) == 1:
+                machi_tiles = [i for i in yaochuuhai
+                               if i.index not in yaochuu_in_hand.keys()]
+
+        return machi_tiles
+
+    def check_machi(machi_tile: Tile, current_hand: DefaultDict) -> bool:
         machi_found = False
         for tile_index in current_hand.keys():
             new_hand = copy.deepcopy(current_hand)
@@ -245,9 +270,14 @@ def check_tenpai(hand: DefaultDict, kabe: List[Huro]) -> List[Tile]:
         for rank in range(1, max_rank):
             machi_tile = Tile(suit.value, rank)
             if check_machi(machi_tile, hand):
-                possible_list.append(machi_tile)
+                possible_tiles.append(machi_tile)
 
-    return possible_list
+    if huro_count == 0:
+        check_chiitoitsu(hand)
+        if machi_tiles := check_kokushi_musou(hand):
+            possible_tiles += machi_tiles
+
+    return [k for k, v in groupby(sorted(possible_tiles))]
 
 
 def check_remains_are_sets(remain_tiles: DefaultDict[int, int],
