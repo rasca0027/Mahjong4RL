@@ -98,9 +98,9 @@ class Turn:
           action: the naki action from the player
         """
         naki_actions = [
-            (i, self.players[i - 1].action_with_discard_tile(
+            (i, self.players[i].action_with_discard_tile(
                 discard_tile, discard_pos))
-            for i in range(1, 5) if i != discard_pos
+            for i in range(0, 4) if i != discard_pos
         ]
         pos, action = max(naki_actions, key=lambda x: x[1].value)
         if action == Action.RON and not self.atamahane:
@@ -124,7 +124,7 @@ class Turn:
         # walk through 3 other players
         p = kan_player
         for i in range(3):
-            p = p.get_shimocha()
+            p = self.players[p.get_shimocha()]
             act = p.action_with_chakan(kan_tile, kan_type)
             if act == Action.RON:
                 self.winner.append(p.seating_position)
@@ -156,7 +156,7 @@ class Turn:
                 return state2, None
             if self.check_suukaikan(player.kabe):
                 return -1, None
-            state, discard_tile = self.draw_flow(player, from_rinshan=True)
+            state, action_tile = self.draw_flow(player, from_rinshan=True)
         elif action == Action.TSUMO:
             state = 1
             self.winner.append(player)
@@ -231,6 +231,9 @@ class Kyoku:
             player.hand([self.tile_stack.draw() for _ in range(13)])
         return
 
+    def calculate_yaku():
+        ...
+
     def start(self):
         """
         Return:
@@ -256,27 +259,28 @@ class Kyoku:
             # return self.oya_player, 1
             # Ryuukyoku 流局
             # else:
-            # TODO: 檢查流局是否聽牌 
+            # TODO: 檢查流局是否聽牌
             if check_tenpai(self.oya_player.hand, self.oya_player.kabe):
                 return True, self.kyotaku, self.honba + 1
             else:
                 return False, self.kyotaku, 0
-            
+
         else:
             # TODO: 三家和流局: if len(sef.winner) == 3
             # TODO: Check Yaku and calculate the amount.
-
-            han, fu = calculate_yaku()
+            tsumo = False  # placeholder, 不然玉米片一直吐錯誤
+            loser = None
+            han, fu = self.calculate_yaku()
             self.apply_points(han, fu, tsumo, loser)
             if self.oya_player in self.winner:
                 # return next oya, kyotaku, honba
-                return True, 0, self.honba + 1 
+                return True, 0, self.honba + 1
             return False, 0, 0
-    
+
     def calculate_base_points(self, han: int, fu: int) -> int:
         points = fu * 2**(han + 2)
         if points > 2_000:
-            if han <= 5: # mangan
+            if han <= 5:  # mangan
                 points = 2_000
             elif han == 6 or han == 7:
                 points = 3_000
@@ -285,27 +289,34 @@ class Kyoku:
             elif han == 11 or han == 12:
                 points = 6_000
             elif han >= 13:
-                points = 8_000 # 還要handle 雙倍役滿?
+                points = 8_000  # 還要handle 雙倍役滿?
         return points
-       
-    def apply_points(self, han: int, fu: int, tsumo: bool, loser: Optional[Player] = None):
+
+    def apply_points(self,
+                     han: int,
+                     fu: int,
+                     tsumo: bool,
+                     loser: Optional[Player] = None):
         pt = self.calculate_base_points(han, fu)
         # TODO: only handle atamahane for now
         if self.winner == self.oya_player:
             if tsumo:
                 self.winner.points += roundup(pt * 2) * 3 + 300 * self.honba
-                for i in range(1, 4):
-                    self.players[i].points -= roundup(pt * 2) + 100 * self.honba
+                for i in range(1, 4):  # TODO: should be 0 ~ 3
+                    self.players[i].points -= roundup(pt * 2) + \
+                        100 * self.honba
             else:
                 self.winner.points += roundup(pt * 6) + 300 * self.honba
                 loser.points -= roundup(pt * 6) + 300 * self.honba
-        else: # 子家
+        else:  # 子家
             if tsumo:
-                self.winner.points += roundup(pt * 2) + roundup(pt) + 100 * self.honba
+                self.winner.points += roundup(pt * 2) + roundup(pt) + \
+                    100 * self.honba
                 self.oya_player.points -= roundup(pt * 2) + 100 * self.honba
-                for i in range(1, 4):
-                    if self.players[i] != winner:
-                        self.players[i].points -= roundup(pt) + 100 * self.honba
+                for i in range(1, 4):  # TODO: should be 0 ~ 3
+                    if self.players[i] != self.winner:
+                        self.players[i].points -= roundup(pt) + \
+                            100 * self.honba
             else:
                 self.winner.points += roundup(pt * 4) + 300 * self.honba
                 loser.points -= roundup(pt * 4) + 300 * self.honba

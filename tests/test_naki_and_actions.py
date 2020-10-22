@@ -263,143 +263,221 @@ class TestChii(unittest.TestCase):
 class TestTenpai(unittest.TestCase):
 
     def setUp(self):
-        # tenpai: 3 MANZU 5 SOUZU
-        self.player_1 = Player('test_1', 1)
-        self.player_1.hand[Tile(Suit.PINZU.value, 1).index] += 1
-        self.player_1.hand[Tile(Suit.PINZU.value, 2).index] += 1
-        self.player_1.hand[Tile(Suit.PINZU.value, 3).index] += 1
-        self.player_1.hand[Tile(Suit.PINZU.value, 4).index] += 1
-        self.player_1.hand[Tile(Suit.PINZU.value, 5).index] += 1
-        self.player_1.hand[Tile(Suit.PINZU.value, 6).index] += 1
-        self.player_1.hand[Tile(Suit.PINZU.value, 7).index] += 1
-        self.player_1.hand[Tile(Suit.PINZU.value, 8).index] += 1
-        self.player_1.hand[Tile(Suit.PINZU.value, 9).index] += 1
-        self.player_1.hand[Tile(Suit.MANZU.value, 3).index] += 2
-        self.player_1.hand[Tile(Suit.SOUZU.value, 5).index] += 2
-        # tenpai: PEI 4 PINZU 7 PINZU
-        self.player_2 = Player('test_2', 2)
-        self.player_2.hand[Tile(Suit.PINZU.value, 5).index] += 1
-        self.player_2.hand[Tile(Suit.PINZU.value, 6).index] += 1
-        self.player_2.hand[Tile(Suit.PINZU.value, 7).index] += 3
-        self.player_2.hand[Tile(Suit.MANZU.value, 1).index] += 3
-        self.player_2.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 3
-        self.player_2.hand[Tile(Suit.JIHAI.value, Jihai.PEI.value).index] += 2
-        # tenpai: 1 SOUZU 4 SOUZU 7 SOUZU
-        self.player_3 = Player('test_3', 3)
-        self.player_3.hand[Tile(Suit.MANZU.value, 1).index] += 3
-        self.player_3.hand[Tile(Suit.SOUZU.value, 2).index] += 1
-        self.player_3.hand[Tile(Suit.SOUZU.value, 3).index] += 1
-        self.player_3.hand[Tile(Suit.SOUZU.value, 4).index] += 1
-        self.player_3.hand[Tile(Suit.SOUZU.value, 5).index] += 1
-        self.player_3.hand[Tile(Suit.SOUZU.value, 6).index] += 1
-        self.player_3.hand[Tile(Suit.PINZU.value, 8).index] += 3
-        self.player_3.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 2
-        # tenpai: NAN 2 SOUZU
-        self.player_4 = Player('test_4', 4)
-        self.player_4.hand[Tile(Suit.SOUZU.value, 2).index] += 2
-        self.player_4.hand[Tile(Suit.SOUZU.value, 3).index] += 1
-        self.player_4.hand[Tile(Suit.SOUZU.value, 4).index] += 1
-        self.player_4.hand[Tile(Suit.SOUZU.value, 5).index] += 1
-        self.player_4.hand[Tile(Suit.MANZU.value, 8).index] += 3
-        self.player_4.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 2
-        self.player_4.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
-                                                  Tile(Suit.SOUZU.value, 5),
-                                                  Tile(Suit.SOUZU.value, 5)]))
-        # tenpai: 2 MANZU
-        self.player_5 = Player('test_5', 1)
-        self.player_5.hand[Tile(Suit.PINZU.value, 9).index] += 2
-        self.player_5.hand[Tile(Suit.MANZU.value, 1).index] += 1
-        self.player_5.hand[Tile(Suit.MANZU.value, 3).index] += 1
-        self.player_5.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
-                                                  Tile(Suit.SOUZU.value, 5),
-                                                  Tile(Suit.SOUZU.value, 5)]))
-        self.player_5.kabe.append(Huro(Naki.PON, [Tile(Suit.PINZU.value, 5),
-                                                  Tile(Suit.PINZU.value, 5),
-                                                  Tile(Suit.PINZU.value, 5)]))
-        self.player_5.kabe.append(Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
-                                                   Tile(Suit.MANZU.value, 8),
-                                                   Tile(Suit.MANZU.value, 9)]))
-        # tenpai: TON
-        self.player_6 = Player('test_6', 2)
-        self.player_6.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 1
-        self.player_6.kabe.append(
-            Huro(Naki.PON, [Tile(Suit.JIHAI.value, Jihai.SHAA.value),
-                            Tile(Suit.JIHAI.value, Jihai.SHAA.value),
-                            Tile(Suit.JIHAI.value, Jihai.SHAA.value)]))
-        self.player_6.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
-                                                  Tile(Suit.SOUZU.value, 5),
-                                                  Tile(Suit.SOUZU.value, 5)]))
-        self.player_6.kabe.append(Huro(Naki.PON, [Tile(Suit.PINZU.value, 5),
-                                                  Tile(Suit.PINZU.value, 5),
-                                                  Tile(Suit.PINZU.value, 5)]))
-        self.player_6.kabe.append(Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
-                                                   Tile(Suit.MANZU.value, 8),
-                                                   Tile(Suit.MANZU.value, 9)]))
-        # tenpai: 1 MANZU 4 MANZU 空聴（カラテン）
-        self.player_7 = Player('test_7', 3)
-        self.player_7.hand[Tile(Suit.MANZU.value, 1).index] += 4
-        self.player_7.hand[Tile(Suit.MANZU.value, 2).index] += 1
-        self.player_7.hand[Tile(Suit.MANZU.value, 3).index] += 1
-        self.player_7.hand[Tile(Suit.MANZU.value, 4).index] += 4
-        self.player_7.kabe.append(
-            Huro(Naki.PON, [Tile(Suit.JIHAI.value, Jihai.SHAA.value),
-                            Tile(Suit.JIHAI.value, Jihai.SHAA.value),
-                            Tile(Suit.JIHAI.value, Jihai.SHAA.value)]))
+        self.player = Player('test', 1)
+
+    def assert_tenpai(self, player, tenpai):
+        machi_list = sorted(check_tenpai(player.hand, player.kabe))
+        self.assertEqual(machi_list, tenpai)
 
     def test_tenpai_1(self):
-        player_1_tenpai = [Tile(Suit.MANZU.value, 3),
-                           Tile(Suit.SOUZU.value, 5)]
-        machi_list = sorted(check_tenpai(self.player_1.hand,
-                                         self.player_1.kabe))
-        self.assertEqual(machi_list, player_1_tenpai)
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 2).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 4).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 6).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 7).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 8).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 2
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 2
+        tenpai = [Tile(Suit.MANZU.value, 3),
+                  Tile(Suit.SOUZU.value, 5)]
+
+        self.assert_tenpai(self.player, tenpai)
 
     def test_tenpai_2(self):
-        player_2_tenpai = [Tile(Suit.JIHAI.value, Jihai.PEI.value),
-                           Tile(Suit.PINZU.value, 4),
-                           Tile(Suit.PINZU.value, 7)]
-        machi_list = sorted(check_tenpai(self.player_2.hand,
-                                         self.player_2.kabe))
-        self.assertEqual(machi_list, player_2_tenpai)
+        self.player.hand[Tile(Suit.PINZU.value, 6).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 7).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.PEI.value).index] += 2
+        tenpai = [Tile(Suit.JIHAI.value, Jihai.PEI.value),
+                  Tile(Suit.PINZU.value, 4),
+                  Tile(Suit.PINZU.value, 7)]
+
+        self.assert_tenpai(self.player, tenpai)
 
     def test_tenpai_3(self):
-        player_3_tenpai = [Tile(Suit.SOUZU.value, 1),
-                           Tile(Suit.SOUZU.value, 4),
-                           Tile(Suit.SOUZU.value, 7)]
-        machi_list = sorted(check_tenpai(self.player_3.hand,
-                                         self.player_3.kabe))
-        self.assertEqual(machi_list, player_3_tenpai)
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 4).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 8).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 2
+        tenpai = [Tile(Suit.SOUZU.value, 1),
+                  Tile(Suit.SOUZU.value, 4),
+                  Tile(Suit.SOUZU.value, 7)]
+
+        self.assert_tenpai(self.player, tenpai)
 
     def test_tenpai_4(self):
-        player_4_tenpai = [Tile(Suit.JIHAI.value, Jihai.NAN.value),
-                           Tile(Suit.SOUZU.value, 2)]
-        machi_list = sorted(check_tenpai(self.player_4.hand,
-                                         self.player_4.kabe))
-        self.assertEqual(machi_list, player_4_tenpai)
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 2
+        self.player.hand[Tile(Suit.SOUZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 4).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 8).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 2
+        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
+                                                Tile(Suit.SOUZU.value, 5),
+                                                Tile(Suit.SOUZU.value, 5)]))
+        tenpai = [Tile(Suit.JIHAI.value, Jihai.NAN.value),
+                  Tile(Suit.SOUZU.value, 2)]
+
+        self.assert_tenpai(self.player, tenpai)
 
     def test_tenpai_5(self):
-        player_5_tenpai = [Tile(Suit.MANZU.value, 2)]
-        machi_list = sorted(check_tenpai(self.player_5.hand,
-                                         self.player_5.kabe))
-        self.assertEqual(machi_list, player_5_tenpai)
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 1
+        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
+                                                Tile(Suit.SOUZU.value, 5),
+                                                Tile(Suit.SOUZU.value, 5)]))
+        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.PINZU.value, 5),
+                                                Tile(Suit.PINZU.value, 5),
+                                                Tile(Suit.PINZU.value, 5)]))
+        self.player.kabe.append(Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
+                                                 Tile(Suit.MANZU.value, 8),
+                                                 Tile(Suit.MANZU.value, 9)]))
+        tenpai = [Tile(Suit.MANZU.value, 2)]
+
+        self.assert_tenpai(self.player, tenpai)
 
     def test_tenpai_6(self):
-        player_6_tenpai = [Tile(Suit.JIHAI.value, Jihai.TON.value)]
-        machi_list = sorted(check_tenpai(self.player_6.hand,
-                                         self.player_6.kabe))
-        self.assertEqual(machi_list, player_6_tenpai)
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 1
+        self.player.kabe.append(
+            Huro(Naki.PON, [Tile(Suit.JIHAI.value, Jihai.SHAA.value),
+                            Tile(Suit.JIHAI.value, Jihai.SHAA.value),
+                            Tile(Suit.JIHAI.value, Jihai.SHAA.value)]))
+        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
+                                                Tile(Suit.SOUZU.value, 5),
+                                                Tile(Suit.SOUZU.value, 5)]))
+        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.PINZU.value, 5),
+                                                Tile(Suit.PINZU.value, 5),
+                                                Tile(Suit.PINZU.value, 5)]))
+        self.player.kabe.append(Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
+                                                 Tile(Suit.MANZU.value, 8),
+                                                 Tile(Suit.MANZU.value, 9)]))
+        tenpai = [Tile(Suit.JIHAI.value, Jihai.TON.value)]
+
+        self.assert_tenpai(self.player, tenpai)
 
     def test_tenpai_7(self):
-        player_7_tenpai = [Tile(Suit.MANZU.value, 1),
-                           Tile(Suit.MANZU.value, 4)]
-        machi_list = sorted(check_tenpai(self.player_7.hand,
-                                         self.player_7.kabe))
-        self.assertEqual(machi_list, player_7_tenpai)
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 4
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 4).index] += 4
+        self.player.kabe.append(
+            Huro(Naki.PON, [Tile(Suit.JIHAI.value, Jihai.SHAA.value),
+                            Tile(Suit.JIHAI.value, Jihai.SHAA.value),
+                            Tile(Suit.JIHAI.value, Jihai.SHAA.value)]))
+        tenpai = [Tile(Suit.MANZU.value, 1),
+                  Tile(Suit.MANZU.value, 4)]
+        # tenpai: 1 MANZU 4 MANZU 空聴（カラテン）
+        self.assert_tenpai(self.player, tenpai)
+
+    def test_tenpai_8(self):
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 4).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 5).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 6).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 7).index] += 1
+        tenpai = [Tile(Suit.MANZU.value, 1),
+                  Tile(Suit.MANZU.value, 4),
+                  Tile(Suit.MANZU.value, 7)]
+        self.assert_tenpai(self.player, tenpai)
+
+    def test_tenpai_9(self):
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 5).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 7).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 9).index] += 2
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 2
+        self.player.hand[Tile(Suit.SOUZU.value, 3).index] += 1
+        tenpai = [Tile(Suit.SOUZU.value, 3)]
+        self.assert_tenpai(self.player, tenpai)
+
+    def test_tenpai_10(self):
+        self.player.hand[Tile(Suit.MANZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.PEI.value).index] += 2
+        tenpai = [Tile(Suit.MANZU.value, 1)]
+        # tenpai: 1 MANZU (kokushi musou single wait)
+        self.assert_tenpai(self.player, tenpai)
+
+    def test_tenpai_11(self):
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 1
+        tenpai = []
+        # no tenpai: test kokushi musou single wait
+        self.assert_tenpai(self.player, tenpai)
+
+    def test_tenpai_12(self):
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 0
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.PEI.value).index] += 1
+        tenpai = []
+        # no tenpai: test kokushi musou single wait
+        self.assert_tenpai(self.player, tenpai)
+
+    def test_tenpai_13(self):
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.PEI.value).index] += 1
+        honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
+        tenpai = honor_tiles + terminal_tiles
+        # tenpai: 1 MANZU (kokushi musou 13-way wait)
+        self.assert_tenpai(self.player, tenpai)
 
     def test_no_tenpai(self):
-        self.player_1.hand[Tile(Suit.PINZU.value, 1).index] -= 1
-        self.player_1.hand[Tile(Suit.PINZU.value, 2).index] += 1
-        self.assertEqual(check_tenpai(self.player_1.hand,
-                                      self.player_1.kabe), [])
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] -= 1
+        self.player.hand[Tile(Suit.PINZU.value, 2).index] += 1
+        self.assertEqual(check_tenpai(self.player.hand, self.player.kabe), [])
 
 
 class TestRiichi(unittest.TestCase):
