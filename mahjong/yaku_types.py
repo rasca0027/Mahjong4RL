@@ -2,6 +2,7 @@ import copy
 from collections import defaultdict
 from abc import ABC, abstractmethod
 from .player import Player
+from .components import Suit, Jihai, Tile
 
 
 class YakuTypes(ABC):
@@ -15,7 +16,8 @@ class YakuTypes(ABC):
         self.bakaze = bakaze
         self.agari_hand = copy.deepcopy(self.player.hand)
         self.agari_hand = \
-            defaultdict(int, {k: v for k, v in self.agari_hand.items() if v > 0})
+            defaultdict(
+                int, {k: v for k, v in self.agari_hand.items() if v > 0})
         self.agari_hand[self.player.agari_tile.index] += 1
         self.huro_tiles = \
             [tile for huro in self.player.kabe for tile in huro.tiles]
@@ -247,7 +249,19 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Daisangen
         """
-        return NotImplemented
+        huro_set = set(self.huro_tiles)
+        for rank in [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN]:
+            tile = Tile(Suit.JIHAI, rank.value)
+            index = tile.index
+            if self.agari_hand[index] >= 3:
+                continue
+            elif tile in huro_set:
+                continue
+            else:
+                return False
+        self.total_yaku = "daisangen"
+        self.yakuman_count = 1
+        return True
 
     def tsuuiisou(self):  # 字一色
         """Every group of tiles are composed of honor tiles.
@@ -264,19 +278,32 @@ class Yakuhai(TeYaku):
             return True
         return False
 
-    def shousuushii(self):  # 小四喜
-        """This hand has three groups (triplets or quads)
-        of the wind tiles plus a pair of the fourth kind.
-        yakuman
-        http://arcturus.su/wiki/Shousuushii
-        """
-        return NotImplemented
-
     def daisuushii(self):  # 大四喜
         """This hand has four groups (triplets or quads) of
         all four wind tiles.
         yakuman
         http://arcturus.su/wiki/Daisuushii
+        """
+        huro_set = set(self.huro_tiles)
+        four_winds = [Jihai.TON, Jihai.NAN, Jihai.SHAA, Jihai.PEI]
+        for rank in four_winds:
+            tile = Tile(Suit.JIHAI, rank.value)
+            index = tile.index
+            if self.agari_hand[index] >= 3:
+                continue
+            elif tile in huro_set:
+                continue
+            else:
+                return False
+        self.total_yaku = "daisuushii"
+        self.yakuman_count = 1
+        return True
+
+    def shousuushii(self):  # 小四喜
+        """This hand has three groups (triplets or quads)
+        of the wind tiles plus a pair of the fourth kind.
+        yakuman
+        http://arcturus.su/wiki/Shousuushii
         """
         return NotImplemented
 
