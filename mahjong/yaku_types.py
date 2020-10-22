@@ -2,6 +2,7 @@ import copy
 from collections import defaultdict
 from abc import ABC, abstractmethod
 from .player import Player
+from .utils import isYaochuu
 
 
 class YakuTypes(ABC):
@@ -14,8 +15,8 @@ class YakuTypes(ABC):
         self.player = player
         self.bakaze = bakaze
         self.agari_hand = copy.deepcopy(self.player.hand)
-        self.agari_hand = \
-            defaultdict(int, {k: v for k, v in self.agari_hand.items() if v > 0})
+        self.agari_hand = defaultdict(
+            int, {k: v for k, v in self.agari_hand.items() if v > 0})
         self.agari_hand[self.player.agari_tile.index] += 1
         self.huro_tiles = \
             [tile for huro in self.player.kabe for tile in huro.tiles]
@@ -217,13 +218,6 @@ class TeYaku(YakuTypes):
         1 han
         http://arcturus.su/wiki/Honroutou
         """
-        def isYaochuu(suit: int, rank: int) -> bool:
-            if suit == 0:
-                return True
-            else:
-                if rank == 1 or rank == 9:
-                    return True
-
         # check player's hand
         for k in self.agari_hand.keys():
             suit = k//10
