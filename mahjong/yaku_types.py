@@ -2,7 +2,7 @@ import copy
 from abc import ABC, abstractmethod
 from .player import Player
 from .components import Suit, Tile
-from .naki_and_actions import check_remains_are_sets
+from .naki_and_actions import consists_jantou_and_sets
 
 
 class YakuTypes(ABC):
@@ -224,34 +224,24 @@ class TeYaku(YakuTypes):
         http://arcturus.su/wiki/Ikkitsuukan
         """
         for suit in Suit:
-            tmp_hand = copy.deepcopy(self.agari_hand)
             if suit != Suit.JIHAI:
-                set_n = 0
-                start = 1
-                for i in range(3):
-                    got_tile_set = True
-                    tile_set = [Tile(suit.value, i)
-                                for i in range(start, start + 3)]
-                    for tile in tile_set:
-                        if tmp_hand[tile.index] < 1:
-                            got_tile_set = False
-                            break
+                tmp_hand = copy.deepcopy(self.agari_hand)
+                for tile in self.huro_tiles:  # to check tiles in hand and kabe
+                    tmp_hand[tile.index] += 1
+
+                for i in range(1, 10):
+                    if tmp_hand[Tile(suit.value, i).index] < 1:
+                        break
+                    else:
+                        tmp_hand[Tile(suit.value, i).index] -= 1
+                else:
+                    if consists_jantou_and_sets(tmp_hand, 3):
+                        self.total_yaku = 'ikkitsuukan'
+                        if self.player.menzenchin:
+                            self.total_han = 2
                         else:
-                            tmp_hand[tile.index] -= 1
-                    if got_tile_set:
-                        set_n += 1
-                    start += 3
-                if set_n == 3:
-                    for tile_index in tmp_hand.keys():
-                        if tmp_hand[tile_index] >= 2:
-                            tmp_hand[tile_index] -= 2
-                            if check_remains_are_sets(tmp_hand, 3):
-                                self.total_yaku = 'ikkitsuukan'
-                                if self.player.menzenchin:  # added in #52
-                                    self.total_han = 2
-                                else:
-                                    self.total_han = 1
-                                return True
+                            self.total_han = 1
+                        return True
 
         return False
 
