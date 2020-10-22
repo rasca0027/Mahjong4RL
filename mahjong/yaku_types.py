@@ -263,7 +263,7 @@ class TeYaku(YakuTypes):
         """
         # check player's hand
         for k in self.agari_hand.keys():
-            suit = k//10
+            suit = k // 10
             rank = k % 10
             if isYaochuu(suit=suit, rank=rank):
                 return False
@@ -303,7 +303,7 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Tsuuiisou
         """
-        suit_in_hand = set([k//10 for k in self.agari_hand.keys()])
+        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
         suit_in_huro = set([tile.suit for tile in self.huro_tiles])
         suit = suit_in_hand | suit_in_huro
 
@@ -473,7 +473,7 @@ class Somete(TeYaku):
         5 han (open)
         http://arcturus.su/wiki/Sanankou
         """
-        suit_in_hand = set([k//10 for k in self.agari_hand.keys()])
+        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
         suit_in_huro = set([tile.suit for tile in self.huro_tiles])
         suit = suit_in_hand | suit_in_huro
 
@@ -492,10 +492,10 @@ class Somete(TeYaku):
         2 han (open)
         http://arcturus.su/wiki/Honiisou
         """
-        suit_not_jihai_in_hand = \
-            set([k//10 for k in self.agari_hand.keys() if k//10 != 0])
-        suit_not_jihai_in_huro = \
-            set([tile.suit for tile in self.huro_tiles if tile.suit != 0])
+        suit_not_jihai_in_hand = set(
+            [k // 10 for k in self.agari_hand.keys() if k // 10 != 0])
+        suit_not_jihai_in_huro = set(
+            [tile.suit for tile in self.huro_tiles if tile.suit != 0])
         suit_not_jihai = suit_not_jihai_in_hand | suit_not_jihai_in_huro
         if len(suit_not_jihai) == 1:
             self.total_yaku = 'honiisou'
