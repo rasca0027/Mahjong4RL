@@ -23,6 +23,9 @@ class YakuTypes(ABC):
         self.agari_hand[self.player.agari_tile.index] += 1
         self.huro_tiles = [
             tile for huro in self.player.kabe for tile in huro.tiles]
+        self.agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            self.agari_hand_and_kabe[tile.index] += 1
 
     @property
     @abstractmethod
@@ -183,7 +186,20 @@ class TeYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Ryuuiisou
         """
-        return NotImplemented
+        green_tiles_idx = {Tile(Suit.SOUZU.value, 2).index,
+                           Tile(Suit.SOUZU.value, 3).index,
+                           Tile(Suit.SOUZU.value, 4).index,
+                           Tile(Suit.SOUZU.value, 6).index,
+                           Tile(Suit.SOUZU.value, 8).index,
+                           Tile(Suit.JIHAI.value, Jihai.HATSU.value).index}
+
+        for tile in self.agari_hand_and_kabe:
+            if tile.index not in green_tiles_idx:
+                return False
+
+        self.total_yaku = 'ryuuiisou'
+        self.yakuman_count = 1
+        return True
 
     def kokushi_musou(self):  # 国士無双 or 国士無双１３面待ち
         """This hand has one of each of the 13 different terminal
