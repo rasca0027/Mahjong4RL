@@ -1,6 +1,6 @@
 import itertools
 import random
-from typing import List
+from typing import Tuple, List
 from enum import Enum, unique
 
 from .utils import get_values, get_name
@@ -27,22 +27,21 @@ class Jihai(Enum):
 
 @unique
 class Naki(Enum):
-    CHII = 0
-    PON = 1
-    KAN = 2
-
-
-@unique
-class Action(Enum):
-    NOACT = 0
+    NONE = 0
     CHII = 1
     PON = 2
     DAMINKAN = 3
     CHAKAN = 4
     ANKAN = 5
-    RIICHI = 6
-    RON = 7
-    TSUMO = 8
+
+
+@unique
+class Action(Enum):
+    NOACT = 0
+    NAKI = 1
+    RIICHI = 2
+    RON = 3
+    TSUMO = 4
 
 
 class Tile:
@@ -50,9 +49,10 @@ class Tile:
         self.suit = suit
         self.rank = rank
         self.index = self.calc_index()
+        self.owner = None
 
     def __str__(self):
-        if self._suit == 0:
+        if self._suit == Suit.JIHAI.value:
             return f"Tile of { get_name(Jihai, self._rank) }"
         else:
             return f"Tile of { self._rank } { get_name(Suit, self._suit) }"
@@ -73,7 +73,7 @@ class Tile:
 
     @rank.setter
     def rank(self, value: int):
-        if self._suit == 0:  # Jihai
+        if self._suit == Suit.JIHAI.value:  # Jihai
             if not 1 <= value < 8:
                 raise ValueError(
                     f"Value for Jihai should be in: "
@@ -85,6 +85,19 @@ class Tile:
                     f"should be in: 1-9")
         self._rank = value
 
+    @property
+    def owner(self):
+        return self._owner
+
+    @owner.setter
+    def owner(self, seating_pos: int):
+        if seating_pos is not None:
+            if (not 0 <= seating_pos < 4) and seating_pos is not None:
+                raise ValueError(
+                    "Owner should be seating position (0~3) or None,"
+                    f"Got {seating_pos} instead.")
+        self._owner = seating_pos
+
     def calc_index(self):
         return self._suit * 10 + self._rank
 
@@ -92,9 +105,43 @@ class Tile:
     def from_index(cls, ind):
         return cls(ind // 10, ind % 10)
 
+    @staticmethod
+    def get_yaochuuhai() -> Tuple[List, List]:
+        honor_tiles = []
+        terminal_tiles = []
+        for suit in Suit:
+            if suit == Suit.JIHAI:
+                for rank in Jihai:
+                    honor_tiles.append(Tile(suit.value, rank.value))
+            else:
+                terminal_tiles.append(Tile(suit.value, 1))
+                terminal_tiles.append(Tile(suit.value, 9))
+
+        return honor_tiles, terminal_tiles
+
     def akadora(self):
         # red dora setter
         pass
+
+    def next_tile(self):
+        if self._suit == Suit.JIHAI.value:
+            if self._rank <= Jihai.CHUN.value:
+                new_rank = (self._rank % 3) + 1  # Sangenpai
+            else:
+                new_rank = (self._rank - 3) % 4 + 4  # Kazehai
+        else:
+            new_rank = (self.rank % 9) + 1  # MANZU, SOUZU, PINZU 1~9
+        return self.from_index(self._suit * 10 + new_rank)
+
+    def prev_tile(self):
+        if self._suit == Suit.JIHAI.value:
+            if self._rank <= Jihai.CHUN.value:
+                new_rank = (self._rank + 1) % 3 + 1  # Sangenpai
+            else:
+                new_rank = (self._rank + 3) % 4 + 4  # Kazehai
+        else:
+            new_rank = (self.rank + 7) % 9 + 1  # MANZU, SOUZU, PINZU 1~9
+        return self.from_index(self._suit * 10 + new_rank)
 
     def __eq__(self, other):
         return self.rank == other.rank and self.suit == other.suit
@@ -171,24 +218,13 @@ class Stack:
 
     @staticmethod
     def compute_dora(tile: Tile):
-        target_rank = 0
-        if tile.suit == Suit.JIHAI.value:
-            if tile.rank <= Jihai.CHUN.value:
-                # Sangenpai
-                target_rank = tile.rank % 3 + 1
-            else:
-                # Kazehai
-                target_rank = (tile.rank - 3) % 4 + 4
-        else:
-            # others
-            target_rank = tile.rank % 9 + 1
-
-        return Tile(tile.suit, target_rank)
+        return tile.next_tile()
 
 
 class Huro:
-    def __init__(self, naki_type: Naki, tiles: List[Tile]):
+    def __init__(self, naki_type: Naki, naki_tile: Tile, tiles: List[Tile]):
         self.naki_type = naki_type
+        self.naki_tile = naki_tile
         self.tiles = tiles
 
     @property
@@ -206,5 +242,5 @@ class Huro:
                 "Adding kan is only available when the original "
                 "naki type is PON"
             )
-        self.naki_type = Naki.KAN
+        self.naki_type = Naki.CHAKAN
         self._tiles.append(tile)

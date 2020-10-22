@@ -45,6 +45,34 @@ class TestTile(unittest.TestCase):
     def test_from_index(self):
         self.assertEqual(self.tile, Tile.from_index(self.tile.index))
 
+    def test_next_tile(self):
+        tile = Tile(Suit.MANZU.value, 1)
+        self.assertEqual(tile.next_tile(), Tile(Suit.MANZU.value, 2))
+        tile = Tile(Suit.MANZU.value, 9)
+        self.assertEqual(tile.next_tile(), Tile(Suit.MANZU.value, 1))
+        tile = Tile(Suit.JIHAI.value, 1)
+        self.assertEqual(tile.next_tile(), Tile(Suit.JIHAI.value, 2))
+        tile = Tile(Suit.JIHAI.value, 3)
+        self.assertEqual(tile.next_tile(), Tile(Suit.JIHAI.value, 1))
+        tile = Tile(Suit.JIHAI.value, 4)
+        self.assertEqual(tile.next_tile(), Tile(Suit.JIHAI.value, 5))
+        tile = Tile(Suit.JIHAI.value, 7)
+        self.assertEqual(tile.next_tile(), Tile(Suit.JIHAI.value, 4))
+
+    def test_prev_tile(self):
+        tile = Tile(Suit.MANZU.value, 1)
+        self.assertEqual(tile.prev_tile(), Tile(Suit.MANZU.value, 9))
+        tile = Tile(Suit.MANZU.value, 9)
+        self.assertEqual(tile.prev_tile(), Tile(Suit.MANZU.value, 8))
+        tile = Tile(Suit.JIHAI.value, 1)
+        self.assertEqual(tile.prev_tile(), Tile(Suit.JIHAI.value, 3))
+        tile = Tile(Suit.JIHAI.value, 3)
+        self.assertEqual(tile.prev_tile(), Tile(Suit.JIHAI.value, 2))
+        tile = Tile(Suit.JIHAI.value, 4)
+        self.assertEqual(tile.prev_tile(), Tile(Suit.JIHAI.value, 7))
+        tile = Tile(Suit.JIHAI.value, 7)
+        self.assertEqual(tile.prev_tile(), Tile(Suit.JIHAI.value, 6))
+
     def test_eq(self):
         self.assertEqual(self.tile == Tile(Suit.MANZU.value, 2), True)
         self.assertEqual(self.tile == Tile(Suit.MANZU.value, 3), False)
@@ -104,19 +132,26 @@ class TestStack(unittest.TestCase):
 class TestHuro(unittest.TestCase):
 
     def setUp(self):
-        self.huro_chii = Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
-                                          Tile(Suit.MANZU.value, 8),
-                                          Tile(Suit.MANZU.value, 9)])
-        self.huro_pon = Huro(Naki.PON, [Tile(Suit.MANZU.value, 2),
-                                        Tile(Suit.MANZU.value, 2),
-                                        Tile(Suit.MANZU.value, 2)])
-        self.huro_kan = Huro(Naki.KAN, [Tile(Suit.MANZU.value, 5),
-                                        Tile(Suit.MANZU.value, 5),
-                                        Tile(Suit.MANZU.value, 5),
-                                        Tile(Suit.MANZU.value, 5)])
+        chii_tile = Tile(Suit.MANZU.value, 7)
+        chii_tile.owner = 0
+        self.huro_chii = Huro(Naki.CHII,
+                              chii_tile,
+                              [Tile(Suit.MANZU.value, 7),
+                               Tile(Suit.MANZU.value, 8),
+                               Tile(Suit.MANZU.value, 9)])
+        pon_tile = Tile(Suit.MANZU.value, 2)
+        pon_tile.owner = 0
+        self.huro_pon = Huro(Naki.PON,
+                             pon_tile,
+                             [Tile(Suit.MANZU.value, 2) for i in range(3)])
+        kan_tile = Tile(Suit.MANZU.value, 5)
+        kan_tile.owner = 0
+        self.huro_kan = Huro(Naki.DAMINKAN,
+                             kan_tile,
+                             [Tile(Suit.MANZU.value, 5) for i in range(4)])
 
     def test_naki_type(self):
-        self.assertEqual(self.huro_kan.naki_type, Naki.KAN)
+        self.assertEqual(self.huro_kan.naki_type, Naki.DAMINKAN)
 
     def test_tiles_getter(self):
         tiles_in_huro = [Tile(Suit.MANZU.value, 7),
@@ -133,7 +168,7 @@ class TestHuro(unittest.TestCase):
 
     def test_add_kan(self):
         self.huro_pon.add_kan(Tile(Suit.MANZU.value, 2))
-        self.assertEqual(self.huro_pon.naki_type, Naki.KAN)
+        self.assertEqual(self.huro_pon.naki_type, Naki.CHAKAN)
 
     def test_add_kan_error(self):
         with self.assertRaises(ValueError):
