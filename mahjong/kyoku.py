@@ -220,11 +220,11 @@ class Kyoku:
         return self._bakaze
 
     @bakaze.setter
-    def bakaze(self, value: Jihai) -> None:
-        if not 4 <= value.value <= 5:
+    def bakaze(self, wind: Jihai) -> None:
+        if not 4 <= wind.value <= 5:
             raise ValueError(
-                "Bakaze should be 1 in Tonpuusen, should be 1 or 2 in Hanchan")
-        self._bakaze = value
+                "Bakaze should be 4 in Tonpuusen, should be 4 or 5 in Hanchan")
+        self._bakaze = wind 
 
     def get_oya_player(self):
         return next(filter(lambda p: p.jikaze == Jihai.TON, self.players))
