@@ -118,7 +118,7 @@ class Player:
         if action == Action.RON:
             self.agari_tile = tile
 
-        return
+        return action, tile
 
     def action_with_naki(self, action: Action) -> None:
         # add tmp_huro to kabe
