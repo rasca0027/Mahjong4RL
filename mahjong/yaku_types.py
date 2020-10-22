@@ -193,8 +193,8 @@ class TeYaku(YakuTypes):
                            Tile(Suit.SOUZU.value, 8).index,
                            Tile(Suit.JIHAI.value, Jihai.HATSU.value).index}
 
-        for tile in self.agari_hand_and_kabe:
-            if tile.index not in green_tiles_idx:
+        for tile_idx in self.agari_hand_and_kabe.keys():
+            if tile_idx not in green_tiles_idx:
                 return False
 
         self.total_yaku = 'ryuuiisou'
