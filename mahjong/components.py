@@ -27,22 +27,21 @@ class Jihai(Enum):
 
 @unique
 class Naki(Enum):
-    CHII = 0
-    PON = 1
-    KAN = 2
-
-
-@unique
-class Action(Enum):
-    NOACT = 0
+    NONE = 0
     CHII = 1
     PON = 2
     DAMINKAN = 3
     CHAKAN = 4
     ANKAN = 5
-    RIICHI = 6
-    RON = 7
-    TSUMO = 8
+
+
+@unique
+class Action(Enum):
+    NOACT = 0
+    NAKI = 1
+    RIICHI = 2
+    RON = 3
+    TSUMO = 4
 
 
 class Tile:
@@ -243,5 +242,5 @@ class Huro:
                 "Adding kan is only available when the original "
                 "naki type is PON"
             )
-        self.naki_type = Naki.KAN
+        self.naki_type = Naki.CHAKAN
         self._tiles.append(tile)

@@ -87,7 +87,7 @@ class TestPlayer(unittest.TestCase):
                            naki_tile,
                            [Tile(Suit.SOUZU.value, 5) for i in range(3)])
         self.player.tmp_huro = pon_5_souzu
-        self.player.action_with_naki(Action.PON)
+        self.player.action_with_naki(Naki.PON)
         self.assertEqual(self.player.kabe[0], pon_5_souzu)
         self.assertEqual(self.player.tmp_huro, None)
 

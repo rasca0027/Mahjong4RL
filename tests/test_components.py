@@ -146,12 +146,12 @@ class TestHuro(unittest.TestCase):
                              [Tile(Suit.MANZU.value, 2) for i in range(3)])
         kan_tile = Tile(Suit.MANZU.value, 5)
         kan_tile.owner = 0
-        self.huro_kan = Huro(Naki.KAN,
+        self.huro_kan = Huro(Naki.DAMINKAN,
                              kan_tile,
                              [Tile(Suit.MANZU.value, 5) for i in range(4)])
 
     def test_naki_type(self):
-        self.assertEqual(self.huro_kan.naki_type, Naki.KAN)
+        self.assertEqual(self.huro_kan.naki_type, Naki.DAMINKAN)
 
     def test_tiles_getter(self):
         tiles_in_huro = [Tile(Suit.MANZU.value, 7),
@@ -168,7 +168,7 @@ class TestHuro(unittest.TestCase):
 
     def test_add_kan(self):
         self.huro_pon.add_kan(Tile(Suit.MANZU.value, 2))
-        self.assertEqual(self.huro_pon.naki_type, Naki.KAN)
+        self.assertEqual(self.huro_pon.naki_type, Naki.CHAKAN)
 
     def test_add_kan_error(self):
         with self.assertRaises(ValueError):
