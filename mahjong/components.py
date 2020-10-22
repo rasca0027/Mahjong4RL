@@ -27,22 +27,21 @@ class Jihai(Enum):
 
 @unique
 class Naki(Enum):
-    CHII = 0
-    PON = 1
-    KAN = 2
-
-
-@unique
-class Action(Enum):
-    NOACT = 0
+    NONE = 0
     CHII = 1
     PON = 2
     DAMINKAN = 3
     CHAKAN = 4
     ANKAN = 5
-    RIICHI = 6
-    RON = 7
-    TSUMO = 8
+
+
+@unique
+class Action(Enum):
+    NOACT = 0
+    NAKI = 1
+    RIICHI = 2
+    RON = 3
+    TSUMO = 4
 
 
 class Tile:
@@ -50,6 +49,7 @@ class Tile:
         self.suit = suit
         self.rank = rank
         self.index = self.calc_index()
+        self.owner = None
 
     def __str__(self):
         if self._suit == Suit.JIHAI.value:
@@ -84,6 +84,19 @@ class Tile:
                     f"Value for { get_name(Suit, self._suit) }"
                     f"should be in: 1-9")
         self._rank = value
+
+    @property
+    def owner(self):
+        return self._owner
+
+    @owner.setter
+    def owner(self, seating_pos: int):
+        if seating_pos is not None:
+            if (not 0 <= seating_pos < 4) and seating_pos is not None:
+                raise ValueError(
+                    "Owner should be seating position (0~3) or None,"
+                    f"Got {seating_pos} instead.")
+        self._owner = seating_pos
 
     def calc_index(self):
         return self._suit * 10 + self._rank
@@ -209,8 +222,9 @@ class Stack:
 
 
 class Huro:
-    def __init__(self, naki_type: Naki, tiles: List[Tile]):
+    def __init__(self, naki_type: Naki, naki_tile: Tile, tiles: List[Tile]):
         self.naki_type = naki_type
+        self.naki_tile = naki_tile
         self.tiles = tiles
 
     @property
@@ -228,5 +242,5 @@ class Huro:
                 "Adding kan is only available when the original "
                 "naki type is PON"
             )
-        self.naki_type = Naki.KAN
+        self.naki_type = Naki.CHAKAN
         self._tiles.append(tile)

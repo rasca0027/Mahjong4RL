@@ -1,6 +1,9 @@
 import copy
+from collections import defaultdict
 from abc import ABC, abstractmethod
+
 from .player import Player
+from .utils import isYaochuu
 from .components import Suit, Tile
 from .naki_and_actions import consists_jantou_and_sets
 
@@ -16,7 +19,11 @@ class YakuTypes(ABC):
         self.player = player
         self.bakaze = bakaze
         self.agari_hand = copy.deepcopy(self.player.hand)
+        self.agari_hand = defaultdict(
+            int, {k: v for k, v in self.agari_hand.items() if v > 0})
         self.agari_hand[self.player.agari_tile.index] += 1
+        self.huro_tiles = [
+            tile for huro in self.player.kabe for tile in huro.tiles]
 
     @property
     @abstractmethod
@@ -60,7 +67,7 @@ class YakuTypes(ABC):
 
     @yakuman_count.setter
     def yakuman_count(self, yakuman_count):
-        self._yakuman_count = yakuman_count
+        self._yakuman_count += yakuman_count
 
 
 class JouKyouYaku(YakuTypes):
@@ -186,7 +193,24 @@ class TeYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Kokushi_musou
         """
-        return NotImplemented
+        honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
+        yaochuuhai = honor_tiles + terminal_tiles
+
+        yaochuu_in_hand = {k: v for (k, v) in self.agari_hand.items()
+                           if Tile.from_index(k) in yaochuuhai}
+        single_yaochuu_n = sum(v == 1 for v in yaochuu_in_hand.values())
+        pair_yaochuu_keys = [k for (k, v) in yaochuu_in_hand.items() if v == 2]
+        if (single_yaochuu_n == 12) and (len(pair_yaochuu_keys) == 1):
+            if pair_yaochuu_keys[0] == self.player.agari_tile.index:
+                # 13-way wait
+                self.total_yaku = 'kokushi musou 13-way wait'
+                self.yakuman_count = 2
+            else:  # single wait
+                self.total_yaku = 'kokushi musou'
+                self.yakuman_count = 1
+            return True
+
+        return False
 
     def chuuren_poutou(self):  # 九連宝燈 or 純正九蓮宝燈
         """A hand consisting of the tiles 1112345678999 in the same suit plus
@@ -245,7 +269,7 @@ class TeYaku(YakuTypes):
 
         return False
 
-    def pinfu():  # 平和
+    def pinfu(self):  # 平和
         """Defined by having 0 fu aside from the base 20 fu, or 30 fu in
         the case of a closed ron.
         1 han (closed only)
@@ -253,12 +277,26 @@ class TeYaku(YakuTypes):
         """
         return NotImplemented
 
-    def tanyao():  # 断么九
+    def tanyao(self):  # 断么九
         """A hand contain only numbered tiles 2-8 from any of the three main suits.
         1 han
         http://arcturus.su/wiki/Honroutou
         """
-        return NotImplemented
+        # check player's hand
+        for k in self.agari_hand.keys():
+            suit = k//10
+            rank = k % 10
+            if isYaochuu(suit=suit, rank=rank):
+                return False
+
+        # check player's kabe
+        for tile in self.huro_tiles:
+            if isYaochuu(suit=tile.suit, rank=tile.rank):
+                return False
+
+        self.total_yaku = 'tanyao'
+        self.total_han = 1
+        return True
 
 
 class Yakuhai(TeYaku):
@@ -267,28 +305,61 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Daisangen
         """
-        return NotImplemented
+        huro_set = set(self.huro_tiles)
+        for rank in [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN]:
+            tile = Tile(Suit.JIHAI, rank.value)
+            index = tile.index
+            if self.agari_hand[index] >= 3:
+                continue
+            elif tile in huro_set:
+                continue
+            else:
+                return False
+        self.total_yaku = "daisangen"
+        self.yakuman_count = 1
+        return True
 
     def tsuuiisou(self):  # 字一色
         """Every group of tiles are composed of honor tiles.
         yakuman
         http://arcturus.su/wiki/Tsuuiisou
         """
-        return NotImplemented
+        suit_in_hand = set([k//10 for k in self.agari_hand.keys()])
+        suit_in_huro = set([tile.suit for tile in self.huro_tiles])
+        suit = suit_in_hand | suit_in_huro
 
-    def shousuushii(self):  # 小四喜
-        """This hand has three groups (triplets or quads)
-        of the wind tiles plus a pair of the fourth kind.
-        yakuman
-        http://arcturus.su/wiki/Shousuushii
-        """
-        return NotImplemented
+        if len(suit) == 1 and list(suit)[0] == 0:
+            self.total_yaku = 'tsuuiisou'
+            self.yakuman_count = 1
+            return True
+        return False
 
     def daisuushii(self):  # 大四喜
         """This hand has four groups (triplets or quads) of
         all four wind tiles.
         yakuman
         http://arcturus.su/wiki/Daisuushii
+        """
+        huro_set = set(self.huro_tiles)
+        four_winds = [Jihai.TON, Jihai.NAN, Jihai.SHAA, Jihai.PEI]
+        for rank in four_winds:
+            tile = Tile(Suit.JIHAI, rank.value)
+            index = tile.index
+            if self.agari_hand[index] >= 3:
+                continue
+            elif tile in huro_set:
+                continue
+            else:
+                return False
+        self.total_yaku = "daisuushii"
+        self.yakuman_count = 1
+        return True
+
+    def shousuushii(self):  # 小四喜
+        """This hand has three groups (triplets or quads)
+        of the wind tiles plus a pair of the fourth kind.
+        yakuman
+        http://arcturus.su/wiki/Shousuushii
         """
         return NotImplemented
 
@@ -423,7 +494,18 @@ class Somete(TeYaku):
         5 han (open)
         http://arcturus.su/wiki/Sanankou
         """
-        return NotImplemented
+        suit_in_hand = set([k//10 for k in self.agari_hand.keys()])
+        suit_in_huro = set([tile.suit for tile in self.huro_tiles])
+        suit = suit_in_hand | suit_in_huro
+
+        if len(suit) == 1 and list(suit)[0] != 0:
+            self.total_yaku = 'chiniisou'
+            if self.player.menzenchin:
+                self.total_han = 6
+            else:
+                self.total_han = 5
+            return True
+        return False
 
     def honiisou(self):  # 混一色
         """A hand composed only of honour tiles and tiles of a single suit.
@@ -431,4 +513,16 @@ class Somete(TeYaku):
         2 han (open)
         http://arcturus.su/wiki/Honiisou
         """
-        return NotImplemented
+        suit_not_jihai_in_hand = \
+            set([k//10 for k in self.agari_hand.keys() if k//10 != 0])
+        suit_not_jihai_in_huro = \
+            set([tile.suit for tile in self.huro_tiles if tile.suit != 0])
+        suit_not_jihai = suit_not_jihai_in_hand | suit_not_jihai_in_huro
+        if len(suit_not_jihai) == 1:
+            self.total_yaku = 'honiisou'
+            if self.player.menzenchin:
+                self.total_han = 3
+            else:
+                self.total_han = 2
+            return True
+        return False
