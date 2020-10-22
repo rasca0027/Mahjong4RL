@@ -81,18 +81,30 @@ class TestFuriten(unittest.TestCase):
         self.player = Player('test', 1)
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 2
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 2
-        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
-                                                Tile(Suit.SOUZU.value, 5),
-                                                Tile(Suit.SOUZU.value, 5)]))
-        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.PINZU.value, 5),
-                                                Tile(Suit.PINZU.value, 5),
-                                                Tile(Suit.PINZU.value, 5)]))
-        self.player.kabe.append(Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
-                                                 Tile(Suit.MANZU.value, 8),
-                                                 Tile(Suit.MANZU.value, 9)]))
-        self.player.kabe.append(Huro(Naki.CHII, [Tile(Suit.MANZU.value, 6),
-                                                 Tile(Suit.MANZU.value, 7),
-                                                 Tile(Suit.MANZU.value, 8)]))
+        naki_tile_1 = Tile(Suit.SOUZU.value, 5)
+        naki_tile_1.owner = 0
+        naki_tile_2 = Tile(Suit.PINZU.value, 5)
+        naki_tile_2.owner = 3
+        naki_tile_3 = Tile(Suit.MANZU.value, 8)
+        naki_tile_3.owner = 0
+        naki_tile_4 = Tile(Suit.MANZU.value, 6)
+        naki_tile_4.owner = 0
+        self.player.kabe.append(
+            Huro(Naki.PON,
+                 naki_tile_1,
+                 [Tile(Suit.SOUZU.value, 5) for i in range(3)]))
+        self.player.kabe.append(
+            Huro(Naki.PON,
+                 naki_tile_2,
+                 [Tile(Suit.PINZU.value, 5) for i in range(3)]))
+        self.player.kabe.append(
+            Huro(Naki.CHII,
+                 naki_tile_3,
+                 [Tile(Suit.MANZU.value, i) for i in range(7, 10)]))
+        self.player.kabe.append(
+            Huro(Naki.CHII,
+                 naki_tile_4,
+                 [Tile(Suit.MANZU.value, i) for i in range(6, 9)]))
 
     def test_furiten(self):
         self.player.kawa.append(Tile(Suit.JIHAI.value, Jihai.TON.value))
@@ -143,12 +155,18 @@ class TestChakan(unittest.TestCase):
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 3
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 2
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 1
-        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.PINZU.value, 5),
-                                                Tile(Suit.PINZU.value, 5),
-                                                Tile(Suit.PINZU.value, 5)]))
-        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.MANZU.value, 7),
-                                                Tile(Suit.MANZU.value, 7),
-                                                Tile(Suit.MANZU.value, 7)]))
+        naki_tile_1 = Tile(Suit.PINZU.value, 5)
+        naki_tile_1.owner = 0
+        naki_tile_2 = Tile(Suit.MANZU.value, 7)
+        naki_tile_2.owner = 3
+        self.player.kabe.append(
+            Huro(Naki.PON,
+                 naki_tile_1,
+                 [Tile(Suit.PINZU.value, 5) for i in range(3)]))
+        self.player.kabe.append(
+            Huro(Naki.PON,
+                 naki_tile_2,
+                 [Tile(Suit.MANZU.value, 7) for i in range(3)]))
 
     def test_chakan_1(self):
         new_tile = Tile(Suit.PINZU.value, 5)
@@ -321,9 +339,12 @@ class TestTenpai(unittest.TestCase):
         self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 1
         self.player.hand[Tile(Suit.MANZU.value, 8).index] += 3
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 2
-        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
-                                                Tile(Suit.SOUZU.value, 5),
-                                                Tile(Suit.SOUZU.value, 5)]))
+        naki_tile = Tile(Suit.SOUZU.value, 5)
+        naki_tile.owner = 0
+        self.player.kabe.append(
+            Huro(Naki.PON,
+                 naki_tile,
+                 [Tile(Suit.SOUZU.value, 5) for i in range(3)]))
         tenpai = [Tile(Suit.JIHAI.value, Jihai.NAN.value),
                   Tile(Suit.SOUZU.value, 2)]
 
@@ -333,34 +354,54 @@ class TestTenpai(unittest.TestCase):
         self.player.hand[Tile(Suit.PINZU.value, 9).index] += 2
         self.player.hand[Tile(Suit.MANZU.value, 1).index] += 1
         self.player.hand[Tile(Suit.MANZU.value, 3).index] += 1
-        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
-                                                Tile(Suit.SOUZU.value, 5),
-                                                Tile(Suit.SOUZU.value, 5)]))
-        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.PINZU.value, 5),
-                                                Tile(Suit.PINZU.value, 5),
-                                                Tile(Suit.PINZU.value, 5)]))
-        self.player.kabe.append(Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
-                                                 Tile(Suit.MANZU.value, 8),
-                                                 Tile(Suit.MANZU.value, 9)]))
+        naki_tile_1 = Tile(Suit.SOUZU.value, 5)
+        naki_tile_1.owner = 0
+        naki_tile_2 = Tile(Suit.PINZU.value, 5)
+        naki_tile_2.owner = 3
+        naki_tile_3 = Tile(Suit.MANZU.value, 8)
+        naki_tile_3.owner = 0
+        self.player.kabe.append(
+            Huro(Naki.PON,
+                 naki_tile_1,
+                 [Tile(Suit.SOUZU.value, 5) for i in range(3)]))
+        self.player.kabe.append(
+            Huro(Naki.PON,
+                 naki_tile_2,
+                 [Tile(Suit.PINZU.value, 5) for i in range(3)]))
+        self.player.kabe.append(
+            Huro(Naki.CHII,
+                 naki_tile_3,
+                 [Tile(Suit.MANZU.value, i) for i in range(7, 10)]))
         tenpai = [Tile(Suit.MANZU.value, 2)]
 
         self.assert_tenpai(self.player, tenpai)
 
     def test_tenpai_6(self):
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 1
+        naki_tile_1 = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
+        naki_tile_1.owner = 3
+        naki_tile_2 = Tile(Suit.SOUZU.value, 5)
+        naki_tile_2.owner = 3
+        naki_tile_3 = Tile(Suit.PINZU.value, 5)
+        naki_tile_3.owner = 2
+        naki_tile_4 = Tile(Suit.MANZU.value, 9)
+        naki_tile_4.owner = 0
         self.player.kabe.append(
-            Huro(Naki.PON, [Tile(Suit.JIHAI.value, Jihai.SHAA.value),
-                            Tile(Suit.JIHAI.value, Jihai.SHAA.value),
-                            Tile(Suit.JIHAI.value, Jihai.SHAA.value)]))
-        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
-                                                Tile(Suit.SOUZU.value, 5),
-                                                Tile(Suit.SOUZU.value, 5)]))
-        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.PINZU.value, 5),
-                                                Tile(Suit.PINZU.value, 5),
-                                                Tile(Suit.PINZU.value, 5)]))
-        self.player.kabe.append(Huro(Naki.CHII, [Tile(Suit.MANZU.value, 7),
-                                                 Tile(Suit.MANZU.value, 8),
-                                                 Tile(Suit.MANZU.value, 9)]))
+            Huro(Naki.PON,
+                 naki_tile_1,
+                 [Tile(Suit.JIHAI.value, Jihai.SHAA.value) for i in range(3)]))
+        self.player.kabe.append(
+            Huro(Naki.PON,
+                 naki_tile_2,
+                 [Tile(Suit.SOUZU.value, 5) for i in range(3)]))
+        self.player.kabe.append(
+            Huro(Naki.PON,
+                 naki_tile_3,
+                 [Tile(Suit.PINZU.value, 5) for i in range(3)]))
+        self.player.kabe.append(
+            Huro(Naki.CHII,
+                 naki_tile_4,
+                 [Tile(Suit.MANZU.value, i) for i in range(7, 10)]))
         tenpai = [Tile(Suit.JIHAI.value, Jihai.TON.value)]
 
         self.assert_tenpai(self.player, tenpai)
@@ -370,10 +411,12 @@ class TestTenpai(unittest.TestCase):
         self.player.hand[Tile(Suit.MANZU.value, 2).index] += 1
         self.player.hand[Tile(Suit.MANZU.value, 3).index] += 1
         self.player.hand[Tile(Suit.MANZU.value, 4).index] += 4
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
+        naki_tile.owner = 0
         self.player.kabe.append(
-            Huro(Naki.PON, [Tile(Suit.JIHAI.value, Jihai.SHAA.value),
-                            Tile(Suit.JIHAI.value, Jihai.SHAA.value),
-                            Tile(Suit.JIHAI.value, Jihai.SHAA.value)]))
+            Huro(Naki.PON,
+                 naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.SHAA.value) for i in range(3)]))
         tenpai = [Tile(Suit.MANZU.value, 1),
                   Tile(Suit.MANZU.value, 4)]
         # tenpai: 1 MANZU 4 MANZU 空聴（カラテン）
@@ -503,9 +546,12 @@ class TestRiichi(unittest.TestCase):
     def test_no_riichi(self):
         self.player.hand[Tile(Suit.PINZU.value, 1).index] -= 1
         self.player.hand[Tile(Suit.SOUZU.value, 5).index] -= 2
-        self.player.kabe.append(Huro(Naki.PON, [Tile(Suit.SOUZU.value, 5),
-                                                Tile(Suit.SOUZU.value, 5),
-                                                Tile(Suit.SOUZU.value, 5)]))
+        naki_tile = Tile(Suit.SOUZU.value, 5)
+        naki_tile.owner = 0
+        self.player.kabe.append(
+            Huro(Naki.PON,
+                 naki_tile,
+                 [Tile(Suit.SOUZU.value, 5) for i in range(3)]))
 
         machi = check_tenpai(self.player.hand, self.player.kabe)
         self.assertEqual(check_riichi(self.player.kabe, machi), False)

@@ -152,6 +152,7 @@ class Turn:
                 if Ron/Tsumo/流局 -> None
         """
         new_tile = self.stack.draw(from_rinshan)
+        new_tile.owner = player.seating_position
         player.tmp_furiten = False
         (action, naki), action_tile = player.action_with_new_tile(new_tile)
         state = 0

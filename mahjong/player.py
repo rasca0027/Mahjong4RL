@@ -129,6 +129,7 @@ class Player:
 
         return (action, naki), discard_tile
 
+
     def action_with_naki(self, naki: Naki) -> None:
         # add tmp_huro to kabe
         self.kabe.append(self.tmp_huro)
