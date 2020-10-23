@@ -19,7 +19,7 @@ class Player:
         self.kawa: List[Tile] = []  # 河 is formed by the discarded tiles.
         self.menzenchin: bool = True
         self.tmp_huro: Huro = None
-        self.furiten_tiles_idx: Set[int] = {}
+        self.furiten_tiles_idx: Set[int] = set()
         self.tmp_furiten: bool = False
         self.permanent_furiten: bool = False
         self.agari_tile: Tile = None
