@@ -43,14 +43,14 @@ class Turn:
                 if Ron/Tsumo/流局 -> None
         """
         state = 0
-        discard_tile = None
+        discarder = self.players[discard_pos]
         player_pos, (action, naki) = self.ensemble_actions(discard_tile,
                                                            discard_pos)
         if action == Action.NOACT:
-            discarder = self.players[discard_pos]
             state, discard_tile = self.draw_flow(
                 self.players[discarder.get_shimocha()])
         elif action == Action.NAKI:
+            discarder.furiten_tiles_idx.add(discard_tile.index)
             state, discard_tile = self.naki_flow(naki)
         elif action == Action.RON:
             self.winner.append(player_pos)
