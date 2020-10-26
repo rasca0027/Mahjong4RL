@@ -284,13 +284,12 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Daisangen
         """
-        huro_set = set(self.huro_tiles)
         for rank in [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN]:
             tile = Tile(Suit.JIHAI, rank.value)
             index = tile.index
             if self.agari_hand[index] >= 3:
                 continue
-            elif tile in huro_set:
+            elif tile in self.huro_tiles:
                 continue
             else:
                 return False
@@ -319,14 +318,13 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Daisuushii
         """
-        huro_set = set(self.huro_tiles)
         four_winds = [Jihai.TON, Jihai.NAN, Jihai.SHAA, Jihai.PEI]
         for rank in four_winds:
             tile = Tile(Suit.JIHAI, rank.value)
             index = tile.index
             if self.agari_hand[index] >= 3:
                 continue
-            elif tile in huro_set:
+            elif tile in self.huro_tiles:
                 continue
             else:
                 return False
