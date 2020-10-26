@@ -1,7 +1,7 @@
 import unittest
 
 from mahjong.player import Player
-from mahjong.components import Stack, Tile, Suit, Naki, Huro, Action, Jihai
+from mahjong.components import Stack, Tile, Suit, Naki, Huro, Jihai
 
 
 class TestPlayer(unittest.TestCase):
