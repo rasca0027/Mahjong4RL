@@ -187,7 +187,20 @@ class TeYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Ryuuiisou
         """
-        return NotImplemented
+        green_tiles_idx = {Tile(Suit.SOUZU.value, 2).index,
+                           Tile(Suit.SOUZU.value, 3).index,
+                           Tile(Suit.SOUZU.value, 4).index,
+                           Tile(Suit.SOUZU.value, 6).index,
+                           Tile(Suit.SOUZU.value, 8).index,
+                           Tile(Suit.JIHAI.value, Jihai.HATSU.value).index}
+
+        for tile_idx in self.agari_hand_and_kabe.keys():
+            if tile_idx not in green_tiles_idx:
+                return False
+
+        self.total_yaku = 'ryuuiisou'
+        self.yakuman_count = 1
+        return True
 
     def kokushi_musou(self):  # 国士無双 or 国士無双１３面待ち
         """This hand has one of each of the 13 different terminal
