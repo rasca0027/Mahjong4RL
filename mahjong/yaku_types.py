@@ -1,10 +1,13 @@
 import copy
+import math
+from typing import List, DefaultDict
 from collections import defaultdict
 from abc import ABC, abstractmethod
 
 from .player import Player
 from .utils import isYaochuu
 from .components import Suit, Jihai, Tile, Naki
+from .naki_and_actions import check_tenpai
 
 
 class YakuTypes(ABC):
@@ -113,42 +116,68 @@ class YakuTypes(ABC):
                     if sets_to_find == 0:
                         return koutsu, shuntsu, Tile.from_index(possible_jantou)
 
-        # separate sets
-        ankous, shuntsus, jantou = separate_sets(self.agari_hand, len(self.player.kabe))
+        def calc_wait_pattern_fu(ankous: List[Tile],
+                                 shuntsus: List[Tile],
+                                 jantou: Tile) -> int:
+            wait_pattern_fu = 0
 
-        # 暗刻
-        for tile in ankous:
-            if tile in yaochuuhai:
-                fu += 8
-            else: fu += 4
+            # 暗刻
+            for tile in ankous:
+                if tile in yaochuuhai:
+                    wait_pattern_fu += 8
+                else:
+                    wait_pattern_fu += 4
 
-        # 雀頭
-        if jantou.suit == 0:
-            if jantou.rank == self.bakaze.value:
-                fu += 2
-            if jantou.rank == self.player.jikaze.value:
-                fu += 2
+            # 雀頭
+            if jantou.suit == 0:
+                if jantou.rank == self.bakaze.value:
+                    wait_pattern_fu += 2
+                if jantou.rank == self.player.jikaze.value:
+                    wait_pattern_fu += 2
 
-        # 聽牌形式
-        def tenpai_add_fu():
-            if self.player.agari_tile == jantou: # 單騎聽
-                return True
-            for shuntsu in shuntsus:
-                if self.player.agari_tile == shuntsu[1]: # 坎張聽
+            # 聽牌形式
+            def tenpai_add_fu() -> bool:
+                if self.player.agari_tile == jantou:  # 單騎聽
                     return True
-                elif self.player.agari_tile == shuntsu[0] and
-                    shuntsu[2].rank == 9 or
-                    self.player.agari_tile == shuntsu[2] and
-                    shuntsu[0].rank == 1:
-                    return True # 邊張聽
-            return False
+                for shuntsu in shuntsus:
+                    if self.player.agari_tile == shuntsu[1]:  # 坎張聽
+                        return True
+                    elif (
+                        (self.player.agari_tile == shuntsu[0]
+                         and shuntsu[2].rank == 9)
+                        or (self.player.agari_tile == shuntsu[2]
+                            and shuntsu[0].rank == 1)
+                    ):
+                        return True  # 邊張聽
+                return False
 
-        if tenpai_add_fu():
-            fu += 2
+            if tenpai_add_fu():
+                wait_pattern_fu += 2
 
+            return wait_pattern_fu
+
+        # separate sets
+        tenpai_tiles = check_tenpai(self.player.hand, self.player.kabe)
+        player_huro_n = len(self.player.kabe)
+        wait_patterns = {}
+        for idx, pot_agari_tile in enumerate(tenpai_tiles):
+            tmp_agari_hand = copy.deepcopy(self.player.hand)
+            tmp_agari_hand[pot_agari_tile.index] += 1
+
+            ankous, shuntsus, jantou = separate_sets(tmp_agari_hand,
+                                                     player_huro_n)
+            wait_patterns[idx] = [ankous, shuntsus, jantou]
+
+        wait_pattern_fus = []
+        for idx in wait_patterns.keys():
+            [ankous, shuntsus, jantou] = wait_patterns[idx]
+            wait_pattern_fus.append(
+                calc_wait_pattern_fu(ankous, shuntsus, jantou))
+
+        wait_pattern_fu = max(wait_pattern_fus)
+        fu += wait_pattern_fu
         # round up
         return int(math.ceil(fu / 10.0)) * 10
-
 
     @property
     def player(self):
