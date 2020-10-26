@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 from .player import Player
 from .utils import isYaochuu
-from .components import Suit, Tile
+from .components import Suit, Tile, Jihai
 from .naki_and_actions import consists_jantou_and_sets
 
 
@@ -262,9 +262,7 @@ class TeYaku(YakuTypes):
         """
         for suit in Suit:
             if suit != Suit.JIHAI:
-                tmp_hand = copy.deepcopy(self.agari_hand)
-                for tile in self.huro_tiles:  # to check tiles in hand and kabe
-                    tmp_hand[tile.index] += 1
+                tmp_hand = copy.deepcopy(self.agari_hand_and_kabe)
 
                 for i in range(1, 10):
                     if tmp_hand[Tile(suit.value, i).index] < 1:
