@@ -24,6 +24,9 @@ class YakuTypes(ABC):
         self.agari_hand[self.player.agari_tile.index] += 1
         self.huro_tiles = [
             tile for huro in self.player.kabe for tile in huro.tiles]
+        self.agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            self.agari_hand_and_kabe[tile.index] += 1
 
     @property
     @abstractmethod
@@ -225,7 +228,17 @@ class TeYaku(YakuTypes):
         2 han
         http://arcturus.su/wiki/Toitoihou
         """
-        return NotImplemented
+        pair_n = 0
+        while pair_n <= 1:
+            for tile_idx, tile_n in self.agari_hand_and_kabe.items():
+                if tile_n == 2:
+                    pair_n += 1
+                elif tile_n != 3:
+                    return False
+
+        self.total_yaku = 'toitoihou'
+        self.total_han = 2
+        return True
 
     def chiitoitsu(self):  # 七対子
         """This hand is composed of seven pairs.
@@ -284,7 +297,7 @@ class TeYaku(YakuTypes):
         """
         # check player's hand
         for k in self.agari_hand.keys():
-            suit = k//10
+            suit = k // 10
             rank = k % 10
             if isYaochuu(suit=suit, rank=rank):
                 return False
@@ -324,7 +337,7 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Tsuuiisou
         """
-        suit_in_hand = set([k//10 for k in self.agari_hand.keys()])
+        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
         suit_in_huro = set([tile.suit for tile in self.huro_tiles])
         suit = suit_in_hand | suit_in_huro
 
@@ -494,7 +507,7 @@ class Somete(TeYaku):
         5 han (open)
         http://arcturus.su/wiki/Sanankou
         """
-        suit_in_hand = set([k//10 for k in self.agari_hand.keys()])
+        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
         suit_in_huro = set([tile.suit for tile in self.huro_tiles])
         suit = suit_in_hand | suit_in_huro
 
@@ -513,10 +526,10 @@ class Somete(TeYaku):
         2 han (open)
         http://arcturus.su/wiki/Honiisou
         """
-        suit_not_jihai_in_hand = \
-            set([k//10 for k in self.agari_hand.keys() if k//10 != 0])
-        suit_not_jihai_in_huro = \
-            set([tile.suit for tile in self.huro_tiles if tile.suit != 0])
+        suit_not_jihai_in_hand = set(
+            [k // 10 for k in self.agari_hand.keys() if k // 10 != 0])
+        suit_not_jihai_in_huro = set(
+            [tile.suit for tile in self.huro_tiles if tile.suit != 0])
         suit_not_jihai = suit_not_jihai_in_hand | suit_not_jihai_in_huro
         if len(suit_not_jihai) == 1:
             self.total_yaku = 'honiisou'
