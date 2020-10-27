@@ -454,7 +454,23 @@ class Sanshoku(TeYaku):
         2 han
         http://arcturus.su/wiki/Sanshoku_doukou
         """
-        return NotImplemented
+        hand = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            hand[tile.index] += 1
+        counter = {1: [], 2: [], 3: []}
+        for k in hand:
+            suit, rank = k // 10, k % 10
+            if hand[k] >= 3 and suit > 0:
+                counter[suit].append(rank)
+
+        for man_rank in counter[1]:
+            for sou_rank in counter[2]:
+                for pin_rank in counter[3]:
+                    if man_rank == sou_rank == pin_rank:
+                        self.total_yaku = 'sanshoku_doukou'
+                        self.total_han = 2
+                        return True
+        return False
 
     def sanshoku_doujun(self):  # 三色同順
         """A hand contain sequences of the same numbered tiles across the
