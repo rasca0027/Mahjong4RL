@@ -463,7 +463,28 @@ class Sanshoku(TeYaku):
         1 han (open)
         http://arcturus.su/wiki/Sanshoku_doujun
         """
-        return NotImplemented
+        hand = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            hand[tile.index] += 1
+        counter = {1: [], 2: [], 3: []}
+        for suit in range(1, 4):
+            for rank in range(1, 8):
+                indices = (suit*10+rank, suit*10+rank+1, suit*10+rank+2)
+                if indices[0] in hand and indices[1] in hand and \
+                   indices[2] in hand:
+                    counter[suit].append((rank, rank+1, rank+2))
+        
+        for man_rank_set in counter[1]:
+            for sou_rank_set in counter[2]:
+                for pin_rank_set in counter[3]:
+                    if man_rank_set == sou_rank_set == pin_rank_set:
+                        self.total_yaku = 'sanshoku_doujun'
+                        if self.player.menzenchin:
+                            self.total_han = 2
+                        else:
+                            self.total_han = 1
+                        return True
+        return False
 
 
 class Somete(TeYaku):
