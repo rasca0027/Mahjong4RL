@@ -385,7 +385,18 @@ class Chanta(TeYaku):
         yakuman
         http://arcturus.su/wiki/Chinroutou
         """
-        return NotImplemented
+        for k in self.agari_hand.keys():
+            suit, rank = k // 10, k % 10
+            if not isYaochuu(suit=suit, rank=rank) or suit == 0:
+                return False
+
+        for tile in self.huro_tiles:
+            if not isYaochuu(suit=tile.suit, rank=tile.rank) or tile.suit == 0:
+                return False
+
+        self.total_yaku = 'chinroutou'
+        self.yakuman_count = 1
+        return True
 
     def honroutou(self):  # 混老頭
         """A hand contain only honors and terminals.
@@ -394,7 +405,18 @@ class Chanta(TeYaku):
         equivalent of 4 han)
         http://arcturus.su/wiki/Honroutou
         """
-        return NotImplemented
+        for k in self.agari_hand.keys():
+            suit, rank = k // 10, k % 10
+            if not isYaochuu(suit=suit, rank=rank):
+                return False
+
+        for tile in self.huro_tiles:
+            if not isYaochuu(suit=tile.suit, rank=tile.rank):
+                return False
+        
+        self.total_yaku = 'honroutou'
+        self.total_han = 2
+        return True
 
     def junchantaiyaochuu(self):  # 純全帯么九
         """Every tile group and the pair must contain at least one terminal.
