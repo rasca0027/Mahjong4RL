@@ -344,13 +344,14 @@ class Kyoku:
                 loser.points -= roundup(pt * 6) + 300 * self.honba
         else:  # 子家
             if tsumo:
-                self.winner.points += roundup(pt * 2) + roundup(pt) + \
-                    100 * self.honba
                 self.oya_player.points -= roundup(pt * 2) + 100 * self.honba
+                tmp_pt = roundup(pt * 2) + 100 * self.honba
                 for i in range(1, 4):  # TODO: should be 0 ~ 3
                     if self.players[i] != self.winner:
                         self.players[i].points -= roundup(pt) + \
                             100 * self.honba
+                        tmp_pt += roundup(pt) + 100 * self.honba
+                self.winner.points += tmp_pt
             else:
                 self.winner.points += roundup(pt * 4) + 300 * self.honba
                 loser.points -= roundup(pt * 4) + 300 * self.honba
