@@ -1,6 +1,9 @@
 # Mahjong4RL 🀄
 
-
+![Mahjong](https://img.shields.io/badge/awesome-mahjong-green)
+![MIT license](https://img.shields.io/github/license/rasca0027/Mahjong4RL)
+![PR closed](https://img.shields.io/github/issues-pr-closed/rasca0027/Mahjong4RL)
+![hacktoberfest](https://img.shields.io/github/hacktoberfest/2020/rasca0027/Mahjong4RL)
 
 Mahjong4RL is a project that recreates the game of Japanese Mahjong and use deep reinforcement learning to play it.
 
