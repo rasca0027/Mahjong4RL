@@ -474,8 +474,8 @@ class Sanshoku(TeYaku):
             return False
 
         # check rest tiles
-        for i in range(1, 4):
-            idx = i*10 + target_rank
+        for suit in range(1, 4):
+            idx = i*suit + target_rank
             hand[idx] -= 3
             if not hand[idx]:
                 del hand[idx]
