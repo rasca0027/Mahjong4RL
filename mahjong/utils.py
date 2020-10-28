@@ -1,5 +1,8 @@
 import math
 from enum import Enum
+from typing import List
+
+from .components import Tile
 
 
 def get_values(en: Enum):
@@ -22,3 +25,21 @@ def isYaochuu(suit: int, rank: int) -> bool:
     else:
         if rank == 1 or rank == 9:
             return True
+
+
+def isChi(tile_set: List[Tile]) -> bool:
+    '''input a list of tiles and determine it's a chi set or not
+    '''
+    if len(tile_set) != 3:
+        return False
+    tile_set.sort()
+    return tile_set[0].next_tile == tile_set[1] and \
+        tile_set[1].next_tile == tile_set[2]
+
+
+def isPon(tile_set: List[Tile]) -> bool:
+    '''input a list of tiles and determine it's a pon set or not
+    '''
+    if len(tile_set) != 3:
+        return False
+    return tile_set[0] == tile_set[1] == tile_set[2]

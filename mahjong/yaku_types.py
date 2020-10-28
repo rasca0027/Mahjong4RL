@@ -3,7 +3,7 @@ from collections import defaultdict
 from abc import ABC, abstractmethod
 
 from .player import Player
-from .utils import isYaochuu
+from .utils import isYaochuu, isChi, isPon
 from .components import Suit, Jihai, Tile
 
 
@@ -463,13 +463,38 @@ class Sanshoku(TeYaku):
             if hand[k] >= 3 and suit > 0:
                 counter[suit].append(rank)
 
+        target_rank = None
         for man_rank in counter[1]:
             for sou_rank in counter[2]:
                 for pin_rank in counter[3]:
                     if man_rank == sou_rank == pin_rank:
-                        self.total_yaku = 'sanshoku_doukou'
-                        self.total_han = 2
-                        return True
+                        target_rank = man_rank
+
+        if not target_rank:
+            return False
+
+        # check rest tiles
+        for i in range(1, 4):
+            idx = i*10 + target_rank
+            hand[idx] -= 3
+            if not hand[idx]:
+                del hand[idx]
+
+        rest_tiles = []
+        for k in hand:
+            for _ in range(hand[k]):
+                rest_tiles.append(Tile(k // 10, k % 10))
+        rest_tiles.sort()
+
+        for i in range(len(rest_tiles)):
+            if i == len(tile)-1:
+                break
+            if rest_tiles[i] == rest_tiles[i+1]:
+                check_set = rest_tiles[:i] + rest_tiles[i+2:]
+                if isChi(check_set) or isPon(check_set):
+                    self.total_yaku = 'sanshoku_doukou'
+                    self.total_han = 2
+                    return True
         return False
 
     def sanshoku_doujun(self):  # 三色同順
