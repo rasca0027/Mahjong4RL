@@ -475,7 +475,7 @@ class Sanshoku(TeYaku):
 
         # check rest tiles
         for suit in range(1, 4):
-            idx = i*suit + target_rank
+            idx = suit*10 + target_rank
             hand[idx] -= 3
             if not hand[idx]:
                 del hand[idx]
