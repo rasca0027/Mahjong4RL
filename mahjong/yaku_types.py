@@ -5,7 +5,9 @@ from collections import defaultdict
 from abc import ABC, abstractmethod
 
 from .player import Player
-from .utils import is_yaochuu, separate_sets
+from .utils import (
+    is_yaochuu, is_chi, is_pon, consists_jantou_and_sets, separate_sets
+)
 from .components import Suit, Jihai, Tile, Naki
 from .naki_and_actions import check_tenpai
 
@@ -288,7 +290,24 @@ class TeYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Ryuuiisou
         """
-        return NotImplemented
+        green_tiles_idx = {Tile(Suit.SOUZU.value, 2).index,
+                           Tile(Suit.SOUZU.value, 3).index,
+                           Tile(Suit.SOUZU.value, 4).index,
+                           Tile(Suit.SOUZU.value, 6).index,
+                           Tile(Suit.SOUZU.value, 8).index,
+                           Tile(Suit.JIHAI.value, Jihai.HATSU.value).index}
+
+        agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            agari_hand_and_kabe[tile.index] += 1
+
+        for tile_idx in agari_hand_and_kabe.keys():
+            if tile_idx not in green_tiles_idx:
+                return False
+
+        self.total_yaku = 'ryuuiisou'
+        self.yakuman_count = 1
+        return True
 
     def kokushi_musou(self):  # 国士無双 or 国士無双１３面待ち
         """This hand has one of each of the 13 different terminal
@@ -351,7 +370,25 @@ class TeYaku(YakuTypes):
         1 han (open)
         http://arcturus.su/wiki/Ikkitsuukan
         """
-        return NotImplemented
+        for suit in Suit:
+            if suit != Suit.JIHAI:
+                tmp_hand = copy.deepcopy(self.agari_hand_and_kabe)
+
+                for i in range(1, 10):
+                    if tmp_hand[Tile(suit.value, i).index] < 1:
+                        break
+                    else:
+                        tmp_hand[Tile(suit.value, i).index] -= 1
+                else:
+                    if consists_jantou_and_sets(tmp_hand, 3):
+                        self.total_yaku = 'ikkitsuukan'
+                        if self.player.menzenchin:
+                            self.total_han = 2
+                        else:
+                            self.total_han = 1
+                        return True
+
+        return False
 
     def pinfu(self):  # 平和
         """Defined by having 0 fu aside from the base 20 fu, or 30 fu in
@@ -389,13 +426,12 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Daisangen
         """
-        huro_set = set(self.huro_tiles)
         for rank in [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN]:
             tile = Tile(Suit.JIHAI, rank.value)
             index = tile.index
             if self.agari_hand[index] >= 3:
                 continue
-            elif tile in huro_set:
+            elif tile in self.huro_tiles:
                 continue
             else:
                 return False
@@ -424,14 +460,13 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Daisuushii
         """
-        huro_set = set(self.huro_tiles)
         four_winds = [Jihai.TON, Jihai.NAN, Jihai.SHAA, Jihai.PEI]
         for rank in four_winds:
             tile = Tile(Suit.JIHAI, rank.value)
             index = tile.index
             if self.agari_hand[index] >= 3:
                 continue
-            elif tile in huro_set:
+            elif tile in self.huro_tiles:
                 continue
             else:
                 return False
@@ -445,7 +480,26 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Shousuushii
         """
-        return NotImplemented
+        four_winds = [Jihai.TON, Jihai.NAN, Jihai.SHAA, Jihai.PEI]
+        has_small_flag = False
+        for rank in four_winds:
+            tile = Tile(Suit.JIHAI, rank.value)
+            index = tile.index
+            tile_cnt = self.agari_hand.get(index, 0)
+            if tile_cnt == 3:
+                continue
+            elif tile in self.huro_tiles:
+                continue
+            elif tile_cnt == 2 and not has_small_flag:
+                has_small_flag = True
+                continue
+            elif tile_cnt == 2 and has_small_flag:
+                return False
+            else:
+                return False
+        self.total_yaku = "shousuushii"
+        self.yakuman_count = 1
+        return True
 
     def shousangen(self):  # 小三元
         """The hand is composed of two koutsu (triplet) and a jantou (pair)
@@ -454,7 +508,24 @@ class Yakuhai(TeYaku):
         see the link below)
         http://arcturus.su/wiki/Shousangen
         """
-        return NotImplemented
+        has_small_flag = False
+        for rank in [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN]:
+            tile = Tile(Suit.JIHAI, rank.value)
+            index = tile.index
+            tile_cnt = self.agari_hand.get(index, 0)
+            if tile_cnt >= 3:
+                continue
+            elif tile in self.huro_tiles:
+                continue
+            elif tile_cnt == 2 and not has_small_flag:
+                has_small_flag = True
+            elif tile_cnt == 2:
+                return False
+            else:
+                return False
+        self.total_yaku = "shousangen"
+        self.total_han = 2
+        return True
 
     def yakuhai(self):  # 役牌
         """A group of 1 han yaku scored for completing a group of certain
@@ -490,7 +561,18 @@ class Chanta(TeYaku):
         yakuman
         http://arcturus.su/wiki/Chinroutou
         """
-        return NotImplemented
+        for k in self.agari_hand.keys():
+            suit, rank = k // 10, k % 10
+            if not isYaochuu(suit=suit, rank=rank) or suit == 0:
+                return False
+
+        for tile in self.huro_tiles:
+            if not isYaochuu(suit=tile.suit, rank=tile.rank) or tile.suit == 0:
+                return False
+
+        self.total_yaku = 'chinroutou'
+        self.yakuman_count = 1
+        return True
 
     def honroutou(self):  # 混老頭
         """A hand contain only honors and terminals.
@@ -499,7 +581,18 @@ class Chanta(TeYaku):
         equivalent of 4 han)
         http://arcturus.su/wiki/Honroutou
         """
-        return NotImplemented
+        for k in self.agari_hand.keys():
+            suit, rank = k // 10, k % 10
+            if not isYaochuu(suit=suit, rank=rank):
+                return False
+
+        for tile in self.huro_tiles:
+            if not isYaochuu(suit=tile.suit, rank=tile.rank):
+                return False
+        
+        self.total_yaku = 'honroutou'
+        self.total_han = 2
+        return True
 
     def junchantaiyaochuu(self):  # 純全帯么九
         """Every tile group and the pair must contain at least one terminal.
@@ -559,7 +652,48 @@ class Sanshoku(TeYaku):
         2 han
         http://arcturus.su/wiki/Sanshoku_doukou
         """
-        return NotImplemented
+        hand = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            hand[tile.index] += 1
+        counter = {1: [], 2: [], 3: []}
+        for k in hand:
+            suit, rank = k // 10, k % 10
+            if hand[k] >= 3 and suit > 0:
+                counter[suit].append(rank)
+
+        target_rank = None
+        for man_rank in counter[1]:
+            for sou_rank in counter[2]:
+                for pin_rank in counter[3]:
+                    if man_rank == sou_rank == pin_rank:
+                        target_rank = man_rank
+
+        if not target_rank:
+            return False
+
+        # check rest tiles
+        for suit in range(1, 4):
+            idx = suit*10 + target_rank
+            hand[idx] -= 3
+            if not hand[idx]:
+                del hand[idx]
+
+        rest_tiles = []
+        for k in hand:
+            for _ in range(hand[k]):
+                rest_tiles.append(Tile(k // 10, k % 10))
+        rest_tiles.sort()
+
+        for i in range(len(rest_tiles)):
+            if i == len(tile)-1:
+                break
+            if rest_tiles[i] == rest_tiles[i+1]:
+                check_set = rest_tiles[:i] + rest_tiles[i+2:]
+                if isChi(check_set) or isPon(check_set):
+                    self.total_yaku = 'sanshoku_doukou'
+                    self.total_han = 2
+                    return True
+        return False
 
     def sanshoku_doujun(self):  # 三色同順
         """A hand contain sequences of the same numbered tiles across the
@@ -568,7 +702,54 @@ class Sanshoku(TeYaku):
         1 han (open)
         http://arcturus.su/wiki/Sanshoku_doujun
         """
-        return NotImplemented
+        hand = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            hand[tile.index] += 1
+        counter = {1: [], 2: [], 3: []}
+        for suit in range(1, 4):
+            for rank in range(1, 8):
+                indices = (suit*10+rank, suit*10+rank+1, suit*10+rank+2)
+                if indices[0] in hand and indices[1] in hand and \
+                   indices[2] in hand:
+                    counter[suit].append((rank, rank+1, rank+2))
+
+        target_set = None
+        for man_rank_set in counter[1]:
+            for sou_rank_set in counter[2]:
+                for pin_rank_set in counter[3]:
+                    if man_rank_set == sou_rank_set == pin_rank_set:
+                        target_set = man_rank_set
+
+        if not target_set:
+            return False
+
+        # check rest tiles
+        for suit in range(1, 4):
+            for rank in target_set:
+                idx = suit*10 + rank
+                hand[idx] -= 1
+                if not hand[idx]:
+                    del hand[idx]
+
+        rest_tiles = []
+        for k in hand:
+            for _ in range(hand[k]):
+                rest_tiles.append(Tile(k // 10, k % 10))
+        rest_tiles.sort()
+
+        for i in range(len(rest_tiles)):
+            if i == len(tile)-1:
+                break
+            if rest_tiles[i] == rest_tiles[i+1]:
+                check_set = rest_tiles[:i] + rest_tiles[i+2:]
+                if isChi(check_set) or isPon(check_set):
+                    self.total_yaku = 'sanshoku_doujun'
+                    if self.player.menzenchin:
+                        self.total_han = 2
+                    else:
+                        self.total_han = 1
+                    return True
+        return False
 
 
 class Somete(TeYaku):
