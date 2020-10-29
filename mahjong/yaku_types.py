@@ -3,7 +3,7 @@ from collections import defaultdict
 from abc import ABC, abstractmethod
 
 from .player import Player
-from .utils import isYaochuu, isChi, isPon
+from .utils import is_yaochuu, is_chi, is_pon
 from .components import Suit, Jihai, Tile
 
 
