@@ -80,8 +80,8 @@ def separate_sets(
                             for _ in range(chii_n):
                                 shuntsu.append([
                                     Tile.from_index(tile_index),
-                                    Tile.from_index(tile_index) + 1,
-                                    Tile.from_index(tile_index) + 2
+                                    Tile.from_index(tile_index + 1),
+                                    Tile.from_index(tile_index + 2)
                                 ])
             if sets_to_find == 0:
                 return koutsu, shuntsu, Tile.from_index(possible_jantou)
@@ -94,8 +94,8 @@ def is_chi(tile_set: List[Tile]) -> bool:
     if len(tile_set) != 3:
         return False
     tile_set.sort()
-    return tile_set[0].next_tile == tile_set[1] and \
-        tile_set[1].next_tile == tile_set[2]
+    return tile_set[0].next_tile() == tile_set[1] and \
+        tile_set[1].next_tile() == tile_set[2]
 
 
 def is_pon(tile_set: List[Tile]) -> bool:
