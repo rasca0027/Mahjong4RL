@@ -318,26 +318,3 @@ def check_remains_are_sets(remain_tiles: DefaultDict[int, int],
                     sets_to_find -= chii_n
 
     return sets_to_find == 0
-
-
-def consists_jantou_and_sets(remain_tiles: DefaultDict[int, int],
-                             took_out_sets_n: int) -> bool:
-    """Helper function to check all tiles in remain_tiles consists one Jantou
-    and the other tiles can form into sets
-
-    Args:
-        remain_tiles (DefaultDict):
-            tiles in hand after taking out some sets
-        took_out_sets_n:
-            how many sets been taken out
-
-    Returns:
-        bool: True for tiles can form sets, False otherwise.
-    """
-    for tile_index in remain_tiles.keys():
-        if remain_tiles[tile_index] >= 2:
-            tmp_hand = copy.deepcopy(remain_tiles)
-            tmp_hand[tile_index] -= 2
-            if check_remains_are_sets(tmp_hand, took_out_sets_n):
-                return True
-    return False

@@ -1,7 +1,8 @@
 import unittest
 
 from mahjong.components import Suit, Tile
-from mahjong.helpers import is_yaochuu
+from mahjong.player import Player
+from mahjong.helpers import is_yaochuu, consists_jantou_and_sets
 
 
 class TestIsYaochuu(unittest.TestCase):
@@ -20,3 +21,21 @@ class TestIsYaochuu(unittest.TestCase):
         self.assertEqual(test_1, True)
         self.assertEqual(test_2, True)
         self.assertEqual(test_3, False)
+
+
+class TestConsistsJantouAndSets(unittest.TestCase):
+
+    def setUp(self):
+        self.player = Player('test', 0)
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.PINZU.value, 2).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 3).index] += 1
+
+    def test_consists_jantou_and_sets(self):
+        self.assertEqual(
+            consists_jantou_and_sets(self.player.hand, 3), True)
+
+    def test_not_consists_jantou_and_sets(self):
+        self.player.hand[Tile(Suit.PINZU.value, 3).index] -= 1
+        self.assertEqual(
+            consists_jantou_and_sets(self.player.hand, 3), False)

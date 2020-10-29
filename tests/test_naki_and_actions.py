@@ -5,8 +5,7 @@ from mahjong.player import Player
 from mahjong.naki_and_actions import (
     check_ron, check_tsumo, check_furiten, check_own_discard_furiten,
     check_ankan, check_chakan, check_daminkan, check_pon, check_chii,
-    check_riichi, check_tenpai, check_remains_are_sets,
-    consists_jantou_and_sets)
+    check_riichi, check_tenpai, check_remains_are_sets)
 
 
 class TestRon(unittest.TestCase):
@@ -591,19 +590,3 @@ class TestRemainsAreSets(unittest.TestCase):
             check_remains_are_sets(remain_tiles, huro_count), False)
 
 
-class TestConsistsJantouAndSets(unittest.TestCase):
-
-    def setUp(self):
-        self.player = Player('test', 0)
-        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 3
-        self.player.hand[Tile(Suit.PINZU.value, 2).index] += 1
-        self.player.hand[Tile(Suit.PINZU.value, 3).index] += 1
-
-    def test_consists_jantou_and_sets(self):
-        self.assertEqual(
-            consists_jantou_and_sets(self.player.hand, 3), True)
-
-    def test_not_consists_jantou_and_sets(self):
-        self.player.hand[Tile(Suit.PINZU.value, 3).index] -= 1
-        self.assertEqual(
-            consists_jantou_and_sets(self.player.hand, 3), False)
