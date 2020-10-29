@@ -702,7 +702,54 @@ class Sanshoku(TeYaku):
         1 han (open)
         http://arcturus.su/wiki/Sanshoku_doujun
         """
-        return NotImplemented
+        hand = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            hand[tile.index] += 1
+        counter = {1: [], 2: [], 3: []}
+        for suit in range(1, 4):
+            for rank in range(1, 8):
+                indices = (suit*10+rank, suit*10+rank+1, suit*10+rank+2)
+                if indices[0] in hand and indices[1] in hand and \
+                   indices[2] in hand:
+                    counter[suit].append((rank, rank+1, rank+2))
+
+        target_set = None
+        for man_rank_set in counter[1]:
+            for sou_rank_set in counter[2]:
+                for pin_rank_set in counter[3]:
+                    if man_rank_set == sou_rank_set == pin_rank_set:
+                        target_set = man_rank_set
+
+        if not target_set:
+            return False
+
+        # check rest tiles
+        for suit in range(1, 4):
+            for rank in target_set:
+                idx = suit*10 + rank
+                hand[idx] -= 1
+                if not hand[idx]:
+                    del hand[idx]
+
+        rest_tiles = []
+        for k in hand:
+            for _ in range(hand[k]):
+                rest_tiles.append(Tile(k // 10, k % 10))
+        rest_tiles.sort()
+
+        for i in range(len(rest_tiles)):
+            if i == len(tile)-1:
+                break
+            if rest_tiles[i] == rest_tiles[i+1]:
+                check_set = rest_tiles[:i] + rest_tiles[i+2:]
+                if isChi(check_set) or isPon(check_set):
+                    self.total_yaku = 'sanshoku_doujun'
+                    if self.player.menzenchin:
+                        self.total_han = 2
+                    else:
+                        self.total_han = 1
+                    return True
+        return False
 
 
 class Somete(TeYaku):
