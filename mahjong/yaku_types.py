@@ -707,55 +707,30 @@ class Sanshoku(TeYaku):
         1 han (open)
         http://arcturus.su/wiki/Sanshoku_doujun
         """
-        hand = copy.deepcopy(self.agari_hand)
-        for tile in self.huro_tiles:
-            hand[tile.index] += 1
+        huro_count = len(self.player.kabe)
+        _, shuntsu, _ = separate_sets(self.agari_hand, huro_count)
+        for huro in self.player.kabe:
+            if huro.naki_type == Naki.CHII:
+                shuntsu.append(huro.tiles)
+
         counter = {1: [], 2: [], 3: []}
-        for suit in range(1, 4):
-            for rank in range(1, 8):
-                indices = (suit * 10 + rank,
-                           suit * 10 + rank + 1,
-                           suit * 10 + rank + 2)
-                if indices[0] in hand and indices[1] in hand and \
-                   indices[2] in hand:
-                    counter[suit].append((rank, rank + 1, rank + 2))
+        for tile_list in shuntsu:
+            suit = tile_list[0].suit
+            shuntsu_rank_tuple = tuple(
+                sorted([tile.rank for tile in tile_list])
+            )
+            counter[suit].append(shuntsu_rank_tuple)
 
-        target_set = None
-        for man_rank_set in counter[1]:
-            for sou_rank_set in counter[2]:
-                for pin_rank_set in counter[3]:
-                    if man_rank_set == sou_rank_set == pin_rank_set:
-                        target_set = man_rank_set
-
-        if not target_set:
-            return False
-
-        # check rest tiles
-        for suit in range(1, 4):
-            for rank in target_set:
-                idx = suit * 10 + rank
-                hand[idx] -= 1
-                if not hand[idx]:
-                    del hand[idx]
-
-        rest_tiles = []
-        for k in hand:
-            for _ in range(hand[k]):
-                rest_tiles.append(Tile(k // 10, k % 10))
-        rest_tiles.sort()
-
-        for i in range(len(rest_tiles)):
-            if i == len(tile) - 1:
-                break
-            if rest_tiles[i] == rest_tiles[i + 1]:
-                check_set = rest_tiles[:i] + rest_tiles[i + 2:]
-                if is_chi(check_set) or is_pon(check_set):
-                    self.total_yaku = 'sanshoku_doujun'
-                    if self.player.menzenchin:
-                        self.total_han = 2
-                    else:
-                        self.total_han = 1
-                    return True
+        for man_rank_tuple in counter[1]:
+            for sou_rank_tuple in counter[2]:
+                for pin_rank_tuple in counter[3]:
+                    if man_rank_tuple == sou_rank_tuple == pin_rank_tuple:
+                        self.total_yaku = 'sanshoku_doujun'
+                        if self.player.menzenchin:
+                            self.total_han = 2
+                        else:
+                            self.total_han = 1
+                        return True
         return False
 
 
