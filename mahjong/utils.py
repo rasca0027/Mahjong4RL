@@ -14,7 +14,7 @@ def roundup(x):
     return int(math.ceil(x / 100.0)) * 100
 
 
-def isYaochuu(suit: int, rank: int) -> bool:
+def is_yaochuu(suit: int, rank: int) -> bool:
     '''determine the tile is yaochuu or not by its suit and rank
     '''
     if suit == 0:
@@ -22,3 +22,5 @@ def isYaochuu(suit: int, rank: int) -> bool:
     else:
         if rank == 1 or rank == 9:
             return True
+
+    return False

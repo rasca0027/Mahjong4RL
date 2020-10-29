@@ -233,7 +233,7 @@ class Kyoku:
         if not 4 <= wind.value <= 5:
             raise ValueError(
                 "Bakaze should be 4 in Tonpuusen, should be 4 or 5 in Hanchan")
-        self._bakaze = wind 
+        self._bakaze = wind
 
     def get_oya_player(self):
         return next(filter(lambda p: p.jikaze == Jihai.TON, self.players))
@@ -271,14 +271,15 @@ class Kyoku:
             # return self.oya_player, 1
             # Ryuukyoku 流局
             # else:
-            # 檢查流局是否聽牌 
+            # 檢查流局是否聽牌
             tenpai_players = []
             noten_players = []
             for player in self.players:
                 if check_tenpai(player.hand, player.kabe):
                     tenpai_players.append(player)
-                else: noten_players.append(player)
-            self.apply_noten_points(tenpai_players, noten_players)        
+                else:
+                    noten_players.append(player)
+            self.apply_noten_points(tenpai_players, noten_players)
             if self.oya_player in tenpai_players:
                 return True, self.kyotaku, self.honba + 1
             else:

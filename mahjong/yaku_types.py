@@ -5,7 +5,7 @@ from collections import defaultdict
 from abc import ABC, abstractmethod
 
 from .player import Player
-from .utils import isYaochuu
+from .utils import is_yaochuu
 from .components import Suit, Jihai, Tile, Naki
 from .naki_and_actions import check_tenpai
 
@@ -400,12 +400,12 @@ class TeYaku(YakuTypes):
         for k in self.agari_hand.keys():
             suit = k // 10
             rank = k % 10
-            if isYaochuu(suit=suit, rank=rank):
+            if is_yaochuu(suit=suit, rank=rank):
                 return False
 
         # check player's kabe
         for tile in self.huro_tiles:
-            if isYaochuu(suit=tile.suit, rank=tile.rank):
+            if is_yaochuu(suit=tile.suit, rank=tile.rank):
                 return False
 
         self.total_yaku = 'tanyao'
