@@ -426,13 +426,12 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Daisangen
         """
-        huro_set = set(self.huro_tiles)
         for rank in [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN]:
             tile = Tile(Suit.JIHAI, rank.value)
             index = tile.index
             if self.agari_hand[index] >= 3:
                 continue
-            elif tile in huro_set:
+            elif tile in self.huro_tiles:
                 continue
             else:
                 return False
@@ -461,14 +460,13 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Daisuushii
         """
-        huro_set = set(self.huro_tiles)
         four_winds = [Jihai.TON, Jihai.NAN, Jihai.SHAA, Jihai.PEI]
         for rank in four_winds:
             tile = Tile(Suit.JIHAI, rank.value)
             index = tile.index
             if self.agari_hand[index] >= 3:
                 continue
-            elif tile in huro_set:
+            elif tile in self.huro_tiles:
                 continue
             else:
                 return False
@@ -482,7 +480,26 @@ class Yakuhai(TeYaku):
         yakuman
         http://arcturus.su/wiki/Shousuushii
         """
-        return NotImplemented
+        four_winds = [Jihai.TON, Jihai.NAN, Jihai.SHAA, Jihai.PEI]
+        has_small_flag = False
+        for rank in four_winds:
+            tile = Tile(Suit.JIHAI, rank.value)
+            index = tile.index
+            tile_cnt = self.agari_hand.get(index, 0)
+            if tile_cnt == 3:
+                continue
+            elif tile in self.huro_tiles:
+                continue
+            elif tile_cnt == 2 and not has_small_flag:
+                has_small_flag = True
+                continue
+            elif tile_cnt == 2 and has_small_flag:
+                return False
+            else:
+                return False
+        self.total_yaku = "shousuushii"
+        self.yakuman_count = 1
+        return True
 
     def shousangen(self):  # 小三元
         """The hand is composed of two koutsu (triplet) and a jantou (pair)
@@ -491,7 +508,24 @@ class Yakuhai(TeYaku):
         see the link below)
         http://arcturus.su/wiki/Shousangen
         """
-        return NotImplemented
+        has_small_flag = False
+        for rank in [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN]:
+            tile = Tile(Suit.JIHAI, rank.value)
+            index = tile.index
+            tile_cnt = self.agari_hand.get(index, 0)
+            if tile_cnt >= 3:
+                continue
+            elif tile in self.huro_tiles:
+                continue
+            elif tile_cnt == 2 and not has_small_flag:
+                has_small_flag = True
+            elif tile_cnt == 2:
+                return False
+            else:
+                return False
+        self.total_yaku = "shousangen"
+        self.total_han = 2
+        return True
 
     def yakuhai(self):  # 役牌
         """A group of 1 han yaku scored for completing a group of certain
