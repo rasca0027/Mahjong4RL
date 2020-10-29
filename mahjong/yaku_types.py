@@ -1,10 +1,13 @@
 import copy
+import math
+from typing import List, DefaultDict
 from collections import defaultdict
 from abc import ABC, abstractmethod
 
 from .player import Player
 from .utils import is_yaochuu
-from .components import Suit, Jihai, Tile
+from .components import Suit, Jihai, Tile, Naki
+from .naki_and_actions import check_tenpai
 
 
 class YakuTypes(ABC):
@@ -14,9 +17,10 @@ class YakuTypes(ABC):
     _player = None
     _bakaze = None
 
-    def __init__(self, player: Player, bakaze):
+    def __init__(self, player: Player, bakaze: Jihai, ron: bool):
         self.player = player
         self.bakaze = bakaze
+        self.is_ron = ron
         self.agari_hand = copy.deepcopy(self.player.hand)
         self.agari_hand = defaultdict(
             int, {k: v for k, v in self.agari_hand.items() if v > 0})
@@ -43,6 +47,137 @@ class YakuTypes(ABC):
     @abstractmethod
     def total_han(self, han):
         return NotImplemented
+
+    def calculate_fu(self):
+
+        if self.player.menzenchin and self.is_ron:
+            fu = 30
+        else:
+            fu = 20
+
+        if 'pinfu' in self.total_yaku:
+            if self.total_han == 1: fu = 30 # avoid 1 han 20 fu
+            return fu
+        elif 'chiitoitsu' in self.total_yaku:
+            fu = 25
+            return fu
+
+        honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
+        yaochuuhai = honor_tiles + terminal_tiles
+        for huro in self.player.kabe:
+            if huro.naki_type == Naki.PON:
+                if huro.tiles[0] in yaochuuhai:
+                    fu += 4
+                else: fu += 2
+            elif huro.naki_type == Naki.ANKAN:
+                if huro.tiles[0] in yaochuuhai:
+                    fu += 32
+                else: fu += 16
+            elif huro.naki_type in [Naki.DAMINKAN, Naki.CHAKAN]:
+                if huro.tiles[0] in yaochuuhai:
+                    fu += 16
+                else: fu += 8
+
+        def separate_sets(hand: DefaultDict[int, int], huro_count: int):
+
+            for possible_jantou in hand.keys():
+                if hand[possible_jantou] >= 2: # try using it as jantou
+                    remain_tiles = copy.deepcopy(hand)
+                    remain_tiles[possible_jantou] -= 2
+                    
+                    koutsu = []
+                    shuntsu = []
+                    sets_to_find = 4 - huro_count
+                    for tile_index in sorted(remain_tiles.keys()):
+                        if tile_index < Tile(Suit.MANZU.value, 1).index:  # only check Koutsu
+                            if remain_tiles[tile_index] == 3:
+                                sets_to_find -= 1
+                                koutsu.append(Tile.from_index(tile_index))
+                        else:  # numbered tiles
+                            if remain_tiles[tile_index] >= 3:  # check for Koutsu
+                                remain_tiles[tile_index] -= 3
+                                sets_to_find -= 1
+                                koutsu.append(Tile.from_index(tile_index))
+                            if remain_tiles[tile_index + 2] > 0:  # check for Shuntsu
+                                chii_n = min(remain_tiles[tile_index],
+                                            remain_tiles[tile_index + 1],
+                                            remain_tiles[tile_index + 2])
+                                if chii_n > 0:
+                                    remain_tiles[tile_index] -= chii_n
+                                    remain_tiles[tile_index + 1] -= chii_n
+                                    remain_tiles[tile_index + 2] -= chii_n
+                                    sets_to_find -= chii_n
+                                    for _ in range(chii_n):
+                                        shuntsu.append([
+                                            Tile.from_index(tile_index),
+                                            Tile.from_index(tile_index) + 1,
+                                            Tile.from_index(tile_index) + 2
+                                        ])
+                    if sets_to_find == 0:
+                        return koutsu, shuntsu, Tile.from_index(possible_jantou)
+
+        def calc_wait_pattern_fu(ankous: List[Tile],
+                                 shuntsus: List[Tile],
+                                 jantou: Tile) -> int:
+            wait_pattern_fu = 0
+
+            # 暗刻
+            for tile in ankous:
+                if tile in yaochuuhai:
+                    wait_pattern_fu += 8
+                else:
+                    wait_pattern_fu += 4
+
+            # 雀頭
+            if jantou.suit == 0:
+                if jantou.rank == self.bakaze.value:
+                    wait_pattern_fu += 2
+                if jantou.rank == self.player.jikaze.value:
+                    wait_pattern_fu += 2
+
+            # 聽牌形式
+            def tenpai_add_fu() -> bool:
+                if self.player.agari_tile == jantou:  # 單騎聽
+                    return True
+                for shuntsu in shuntsus:
+                    if self.player.agari_tile == shuntsu[1]:  # 坎張聽
+                        return True
+                    elif (
+                        (self.player.agari_tile == shuntsu[0]
+                         and shuntsu[2].rank == 9)
+                        or (self.player.agari_tile == shuntsu[2]
+                            and shuntsu[0].rank == 1)
+                    ):
+                        return True  # 邊張聽
+                return False
+
+            if tenpai_add_fu():
+                wait_pattern_fu += 2
+
+            return wait_pattern_fu
+
+        # separate sets
+        tenpai_tiles = check_tenpai(self.player.hand, self.player.kabe)
+        player_huro_n = len(self.player.kabe)
+        wait_patterns = {}
+        for idx, pot_agari_tile in enumerate(tenpai_tiles):
+            tmp_agari_hand = copy.deepcopy(self.player.hand)
+            tmp_agari_hand[pot_agari_tile.index] += 1
+
+            ankous, shuntsus, jantou = separate_sets(tmp_agari_hand,
+                                                     player_huro_n)
+            wait_patterns[idx] = [ankous, shuntsus, jantou]
+
+        wait_pattern_fus = []
+        for idx in wait_patterns.keys():
+            [ankous, shuntsus, jantou] = wait_patterns[idx]
+            wait_pattern_fus.append(
+                calc_wait_pattern_fu(ankous, shuntsus, jantou))
+
+        wait_pattern_fu = max(wait_pattern_fus)
+        fu += wait_pattern_fu
+        # round up
+        return int(math.ceil(fu / 10.0)) * 10
 
     @property
     def player(self):
