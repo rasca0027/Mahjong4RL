@@ -1,12 +1,12 @@
 import copy
 import math
-from typing import List, DefaultDict
+from typing import List
 from collections import defaultdict
 from abc import ABC, abstractmethod
 
 from .player import Player
-from .utils import (
-    is_yaochuu, is_chi, is_pon, consists_jantou_and_sets, separate_sets
+from .helpers import (
+    is_yaochuu, separate_sets, is_chi, is_pon, consists_jantou_and_sets
 )
 from .components import Suit, Jihai, Tile, Naki
 from .naki_and_actions import check_tenpai
@@ -58,7 +58,8 @@ class YakuTypes(ABC):
             fu = 20
 
         if 'pinfu' in self.total_yaku:
-            if self.total_han == 1: fu = 30 # avoid 1 han 20 fu
+            if self.total_han == 1:
+                fu = 30  # avoid 1 han 20 fu
             return fu
         elif 'chiitoitsu' in self.total_yaku:
             fu = 25
@@ -70,16 +71,18 @@ class YakuTypes(ABC):
             if huro.naki_type == Naki.PON:
                 if huro.tiles[0] in yaochuuhai:
                     fu += 4
-                else: fu += 2
+                else:
+                    fu += 2
             elif huro.naki_type == Naki.ANKAN:
                 if huro.tiles[0] in yaochuuhai:
                     fu += 32
-                else: fu += 16
+                else:
+                    fu += 16
             elif huro.naki_type in [Naki.DAMINKAN, Naki.CHAKAN]:
                 if huro.tiles[0] in yaochuuhai:
                     fu += 16
-                else: fu += 8
-
+                else:
+                    fu += 8
 
         def calc_wait_pattern_fu(ankous: List[Tile],
                                  shuntsus: List[Tile],
@@ -261,7 +264,8 @@ class JouKyouYaku(YakuTypes):
         honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
         yaochuuhai = honor_tiles + terminal_tiles
 
-        if all(map(lambda idx: Tile.from_index(idx) in yaochuuhai, self.player.furiten_tiles_idx)):
+        if (all(map(lambda idx: Tile.from_index(idx) in yaochuuhai,
+                    self.player.furiten_tiles_idx))):
             self.total_yaku = "nagashi_mangan"
             self.total_han = 5
             return True
@@ -563,11 +567,12 @@ class Chanta(TeYaku):
         """
         for k in self.agari_hand.keys():
             suit, rank = k // 10, k % 10
-            if not isYaochuu(suit=suit, rank=rank) or suit == 0:
+            if not is_yaochuu(suit=suit, rank=rank) or suit == 0:
                 return False
 
         for tile in self.huro_tiles:
-            if not isYaochuu(suit=tile.suit, rank=tile.rank) or tile.suit == 0:
+            if (not is_yaochuu(suit=tile.suit, rank=tile.rank)
+                    or tile.suit == 0):
                 return False
 
         self.total_yaku = 'chinroutou'
@@ -583,13 +588,13 @@ class Chanta(TeYaku):
         """
         for k in self.agari_hand.keys():
             suit, rank = k // 10, k % 10
-            if not isYaochuu(suit=suit, rank=rank):
+            if not is_yaochuu(suit=suit, rank=rank):
                 return False
 
         for tile in self.huro_tiles:
-            if not isYaochuu(suit=tile.suit, rank=tile.rank):
+            if not is_yaochuu(suit=tile.suit, rank=tile.rank):
                 return False
-        
+
         self.total_yaku = 'honroutou'
         self.total_han = 2
         return True
@@ -673,7 +678,7 @@ class Sanshoku(TeYaku):
 
         # check rest tiles
         for suit in range(1, 4):
-            idx = suit*10 + target_rank
+            idx = suit * 10 + target_rank
             hand[idx] -= 3
             if not hand[idx]:
                 del hand[idx]
@@ -685,11 +690,11 @@ class Sanshoku(TeYaku):
         rest_tiles.sort()
 
         for i in range(len(rest_tiles)):
-            if i == len(tile)-1:
+            if i == len(tile) - 1:
                 break
-            if rest_tiles[i] == rest_tiles[i+1]:
-                check_set = rest_tiles[:i] + rest_tiles[i+2:]
-                if isChi(check_set) or isPon(check_set):
+            if rest_tiles[i] == rest_tiles[i + 1]:
+                check_set = rest_tiles[:i] + rest_tiles[i + 2:]
+                if is_chi(check_set) or is_chi(check_set):
                     self.total_yaku = 'sanshoku_doukou'
                     self.total_han = 2
                     return True
@@ -708,10 +713,12 @@ class Sanshoku(TeYaku):
         counter = {1: [], 2: [], 3: []}
         for suit in range(1, 4):
             for rank in range(1, 8):
-                indices = (suit*10+rank, suit*10+rank+1, suit*10+rank+2)
+                indices = (suit * 10 + rank,
+                           suit * 10 + rank + 1,
+                           suit * 10 + rank + 2)
                 if indices[0] in hand and indices[1] in hand and \
                    indices[2] in hand:
-                    counter[suit].append((rank, rank+1, rank+2))
+                    counter[suit].append((rank, rank + 1, rank + 2))
 
         target_set = None
         for man_rank_set in counter[1]:
@@ -726,7 +733,7 @@ class Sanshoku(TeYaku):
         # check rest tiles
         for suit in range(1, 4):
             for rank in target_set:
-                idx = suit*10 + rank
+                idx = suit * 10 + rank
                 hand[idx] -= 1
                 if not hand[idx]:
                     del hand[idx]
@@ -738,11 +745,11 @@ class Sanshoku(TeYaku):
         rest_tiles.sort()
 
         for i in range(len(rest_tiles)):
-            if i == len(tile)-1:
+            if i == len(tile) - 1:
                 break
-            if rest_tiles[i] == rest_tiles[i+1]:
-                check_set = rest_tiles[:i] + rest_tiles[i+2:]
-                if isChi(check_set) or isPon(check_set):
+            if rest_tiles[i] == rest_tiles[i + 1]:
+                check_set = rest_tiles[:i] + rest_tiles[i + 2:]
+                if is_chi(check_set) or is_pon(check_set):
                     self.total_yaku = 'sanshoku_doujun'
                     if self.player.menzenchin:
                         self.total_han = 2
