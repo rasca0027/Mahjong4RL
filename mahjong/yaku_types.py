@@ -5,7 +5,7 @@ from collections import defaultdict
 from abc import ABC, abstractmethod
 
 from .player import Player
-from .utils import is_yaochuu, is_chi, is_pon
+from .utils import is_yaochuu, is_chi, is_pon, consists_jantou_and_sets
 from .components import Suit, Jihai, Tile, Naki
 from .naki_and_actions import check_tenpai
 
@@ -325,7 +325,24 @@ class TeYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Ryuuiisou
         """
-        return NotImplemented
+        green_tiles_idx = {Tile(Suit.SOUZU.value, 2).index,
+                           Tile(Suit.SOUZU.value, 3).index,
+                           Tile(Suit.SOUZU.value, 4).index,
+                           Tile(Suit.SOUZU.value, 6).index,
+                           Tile(Suit.SOUZU.value, 8).index,
+                           Tile(Suit.JIHAI.value, Jihai.HATSU.value).index}
+
+        agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            agari_hand_and_kabe[tile.index] += 1
+
+        for tile_idx in agari_hand_and_kabe.keys():
+            if tile_idx not in green_tiles_idx:
+                return False
+
+        self.total_yaku = 'ryuuiisou'
+        self.yakuman_count = 1
+        return True
 
     def kokushi_musou(self):  # 国士無双 or 国士無双１３面待ち
         """This hand has one of each of the 13 different terminal
@@ -388,7 +405,25 @@ class TeYaku(YakuTypes):
         1 han (open)
         http://arcturus.su/wiki/Ikkitsuukan
         """
-        return NotImplemented
+        for suit in Suit:
+            if suit != Suit.JIHAI:
+                tmp_hand = copy.deepcopy(self.agari_hand_and_kabe)
+
+                for i in range(1, 10):
+                    if tmp_hand[Tile(suit.value, i).index] < 1:
+                        break
+                    else:
+                        tmp_hand[Tile(suit.value, i).index] -= 1
+                else:
+                    if consists_jantou_and_sets(tmp_hand, 3):
+                        self.total_yaku = 'ikkitsuukan'
+                        if self.player.menzenchin:
+                            self.total_han = 2
+                        else:
+                            self.total_han = 1
+                        return True
+
+        return False
 
     def pinfu(self):  # 平和
         """Defined by having 0 fu aside from the base 20 fu, or 30 fu in

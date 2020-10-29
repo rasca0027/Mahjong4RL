@@ -1,7 +1,9 @@
 import math
+import copy
 from enum import Enum
-from typing import List
+from typing import DefaultDict, List
 
+from .naki_and_actions import check_remains_are_sets
 from .components import Tile
 
 
@@ -25,6 +27,29 @@ def is_yaochuu(suit: int, rank: int) -> bool:
     else:
         if rank == 1 or rank == 9:
             return True
+    return False
+
+
+def consists_jantou_and_sets(remain_tiles: DefaultDict[int, int],
+                             took_out_sets_n: int) -> bool:
+    """Helper function to check all tiles in remain_tiles consists one Jantou
+    and the other tiles can form into sets
+
+    Args:
+        remain_tiles (DefaultDict):
+            tiles in hand after taking out some sets
+        took_out_sets_n:
+            how many sets been taken out
+
+    Returns:
+        bool: True for tiles can form sets, False otherwise.
+    """
+    for tile_index in remain_tiles.keys():
+        if remain_tiles[tile_index] >= 2:
+            tmp_hand = copy.deepcopy(remain_tiles)
+            tmp_hand[tile_index] -= 2
+            if check_remains_are_sets(tmp_hand, took_out_sets_n):
+                return True
     return False
 
 
