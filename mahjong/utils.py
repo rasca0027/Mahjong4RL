@@ -1,9 +1,10 @@
 import math
 import copy
 from enum import Enum
-from typing import DefaultDict
+from typing import DefaultDict, List
 
 from .naki_and_actions import check_remains_are_sets
+from .components import Tile
 
 
 def get_values(en: Enum):
@@ -18,7 +19,7 @@ def roundup(x):
     return int(math.ceil(x / 100.0)) * 100
 
 
-def isYaochuu(suit: int, rank: int) -> bool:
+def is_yaochuu(suit: int, rank: int) -> bool:
     '''determine the tile is yaochuu or not by its suit and rank
     '''
     if suit == 0:
@@ -26,6 +27,7 @@ def isYaochuu(suit: int, rank: int) -> bool:
     else:
         if rank == 1 or rank == 9:
             return True
+    return False
 
 
 def consists_jantou_and_sets(remain_tiles: DefaultDict[int, int],
@@ -48,5 +50,22 @@ def consists_jantou_and_sets(remain_tiles: DefaultDict[int, int],
             tmp_hand[tile_index] -= 2
             if check_remains_are_sets(tmp_hand, took_out_sets_n):
                 return True
-
     return False
+
+
+def is_chi(tile_set: List[Tile]) -> bool:
+    '''input a list of tiles and determine it's a chi set or not
+    '''
+    if len(tile_set) != 3:
+        return False
+    tile_set.sort()
+    return tile_set[0].next_tile == tile_set[1] and \
+        tile_set[1].next_tile == tile_set[2]
+
+
+def is_pon(tile_set: List[Tile]) -> bool:
+    '''input a list of tiles and determine it's a pon set or not
+    '''
+    if len(tile_set) != 3:
+        return False
+    return tile_set[0] == tile_set[1] == tile_set[2]

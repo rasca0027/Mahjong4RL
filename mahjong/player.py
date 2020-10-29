@@ -1,4 +1,4 @@
-from typing import Tuple, List, DefaultDict
+from typing import Tuple, List, Set, DefaultDict
 from collections import defaultdict
 
 from .utils import get_name
@@ -19,6 +19,7 @@ class Player:
         self.kawa: List[Tile] = []  # 河 is formed by the discarded tiles.
         self.menzenchin: bool = True
         self.tmp_huro: Huro = None
+        self.furiten_tiles_idx: Set[int] = set()
         self.tmp_furiten: bool = False
         self.permanent_furiten: bool = False
         self.agari_tile: Tile = None
@@ -33,6 +34,7 @@ class Player:
     def add_kawa(self, tile: Tile) -> None:
         if tile:
             self.kawa.append(tile)
+            self.furiten_tiles_idx.add(tile.index)
         return
 
     @property
@@ -128,7 +130,6 @@ class Player:
             ...  # pick discard tile
 
         return (action, naki), discard_tile
-
 
     def action_with_naki(self, naki: Naki) -> None:
         # add tmp_huro to kabe
