@@ -5,7 +5,9 @@ from collections import defaultdict
 from abc import ABC, abstractmethod
 
 from .player import Player
-from .utils import is_yaochuu, is_chi, is_pon
+from .utils import (
+    is_yaochuu, is_chi, is_pon, consists_jantou_and_sets, separate_sets
+)
 from .components import Suit, Jihai, Tile, Naki
 from .naki_and_actions import check_tenpai
 
@@ -56,7 +58,7 @@ class YakuTypes(ABC):
             fu = 20
 
         if 'pinfu' in self.total_yaku:
-            if self.total_han == 1: fu = 30 # avoid 1 han 20 fu
+            if self.total_han == 1: fu = 30  # avoid 1 han 20 fu
             return fu
         elif 'chiitoitsu' in self.total_yaku:
             fu = 25
@@ -68,40 +70,47 @@ class YakuTypes(ABC):
             if huro.naki_type == Naki.PON:
                 if huro.tiles[0] in yaochuuhai:
                     fu += 4
-                else: fu += 2
+                else:
+                    fu += 2
             elif huro.naki_type == Naki.ANKAN:
                 if huro.tiles[0] in yaochuuhai:
                     fu += 32
-                else: fu += 16
+                else:
+                    fu += 16
             elif huro.naki_type in [Naki.DAMINKAN, Naki.CHAKAN]:
                 if huro.tiles[0] in yaochuuhai:
                     fu += 16
-                else: fu += 8
+                else:
+                    fu += 8
 
         def separate_sets(hand: DefaultDict[int, int], huro_count: int):
 
             for possible_jantou in hand.keys():
-                if hand[possible_jantou] >= 2: # try using it as jantou
+                if hand[possible_jantou] >= 2:  # try using it as jantou
                     remain_tiles = copy.deepcopy(hand)
                     remain_tiles[possible_jantou] -= 2
-                    
+
                     koutsu = []
                     shuntsu = []
                     sets_to_find = 4 - huro_count
                     for tile_index in sorted(remain_tiles.keys()):
-                        if tile_index < Tile(Suit.MANZU.value, 1).index:  # only check Koutsu
+                        if tile_index < Tile(Suit.MANZU.value, 1).index:
+                            # only check Koutsu
                             if remain_tiles[tile_index] == 3:
                                 sets_to_find -= 1
                                 koutsu.append(Tile.from_index(tile_index))
                         else:  # numbered tiles
-                            if remain_tiles[tile_index] >= 3:  # check for Koutsu
+                            if remain_tiles[tile_index] >= 3:
+                                # check for Koutsu
                                 remain_tiles[tile_index] -= 3
                                 sets_to_find -= 1
                                 koutsu.append(Tile.from_index(tile_index))
-                            if remain_tiles[tile_index + 2] > 0:  # check for Shuntsu
-                                chii_n = min(remain_tiles[tile_index],
-                                            remain_tiles[tile_index + 1],
-                                            remain_tiles[tile_index + 2])
+                            if remain_tiles[tile_index + 2] > 0:
+                                # check for Shuntsu
+                                chii_n = min(
+                                    remain_tiles[tile_index],
+                                    remain_tiles[tile_index + 1],
+                                    remain_tiles[tile_index + 2])
                                 if chii_n > 0:
                                     remain_tiles[tile_index] -= chii_n
                                     remain_tiles[tile_index + 1] -= chii_n
@@ -114,7 +123,9 @@ class YakuTypes(ABC):
                                             Tile.from_index(tile_index) + 2
                                         ])
                     if sets_to_find == 0:
-                        return koutsu, shuntsu, Tile.from_index(possible_jantou)
+                        return koutsu, shuntsu, Tile.from_index(
+                            possible_jantou
+                        )
 
         def calc_wait_pattern_fu(ankous: List[Tile],
                                  shuntsus: List[Tile],
@@ -296,7 +307,10 @@ class JouKyouYaku(YakuTypes):
         honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
         yaochuuhai = honor_tiles + terminal_tiles
 
-        if all(map(lambda idx: Tile.from_index(idx) in yaochuuhai, self.player.furiten_tiles_idx)):
+        if all(map(
+            lambda idx: Tile.from_index(idx) in yaochuuhai,
+            self.player.furiten_tiles_idx
+        )):
             self.total_yaku = "nagashi_mangan"
             self.total_han = 5
             return True
@@ -563,11 +577,12 @@ class Chanta(TeYaku):
         """
         for k in self.agari_hand.keys():
             suit, rank = k // 10, k % 10
-            if not isYaochuu(suit=suit, rank=rank) or suit == 0:
+            if not is_yaochuu(suit=suit, rank=rank) or suit == 0:
                 return False
 
         for tile in self.huro_tiles:
-            if not isYaochuu(suit=tile.suit, rank=tile.rank) or tile.suit == 0:
+            if not is_yaochuu(suit=tile.suit, rank=tile.rank)\
+              or tile.suit == 0:
                 return False
 
         self.total_yaku = 'chinroutou'
@@ -583,13 +598,13 @@ class Chanta(TeYaku):
         """
         for k in self.agari_hand.keys():
             suit, rank = k // 10, k % 10
-            if not isYaochuu(suit=suit, rank=rank):
+            if not is_yaochuu(suit=suit, rank=rank):
                 return False
 
         for tile in self.huro_tiles:
-            if not isYaochuu(suit=tile.suit, rank=tile.rank):
+            if not is_yaochuu(suit=tile.suit, rank=tile.rank):
                 return False
-        
+
         self.total_yaku = 'honroutou'
         self.total_han = 2
         return True
@@ -652,47 +667,24 @@ class Sanshoku(TeYaku):
         2 han
         http://arcturus.su/wiki/Sanshoku_doukou
         """
-        hand = copy.deepcopy(self.agari_hand)
-        for tile in self.huro_tiles:
-            hand[tile.index] += 1
-        counter = {1: [], 2: [], 3: []}
-        for k in hand:
-            suit, rank = k // 10, k % 10
-            if hand[k] >= 3 and suit > 0:
-                counter[suit].append(rank)
+        huro_count = len(self.player.kabe)
+        koutsu, _, _ = separate_sets(self.agari_hand, huro_count)
+        for huro in self.player.kabe:
+            if huro.naki_type == Naki.PON:
+                koutsu.append(huro.tiles[0])
 
-        target_rank = None
+        counter = {1: [], 2: [], 3: []}
+        for tile in koutsu:
+            if tile.suit > 0:
+                counter[tile.suit].append(tile.rank)
+
         for man_rank in counter[1]:
             for sou_rank in counter[2]:
                 for pin_rank in counter[3]:
                     if man_rank == sou_rank == pin_rank:
-                        target_rank = man_rank
-
-        if not target_rank:
-            return False
-
-        # check rest tiles
-        for suit in range(1, 4):
-            idx = suit*10 + target_rank
-            hand[idx] -= 3
-            if not hand[idx]:
-                del hand[idx]
-
-        rest_tiles = []
-        for k in hand:
-            for _ in range(hand[k]):
-                rest_tiles.append(Tile(k // 10, k % 10))
-        rest_tiles.sort()
-
-        for i in range(len(rest_tiles)):
-            if i == len(tile)-1:
-                break
-            if rest_tiles[i] == rest_tiles[i+1]:
-                check_set = rest_tiles[:i] + rest_tiles[i+2:]
-                if isChi(check_set) or isPon(check_set):
-                    self.total_yaku = 'sanshoku_doukou'
-                    self.total_han = 2
-                    return True
+                        self.total_yaku = 'sanshoku_doukou'
+                        self.total_han = 2
+                        return True
         return False
 
     def sanshoku_doujun(self):  # 三色同順
