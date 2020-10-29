@@ -657,47 +657,24 @@ class Sanshoku(TeYaku):
         2 han
         http://arcturus.su/wiki/Sanshoku_doukou
         """
-        hand = copy.deepcopy(self.agari_hand)
-        for tile in self.huro_tiles:
-            hand[tile.index] += 1
-        counter = {1: [], 2: [], 3: []}
-        for k in hand:
-            suit, rank = k // 10, k % 10
-            if hand[k] >= 3 and suit > 0:
-                counter[suit].append(rank)
+        huro_count = len(self.player.kabe)
+        koutsu, _, _ = separate_sets(self.agari_hand, huro_count)
+        for huro in self.player.kabe:
+            if huro.naki_type == Naki.PON:
+                koutsu.append(huro.tiles[0])
 
-        target_rank = None
+        counter = {1: [], 2: [], 3: []}
+        for tile in koutsu:
+            if tile.suit > 0:
+                counter[tile.suit].append(tile.rank)
+
         for man_rank in counter[1]:
             for sou_rank in counter[2]:
                 for pin_rank in counter[3]:
                     if man_rank == sou_rank == pin_rank:
-                        target_rank = man_rank
-
-        if not target_rank:
-            return False
-
-        # check rest tiles
-        for suit in range(1, 4):
-            idx = suit * 10 + target_rank
-            hand[idx] -= 3
-            if not hand[idx]:
-                del hand[idx]
-
-        rest_tiles = []
-        for k in hand:
-            for _ in range(hand[k]):
-                rest_tiles.append(Tile(k // 10, k % 10))
-        rest_tiles.sort()
-
-        for i in range(len(rest_tiles)):
-            if i == len(tile) - 1:
-                break
-            if rest_tiles[i] == rest_tiles[i + 1]:
-                check_set = rest_tiles[:i] + rest_tiles[i + 2:]
-                if is_chi(check_set) or is_chi(check_set):
-                    self.total_yaku = 'sanshoku_doukou'
-                    self.total_han = 2
-                    return True
+                        self.total_yaku = 'sanshoku_doukou'
+                        self.total_han = 2
+                        return True
         return False
 
     def sanshoku_doujun(self):  # 三色同順
