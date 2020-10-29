@@ -25,6 +25,7 @@ def is_yaochuu(suit: int, rank: int) -> bool:
     else:
         if rank == 1 or rank == 9:
             return True
+    return False
 
 
 def is_chi(tile_set: List[Tile]) -> bool:

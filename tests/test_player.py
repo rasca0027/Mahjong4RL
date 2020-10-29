@@ -1,7 +1,7 @@
 import unittest
 
 from mahjong.player import Player
-from mahjong.components import Stack, Tile, Suit, Naki, Huro, Action, Jihai
+from mahjong.components import Stack, Tile, Suit, Naki, Huro, Jihai
 
 
 class TestPlayer(unittest.TestCase):
@@ -22,6 +22,7 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(sum(self.player.hand.values()), 13)
         self.assertEqual(len(self.player.kabe), 0)
         self.assertEqual(len(self.player.kawa), 0)
+        self.assertEqual(self.player.menzenchin, True)
         self.assertEqual(self.player.tmp_huro, None)
         self.assertEqual(self.player.tmp_furiten, False)
         self.assertEqual(self.player.permanent_furiten, False)
@@ -45,6 +46,14 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(sum(self.player.hand.values()), 3)
         self.assertEqual(self.player.hand[Tile(0, 1).index], 2)
         self.assertEqual(self.player.hand[Tile(0, 2).index], 1)
+
+    def test_agari_tile_setter(self):
+        tile_nan = Tile(Suit.JIHAI.value, Jihai.NAN.value)
+        self.player.agari_tile = tile_nan
+        self.assertEqual(self.player.agari_tile, tile_nan)
+
+        with self.assertRaises(TypeError):
+            self.player.agari_tile = Jihai.HAKU
 
     def test_seating_position_setter(self):
         with self.assertRaises(AttributeError):

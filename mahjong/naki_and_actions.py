@@ -77,7 +77,8 @@ def check_own_discard_furiten(player: 'Player') -> bool:
     Returns:
         bool: True for Furiten, False otherwise.
     """
-    return any(tile in player.kawa for
+    # check other players' huro
+    return any(tile.index in player.furiten_tiles_idx for
                tile in check_tenpai(player.hand, player.kabe))
 
 
