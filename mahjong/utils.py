@@ -17,7 +17,7 @@ def roundup(x):
     return int(math.ceil(x / 100.0)) * 100
 
 
-def isYaochuu(suit: int, rank: int) -> bool:
+def is_yaochuu(suit: int, rank: int) -> bool:
     '''determine the tile is yaochuu or not by its suit and rank
     '''
     if suit == 0:
@@ -27,7 +27,7 @@ def isYaochuu(suit: int, rank: int) -> bool:
             return True
 
 
-def isChi(tile_set: List[Tile]) -> bool:
+def is_chi(tile_set: List[Tile]) -> bool:
     '''input a list of tiles and determine it's a chi set or not
     '''
     if len(tile_set) != 3:
@@ -37,7 +37,7 @@ def isChi(tile_set: List[Tile]) -> bool:
         tile_set[1].next_tile == tile_set[2]
 
 
-def isPon(tile_set: List[Tile]) -> bool:
+def is_pon(tile_set: List[Tile]) -> bool:
     '''input a list of tiles and determine it's a pon set or not
     '''
     if len(tile_set) != 3:
