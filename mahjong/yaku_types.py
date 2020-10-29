@@ -5,7 +5,7 @@ from collections import defaultdict
 from abc import ABC, abstractmethod
 
 from .player import Player
-from .utils import is_yaochuu
+from .utils import is_yaochuu, is_chi, is_pon
 from .components import Suit, Jihai, Tile, Naki
 from .naki_and_actions import check_tenpai
 
@@ -652,7 +652,48 @@ class Sanshoku(TeYaku):
         2 han
         http://arcturus.su/wiki/Sanshoku_doukou
         """
-        return NotImplemented
+        hand = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            hand[tile.index] += 1
+        counter = {1: [], 2: [], 3: []}
+        for k in hand:
+            suit, rank = k // 10, k % 10
+            if hand[k] >= 3 and suit > 0:
+                counter[suit].append(rank)
+
+        target_rank = None
+        for man_rank in counter[1]:
+            for sou_rank in counter[2]:
+                for pin_rank in counter[3]:
+                    if man_rank == sou_rank == pin_rank:
+                        target_rank = man_rank
+
+        if not target_rank:
+            return False
+
+        # check rest tiles
+        for suit in range(1, 4):
+            idx = suit*10 + target_rank
+            hand[idx] -= 3
+            if not hand[idx]:
+                del hand[idx]
+
+        rest_tiles = []
+        for k in hand:
+            for _ in range(hand[k]):
+                rest_tiles.append(Tile(k // 10, k % 10))
+        rest_tiles.sort()
+
+        for i in range(len(rest_tiles)):
+            if i == len(tile)-1:
+                break
+            if rest_tiles[i] == rest_tiles[i+1]:
+                check_set = rest_tiles[:i] + rest_tiles[i+2:]
+                if isChi(check_set) or isPon(check_set):
+                    self.total_yaku = 'sanshoku_doukou'
+                    self.total_han = 2
+                    return True
+        return False
 
     def sanshoku_doujun(self):  # 三色同順
         """A hand contain sequences of the same numbered tiles across the
