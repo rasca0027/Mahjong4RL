@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from .player import Player
 from .utils import isYaochuu
 from .components import Suit, Tile, Jihai
-from .naki_and_actions import consists_jantou_and_sets
+from .utils import consists_jantou_and_sets
 
 
 class YakuTypes(ABC):
@@ -24,9 +24,6 @@ class YakuTypes(ABC):
         self.agari_hand[self.player.agari_tile.index] += 1
         self.huro_tiles = [
             tile for huro in self.player.kabe for tile in huro.tiles]
-        self.agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
-        for tile in self.huro_tiles:
-            self.agari_hand_and_kabe[tile.index] += 1
 
     @property
     @abstractmethod
@@ -194,7 +191,11 @@ class TeYaku(YakuTypes):
                            Tile(Suit.SOUZU.value, 8).index,
                            Tile(Suit.JIHAI.value, Jihai.HATSU.value).index}
 
-        for tile_idx in self.agari_hand_and_kabe.keys():
+        agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            agari_hand_and_kabe[tile.index] += 1
+
+        for tile_idx in agari_hand_and_kabe.keys():
             if tile_idx not in green_tiles_idx:
                 return False
 
@@ -241,17 +242,7 @@ class TeYaku(YakuTypes):
         2 han
         http://arcturus.su/wiki/Toitoihou
         """
-        pair_n = 0
-        while pair_n <= 1:
-            for tile_idx, tile_n in self.agari_hand_and_kabe.items():
-                if tile_n == 2:
-                    pair_n += 1
-                elif tile_n != 3:
-                    return False
-
-        self.total_yaku = 'toitoihou'
-        self.total_han = 2
-        return True
+        return NotImplemented
 
     def chiitoitsu(self):  # 七対子
         """This hand is composed of seven pairs.

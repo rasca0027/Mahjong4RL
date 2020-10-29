@@ -591,6 +591,7 @@ class TestRemainsAreSets(unittest.TestCase):
             check_remains_are_sets(remain_tiles, huro_count), False)
 
 
+# TODO: move to test utils
 class TestConsistsJantouAndSets(unittest.TestCase):
 
     def setUp(self):
