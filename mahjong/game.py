@@ -26,7 +26,7 @@ class Game:
             if not renchan:
                 if self.kyoku_num == 4:
                     if self.bakaze == Jihai.NAN:
-                        break # end game
+                        break  # end game
                     elif self.bakaze == Jihai.TON:
                         self.bakaze = Jihai.NAN
                         self.kyoku_num = 1
@@ -35,7 +35,8 @@ class Game:
                 # advance player jikaze
                 for player in self.players:
                     player.jikaze = Jihai((player.jikaze.value - 3) % 4 + 4)
-            self.current_kyoku = Kyoku(self.players, honba, self.bakaze, kyotaku)
+            self.current_kyoku = Kyoku(self.players, honba,
+                                       self.bakaze, kyotaku)
         # 遊戲結束
         self.end_game()
 

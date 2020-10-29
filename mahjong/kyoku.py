@@ -43,14 +43,14 @@ class Turn:
                 if Ron/Tsumo/流局 -> None
         """
         state = 0
-        discard_tile = None
+        discarder = self.players[discard_pos]
         player_pos, (action, naki) = self.ensemble_actions(discard_tile,
                                                            discard_pos)
         if action == Action.NOACT:
-            discarder = self.players[discard_pos]
             state, discard_tile = self.draw_flow(
                 self.players[discarder.get_shimocha()])
         elif action == Action.NAKI:
+            discarder.furiten_tiles_idx.add(discard_tile.index)
             state, discard_tile = self.naki_flow(naki)
         elif action == Action.RON:
             self.winner.append(player_pos)
@@ -85,7 +85,7 @@ class Turn:
         else:
             # TODO: invalid action, raise error
             pass
-        player.add_kawa(discard_tile)
+
         return state, discard_tile
 
     def ensemble_actions(
@@ -233,7 +233,7 @@ class Kyoku:
         if not 4 <= wind.value <= 5:
             raise ValueError(
                 "Bakaze should be 4 in Tonpuusen, should be 4 or 5 in Hanchan")
-        self._bakaze = wind 
+        self._bakaze = wind
 
     def get_oya_player(self):
         return next(filter(lambda p: p.jikaze == Jihai.TON, self.players))
@@ -271,14 +271,15 @@ class Kyoku:
             # return self.oya_player, 1
             # Ryuukyoku 流局
             # else:
-            # 檢查流局是否聽牌 
+            # 檢查流局是否聽牌
             tenpai_players = []
             noten_players = []
             for player in self.players:
                 if check_tenpai(player.hand, player.kabe):
                     tenpai_players.append(player)
-                else: noten_players.append(player)
-            self.apply_noten_points(tenpai_players, noten_players)        
+                else:
+                    noten_players.append(player)
+            self.apply_noten_points(tenpai_players, noten_players)
             if self.oya_player in tenpai_players:
                 return True, self.kyotaku, self.honba + 1
             else:
@@ -344,13 +345,14 @@ class Kyoku:
                 loser.points -= roundup(pt * 6) + 300 * self.honba
         else:  # 子家
             if tsumo:
-                self.winner.points += roundup(pt * 2) + roundup(pt) + \
-                    100 * self.honba
                 self.oya_player.points -= roundup(pt * 2) + 100 * self.honba
+                tmp_pt = roundup(pt * 2) + 100 * self.honba
                 for i in range(1, 4):  # TODO: should be 0 ~ 3
                     if self.players[i] != self.winner:
                         self.players[i].points -= roundup(pt) + \
                             100 * self.honba
+                        tmp_pt += roundup(pt) + 100 * self.honba
+                self.winner.points += tmp_pt
             else:
                 self.winner.points += roundup(pt * 4) + 300 * self.honba
                 loser.points -= roundup(pt * 4) + 300 * self.honba

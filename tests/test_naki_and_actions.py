@@ -38,7 +38,7 @@ class TestRon(unittest.TestCase):
 
         # 振聴
         discard_2 = Tile(Suit.MANZU.value, 3)
-        self.player.kawa.append(Tile(Suit.MANZU.value, 3))
+        self.player.add_kawa(Tile(Suit.MANZU.value, 3))
         self.assertEqual(check_ron(self.player, discard_2), False)
 
 
@@ -107,14 +107,14 @@ class TestFuriten(unittest.TestCase):
                  [Tile(Suit.MANZU.value, i) for i in range(6, 9)]))
 
     def test_furiten(self):
-        self.player.kawa.append(Tile(Suit.JIHAI.value, Jihai.TON.value))
+        self.player.add_kawa(Tile(Suit.JIHAI.value, Jihai.TON.value))
         self.assertEqual(check_furiten(self.player), True)
 
     def test_no_furiten(self):
         self.assertEqual(check_furiten(self.player), False)
 
     def test_own_discard_furiten(self):
-        self.player.kawa.append(Tile(Suit.JIHAI.value, Jihai.TON.value))
+        self.player.add_kawa(Tile(Suit.JIHAI.value, Jihai.TON.value))
         self.assertEqual(check_own_discard_furiten(self.player), True)
 
     def test_no_own_discard_furiten(self):
