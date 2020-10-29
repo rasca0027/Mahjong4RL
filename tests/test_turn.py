@@ -68,6 +68,7 @@ class TestTurnDrawFlow(unittest.TestCase):
             self.tile_stack.add_dora_indicator()
         naki_tile = Tile(Suit.SOUZU.value, 5)
         naki_tile.owner = self.player_1.seating_position
+
         kan = Huro(Naki.ANKAN,
                    naki_tile,
                    [Tile(Suit.SOUZU.value, 5) for i in range(4)])
@@ -333,7 +334,6 @@ class TestTurnNakiFlow(unittest.TestCase):
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
         self.assertEqual(len(self.tile_stack.doras), 2)
-        self.assertEqual(self.player_1.kawa[0], Tile(0, 1))
 
     def test_suukaikan(self):
         for _ in range(3):
@@ -388,7 +388,6 @@ class TestTurnNakiFlow(unittest.TestCase):
             self.player_1, Naki.CHII)
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
-        self.assertEqual(self.player_1.kawa[0], Tile(0, 1))
 
 
 class TestTurnDiscardFlow(unittest.TestCase):

@@ -293,7 +293,14 @@ class JouKyouYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Nagashi_mangan
         """
-        return NotImplemented
+        honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
+        yaochuuhai = honor_tiles + terminal_tiles
+
+        if all(map(lambda idx: Tile.from_index(idx) in yaochuuhai, self.player.furiten_tiles_idx)):
+            self.total_yaku = "nagashi_mangan"
+            self.total_han = 5
+            return True
+        return False
 
 
 class TeYaku(YakuTypes):
