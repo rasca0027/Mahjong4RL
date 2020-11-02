@@ -2,6 +2,7 @@ import copy
 import math
 from typing import List
 from collections import defaultdict
+from itertools import combinations
 from abc import ABC, abstractmethod
 
 from .player import Player
@@ -569,14 +570,40 @@ class Peikou(TeYaku):
         3 han (closed only)
         http://arcturus.su/wiki/Ryanpeikou
         """
-        return NotImplemented
+        huro_count = len(self.player.kabe)
+        _, shuntsu, _ = separate_sets(self.agari_hand, huro_count)
+
+        peikou = 0
+        for i in combinations(shuntsu, 2):
+            if i[0] == i[1]:
+                peikou += 1
+
+        if peikou == 2:
+            self.total_yaku = "ryanpeikou"
+            self.total_han = 3
+            return True
+        else:
+            return False
 
     def iipeikou(self):  # 一盃口
         """A hand contain two identical sequences.
         1 han (closed only)
         http://arcturus.su/wiki/Iipeikou
         """
-        return NotImplemented
+        huro_count = len(self.player.kabe)
+        _, shuntsu, _ = separate_sets(self.agari_hand, huro_count)
+
+        peikou = 0
+        for i in combinations(shuntsu, 2):
+            if i[0] == i[1]:
+                peikou += 1
+
+        if peikou == 1:
+            self.total_yaku = "iipeikou"
+            self.total_han = 1
+            return True
+        else:
+            return False
 
 
 class Chanta(TeYaku):
