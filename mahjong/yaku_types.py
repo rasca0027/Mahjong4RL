@@ -6,8 +6,9 @@ from abc import ABC, abstractmethod
 
 from .player import Player
 from .helpers import (
-    is_yaochuu, separate_sets, is_chi, is_pon, consists_jantou_and_sets
+    is_yaochuu, separate_sets, consists_jantou_and_sets
 )
+from .utils import get_name
 from .components import Suit, Jihai, Tile, Naki
 from .naki_and_actions import check_tenpai
 
@@ -374,9 +375,13 @@ class TeYaku(YakuTypes):
         1 han (open)
         http://arcturus.su/wiki/Ikkitsuukan
         """
+        agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            agari_hand_and_kabe[tile.index] += 1
+
         for suit in Suit:
             if suit != Suit.JIHAI:
-                tmp_hand = copy.deepcopy(self.agari_hand_and_kabe)
+                tmp_hand = copy.deepcopy(agari_hand_and_kabe)
 
                 for i in range(1, 10):
                     if tmp_hand[Tile(suit.value, i).index] < 1:
@@ -540,7 +545,22 @@ class Yakuhai(TeYaku):
         1 han per counted triplet
         http://arcturus.su/wiki/Yakuhai
         """
-        return NotImplemented
+        yakuhai = [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN,
+                   self.bakaze, self.player.jikaze]
+        yakuhai_k = list(map(lambda x: x.value, yakuhai))
+
+        agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            agari_hand_and_kabe[tile.index] += 1
+
+        found_yakuhai = False
+        for k, v in agari_hand_and_kabe.items():
+            if k in yakuhai_k and v >= 3:  # 刻子或槓子
+                self.total_yaku = f"yakuhai_{get_name(Jihai, k)}"
+                self.total_han = 1
+                found_yakuhai = True
+
+        return found_yakuhai
 
 
 class Peikou(TeYaku):
