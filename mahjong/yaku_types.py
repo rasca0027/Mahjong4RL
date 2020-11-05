@@ -9,8 +9,8 @@ from .player import Player
 from .helpers import (
     is_yaochuu, separate_sets, consists_jantou_and_sets
 )
+from .components import Suit, Jihai, Tile, Naki, Stack
 from .utils import get_name
-from .components import Suit, Jihai, Tile, Naki
 from .naki_and_actions import check_tenpai
 
 
@@ -21,8 +21,9 @@ class YakuTypes(ABC):
     _player = None
     _bakaze = None
 
-    def __init__(self, player: Player, bakaze: Jihai, ron: bool):
+    def __init__(self, player: Player, stack: Stack, bakaze: Jihai, ron: bool):
         self.player = player
+        self.stack = stack
         self.bakaze = bakaze
         self.is_ron = ron
         self.agari_hand = copy.deepcopy(self.player.hand)
@@ -188,7 +189,11 @@ class JouKyouYaku(YakuTypes):
         1 han (closed only)
         http://arcturus.su/wiki/Menzenchin_tsumohou
         """
-        return NotImplemented
+        if self.player.menzenchin and not self.is_ron:
+            self.total_yaku = 'menzen_tsumo'
+            self.total_han = 1
+            return True
+        return False
 
     def chankan(self):  # 搶槓
         """A player may declare ron while a player calls to upgrade
@@ -204,14 +209,26 @@ class JouKyouYaku(YakuTypes):
         1 han
         http://arcturus.su/wiki/Haitei_raoyue_and_houtei_raoyui
         """
-        return NotImplemented
+        if not self.is_ron:
+            try:
+                self.stack.draw()
+            except StopIteration:
+                # no more tile
+                self.total_yaku = 'houtei_raoyui'
+                self.total_han = 1
+                return True
+        return False
 
     def riichi(self):  # 立直
         """When a player has a closed tenpai hand, the player may declare riichi.
         1 han (closed only)
         http://arcturus.su/wiki/Riichi
         """
-        return NotImplemented
+        if self.player.is_riichi:
+            self.total_yaku = 'riichi'
+            self.total_han = 1
+            return True
+        return False
 
     def ippatsu(self):  # 一発
         """Winning on or before the next tile draw after riichi.
@@ -225,7 +242,14 @@ class JouKyouYaku(YakuTypes):
         1 han
         http://arcturus.su/wiki/Haitei_raoyue_and_houtei_raoyui
         """
-        return NotImplemented
+        if self.is_ron:
+            try:
+                self.stack.draw()
+            except StopIteration:
+                self.total_yaku = 'haitei_raoyue'
+                self.total_han = 1
+                return True
+        return False
 
     def rinshan_kaihou(self):  # 嶺上開花
         """A player wins with the rinshanpai.
@@ -234,7 +258,7 @@ class JouKyouYaku(YakuTypes):
         """
         return NotImplemented
 
-    def aburu_riichi(self):  # 両立直
+    def daburu_riichi(self):  # 両立直
         """This is a special case for riichi. In this case, the player's start
         hand is already at tenpai from the dealt tiles, or the initial draw
         produces a tenpai hand.
