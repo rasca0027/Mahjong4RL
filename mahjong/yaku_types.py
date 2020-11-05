@@ -2,6 +2,7 @@ import copy
 import math
 from typing import List
 from collections import defaultdict
+from itertools import combinations
 from abc import ABC, abstractmethod
 
 from .player import Player
@@ -9,6 +10,7 @@ from .helpers import (
     is_yaochuu, separate_sets, consists_jantou_and_sets
 )
 from .components import Suit, Jihai, Tile, Naki, Stack
+from .utils import get_name
 from .naki_and_actions import check_tenpai
 
 
@@ -376,7 +378,27 @@ class TeYaku(YakuTypes):
         2 han
         http://arcturus.su/wiki/Toitoihou
         """
-        return NotImplemented
+        appear_twice = 0
+        for idx, cnt in self.agari_hand.items():
+            if cnt == 1:
+                return False
+            elif cnt == 2:
+                appear_twice += 1
+            elif cnt == 3:
+                continue
+            else:
+                return False
+        # check with huro
+        for huro in self.player.kabe:
+            if huro[0] == huro[1]:
+                continue
+            else:
+                return False
+        if appear_twice != 1:
+            return False
+        self.total_yaku = "toitoihou"
+        self.total_han = 2
+        return True
 
     def chiitoitsu(self):  # 七対子
         """This hand is composed of seven pairs.
@@ -398,9 +420,13 @@ class TeYaku(YakuTypes):
         1 han (open)
         http://arcturus.su/wiki/Ikkitsuukan
         """
+        agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            agari_hand_and_kabe[tile.index] += 1
+
         for suit in Suit:
             if suit != Suit.JIHAI:
-                tmp_hand = copy.deepcopy(self.agari_hand_and_kabe)
+                tmp_hand = copy.deepcopy(agari_hand_and_kabe)
 
                 for i in range(1, 10):
                     if tmp_hand[Tile(suit.value, i).index] < 1:
@@ -564,7 +590,23 @@ class Yakuhai(TeYaku):
         1 han per counted triplet
         http://arcturus.su/wiki/Yakuhai
         """
-        return NotImplemented
+        yakuhai = [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN,
+                   self.bakaze, self.player.jikaze]
+        # 字牌的 index 跟 Jihai value 一樣
+        yakuhai_k = list(map(lambda x: x.value, yakuhai))
+
+        agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            agari_hand_and_kabe[tile.index] += 1
+
+        found_yakuhai = False
+        for k, v in agari_hand_and_kabe.items():
+            if k in yakuhai_k and v >= 3:  # 刻子或槓子
+                self.total_yaku = f"yakuhai_{get_name(Jihai, k)}"
+                self.total_han = 1
+                found_yakuhai = True
+
+        return found_yakuhai
 
 
 class Peikou(TeYaku):
@@ -573,14 +615,40 @@ class Peikou(TeYaku):
         3 han (closed only)
         http://arcturus.su/wiki/Ryanpeikou
         """
-        return NotImplemented
+        huro_count = len(self.player.kabe)
+        _, shuntsu, _ = separate_sets(self.agari_hand, huro_count)
+
+        peikou = 0
+        for i in combinations(shuntsu, 2):
+            if i[0] == i[1]:
+                peikou += 1
+
+        if peikou == 2:
+            self.total_yaku = "ryanpeikou"
+            self.total_han = 3
+            return True
+        else:
+            return False
 
     def iipeikou(self):  # 一盃口
         """A hand contain two identical sequences.
         1 han (closed only)
         http://arcturus.su/wiki/Iipeikou
         """
-        return NotImplemented
+        huro_count = len(self.player.kabe)
+        _, shuntsu, _ = separate_sets(self.agari_hand, huro_count)
+
+        peikou = 0
+        for i in combinations(shuntsu, 2):
+            if i[0] == i[1]:
+                peikou += 1
+
+        if peikou == 1:
+            self.total_yaku = "iipeikou"
+            self.total_han = 1
+            return True
+        else:
+            return False
 
 
 class Chanta(TeYaku):
