@@ -352,7 +352,27 @@ class TeYaku(YakuTypes):
         2 han
         http://arcturus.su/wiki/Toitoihou
         """
-        return NotImplemented
+        appear_twice = 0
+        for idx, cnt in self.agari_hand.items():
+            if cnt == 1:
+                return False
+            elif cnt == 2:
+                appear_twice += 1
+            elif cnt == 3:
+                continue
+            else:
+                return False
+        # check with huro
+        for huro in self.player.kabe:
+            if huro[0] == huro[1]:
+                continue
+            else:
+                return False
+        if appear_twice != 1:
+            return False
+        self.total_yaku = "toitoihou"
+        self.total_han = 2
+        return True
 
     def chiitoitsu(self):  # 七対子
         """This hand is composed of seven pairs.
