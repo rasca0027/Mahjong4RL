@@ -548,6 +548,7 @@ class Yakuhai(TeYaku):
         """
         yakuhai = [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN,
                    self.bakaze, self.player.jikaze]
+        # 字牌的 index 跟 Jihai value 一樣
         yakuhai_k = list(map(lambda x: x.value, yakuhai))
 
         agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
