@@ -84,7 +84,8 @@ class Turn:
         if naki == Naki.DAMINKAN:
             if self.check_suukaikan(player.kabe):
                 return -1, None
-            state, discard_tile, discard_pos = self.draw_flow(player, from_rinshan=True)
+            state, discard_tile, discard_pos = self.draw_flow(
+                player, from_rinshan=True)
         elif naki in (Naki.CHII, Naki.PON):
             # TODO: add test when finish discard_after_naki()
             discard_tile = player.discard_after_naki()
@@ -163,7 +164,6 @@ class Turn:
         player.tmp_furiten = False
         (action, naki), action_tile = player.action_with_new_tile(new_tile)
         state = 0
-        action_tile = None
         discard_pos = None
         if action == Action.NAKI:
             if naki in (Naki.ANKAN, Naki.CHAKAN):
@@ -172,7 +172,8 @@ class Turn:
                     return kan_state, action_tile, discard_pos
                 if self.check_suukaikan(player.kabe):
                     return -1, action_tile, discard_pos
-            state, action_tile, discard_pos = self.draw_flow(player, from_rinshan=True)
+            state, action_tile, discard_pos = self.draw_flow(player,
+                                                             from_rinshan=True)
         elif action == Action.TSUMO:
             self.winner.append(player)
             return 1, action_tile, discard_pos
