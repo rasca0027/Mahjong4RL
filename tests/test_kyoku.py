@@ -1,9 +1,8 @@
 import unittest
-from unittest.mock import MagicMock
 
 from mahjong.player import Player
-from mahjong.components import Stack, Tile, Action, Suit, Naki, Huro, Jihai
-from mahjong.kyoku import Turn, Kyoku
+from mahjong.components import Jihai
+from mahjong.kyoku import Kyoku
 
 
 class TestTurnDrawFlow(unittest.TestCase):
