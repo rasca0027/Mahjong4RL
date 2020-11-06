@@ -237,6 +237,12 @@ class TestChii(unittest.TestCase):
         self.player.hand[Tile(Suit.MANZU.value, 5).index] += 1
         self.player.hand[Tile(Suit.MANZU.value, 6).index] += 1
 
+    def test_chii_jihai(self):
+        discard = Tile(Suit.JIHAI.value, Jihai.NAN.value)
+        chii_sets = check_chii(self.player.hand, discard)
+
+        self.assertEqual(chii_sets, [])
+
     def test_chii_1(self):
         discard = Tile(Suit.MANZU.value, 1)
         possible_sets = [[Tile(Suit.MANZU.value, 1),

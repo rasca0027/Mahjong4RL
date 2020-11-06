@@ -101,8 +101,7 @@ def check_ankan(hand: DefaultDict[int, int], new_tile: Tile) -> List[Tile]:
             possible_list.append(Tile.from_index(index))
         elif value == 3 and new_tile.index == index:
             possible_list.append(Tile.from_index(index))
-        else:
-            pass
+
     return sorted(possible_list)
 
 
@@ -128,8 +127,7 @@ def check_chakan(hand: DefaultDict[int, int], kabe: List[Huro], new_tile: Tile
             possible_list.append(pon_tile)
         elif new_tile == pon_tile:
             possible_list.append(pon_tile)
-        else:
-            pass
+
     return sorted(possible_list)
 
 
