@@ -688,3 +688,23 @@ class TestChanta(unittest.TestCase):
 
     def test_chanta(self):  # 混全帯么九
         ...
+
+
+class TestKoutsu(unittest.TestCase):
+
+    def setUp(self):
+        self.player = Player('test', 0)
+        self.stack = Stack
+        self.bakaze = Jihai.TON
+
+    def test_suuankou(self):  # 四暗刻 or 四暗刻単騎
+        ...
+
+    def test_suukantsu(self):  # 四槓子
+        ...
+
+    def test_sanankou(self):  # 三暗刻
+        ...
+
+    def test_sankantsu(self):  # 三槓子
+        ...
