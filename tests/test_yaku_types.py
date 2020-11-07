@@ -3,7 +3,7 @@ import unittest
 from mahjong.components import Tile, Suit, Jihai, Naki, Huro
 from mahjong.player import Player
 from mahjong.components import Stack
-from mahjong.yaku_types import TeYaku, Yakuhai, Peikou, Chanta, Sanshoku
+from mahjong.yaku_types import TeYaku, Yakuhai, Peikou, Chanta, Sanshoku, Somete
 
 
 class TestTeYaku(unittest.TestCase):
@@ -812,3 +812,102 @@ class TestSanshoku(unittest.TestCase):
         self.assertEqual(yaku_types.sanshoku_doujun(), True)
         self.assertEqual(yaku_types.total_yaku, ['sanshoku_doujun'])
         self.assertEqual(yaku_types.total_han, 1)
+
+
+class TestSomete(unittest.TestCase):
+
+    def setUp(self):
+        self.player = Player('test', 0)
+        self.stack = Stack
+        self.bakaze = Jihai.TON
+
+    def test_no_chiniisou(self):  # 清一色
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 4).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 8).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 1)
+
+        yaku_types = Somete(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.chiniisou(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+
+    def test_chiniisou_closed(self):  # 清一色
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 4).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 8).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 1)
+
+        yaku_types = Somete(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.chiniisou(), True)
+        self.assertEqual(yaku_types.total_yaku, ['chiniisou'])
+        self.assertEqual(yaku_types.total_han, 6)
+
+    def test_chiniisou_opened(self):  # 清一色
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 4).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+
+        naki_tile = Tile(Suit.SOUZU.value, 8)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.SOUZU.value, 8) for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 1)
+        self.player.menzenchin = False
+
+        yaku_types = Somete(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.chiniisou(), True)
+        self.assertEqual(yaku_types.total_yaku, ['chiniisou'])
+        self.assertEqual(yaku_types.total_han, 5)
+
+    def test_no_honiisou(self):  # 混一色
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 4).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 8).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 1)
+
+        yaku_types = Somete(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.honiisou(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+
+    def test_honiisou_closed(self):  # 混一色
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 4).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 8).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 1)
+
+        yaku_types = Somete(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.honiisou(), True)
+        self.assertEqual(yaku_types.total_yaku, ['honiisou'])
+        self.assertEqual(yaku_types.total_han, 3)
+
+    def test_honiisou_opened(self):  # 混一色
+        self.player.hand[Tile(Suit.SOUZU.value, 4).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 8).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+                  for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 1)
+        self.player.menzenchin = False
+
+        yaku_types = Somete(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.honiisou(), True)
+        self.assertEqual(yaku_types.total_yaku, ['honiisou'])
+        self.assertEqual(yaku_types.total_han, 2)
