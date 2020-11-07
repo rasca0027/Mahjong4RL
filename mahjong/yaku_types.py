@@ -390,7 +390,7 @@ class TeYaku(YakuTypes):
                 return False
         # check with huro
         for huro in self.player.kabe:
-            if huro[0] == huro[1]:
+            if huro.tiles[0] == huro.tiles[1]:
                 continue
             else:
                 return False
