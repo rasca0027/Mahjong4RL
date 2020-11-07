@@ -3,7 +3,7 @@ import unittest
 from mahjong.components import Tile, Suit, Jihai, Naki, Huro
 from mahjong.player import Player
 from mahjong.components import Stack
-from mahjong.yaku_types import TeYaku, Yakuhai
+from mahjong.yaku_types import TeYaku, Yakuhai, Peikou
 
 
 class TestTeYaku(unittest.TestCase):
@@ -526,3 +526,71 @@ class TestYakuhai(unittest.TestCase):
                          ['sangenpai_CHUN', 'bakaze_TON', 'jikaze_TON'])
         self.assertEqual(yaku_types.total_han, 3)
         self.assertEqual(yaku_types.yakuman_count, 0)
+
+
+class TestPeikou(unittest.TestCase):
+
+    def setUp(self):
+        self.player = Player('test', 0)
+        self.stack = Stack
+        self.bakaze = Jihai.TON
+
+    def test_no_ryanpeikou(self):  # 二盃口
+        for i in range(1, 4):
+            self.player.hand[Tile(Suit.MANZU.value, i).index] += 2
+        for i in range(4, 7):
+            self.player.hand[Tile(Suit.MANZU.value, i).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 1
+        naki_tile = Tile(Suit.MANZU.value, 5)
+        naki_tile.owner = 0
+        self.player.kabe.append(
+            Huro(Naki.CHII, naki_tile,
+                 [Tile(Suit.MANZU.value, i) for i in range(4, 7)]))
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 5)
+
+        yaku_types = Peikou(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.ryanpeikou(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+
+    def test_ryanpeikou(self):  # 二盃口
+        for i in range(1, 7):
+            self.player.hand[Tile(Suit.MANZU.value, i).index] += 2
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 1
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 5)
+
+        yaku_types = Peikou(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.ryanpeikou(), True)
+        self.assertEqual(yaku_types.total_yaku, ['ryanpeikou'])
+        self.assertEqual(yaku_types.total_han, 3)
+
+    def test_no_iipeikou(self):  # 一盃口
+        for i in range(1, 7):
+            self.player.hand[Tile(Suit.MANZU.value, i).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 1
+        naki_tile = Tile(Suit.MANZU.value, 5)
+        naki_tile.owner = 0
+        self.player.kabe.append(
+            Huro(Naki.CHII, naki_tile,
+                 [Tile(Suit.MANZU.value, i) for i in range(4, 7)]))
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 5)
+
+        yaku_types = Peikou(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.iipeikou(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+
+    def test_iipeikou(self):  # 一盃口
+        for i in range(1, 4):
+            self.player.hand[Tile(Suit.MANZU.value, i).index] += 2
+        for i in range(4, 7):
+            self.player.hand[Tile(Suit.MANZU.value, i).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 1
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 5)
+
+        yaku_types = Peikou(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.iipeikou(), True)
+        self.assertEqual(yaku_types.total_yaku, ['iipeikou'])
+        self.assertEqual(yaku_types.total_han, 1)
