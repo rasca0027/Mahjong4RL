@@ -3,7 +3,7 @@ import unittest
 from mahjong.components import Tile, Suit, Jihai, Naki, Huro
 from mahjong.player import Player
 from mahjong.components import Stack
-from mahjong.yaku_types import TeYaku
+from mahjong.yaku_types import TeYaku, Yakuhai
 
 
 class TestTeYaku(unittest.TestCase):
@@ -268,7 +268,7 @@ class TestTeYaku(unittest.TestCase):
         self.assertEqual(yaku_types.tanyao(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, 0)
-    
+
     def test_no_tanyao_opened(self):  # 断么九
         for i in range(2, 8):
             self.player.hand[Tile(Suit.PINZU.value, i).index] += 1
@@ -317,3 +317,212 @@ class TestTeYaku(unittest.TestCase):
         self.assertEqual(yaku_types.tanyao(), True)
         self.assertEqual(yaku_types.total_yaku, ['tanyao'])
         self.assertEqual(yaku_types.total_han, 1)
+
+
+class TestYakuhai(unittest.TestCase):
+
+    def setUp(self):
+        self.player = Player('test', 0)
+        self.stack = Stack
+        self.bakaze = Jihai.TON
+
+    def test_no_daisangen(self):  # 大三元
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 8).index] += 3
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+                  for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 6)
+        self.player.menzenchin = False
+
+        yaku_types = Yakuhai(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.daisangen(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 0)
+
+    def test_daisangen(self):  # 大三元
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 8).index] += 2
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+                  for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 6)
+        self.player.menzenchin = False
+
+        yaku_types = Yakuhai(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.daisangen(), True)
+        self.assertEqual(yaku_types.total_yaku, ['daisangen'])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 1)
+
+    def test_no_tsuuiisou(self):  # 字一色
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 2
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+                  for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
+        self.player.menzenchin = False
+
+        yaku_types = Yakuhai(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.tsuuiisou(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 0)
+
+    def test_tsuuiisou(self):  # 字一色
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 2
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+                  for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
+        self.player.menzenchin = False
+
+        yaku_types = Yakuhai(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.tsuuiisou(), True)
+        self.assertEqual(yaku_types.total_yaku, ['tsuuiisou'])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 1)
+
+    def test_no_daisuushii(self):  # 大四喜
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 2
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.PEI.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.DAMINKAN, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.PEI.value)
+                  for i in range(1, 5)]))
+        self.player.agari_tile = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
+        self.player.menzenchin = False
+
+        yaku_types = Yakuhai(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.daisuushii(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 0)
+
+    def test_daisuushii(self):  # 大四喜
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 2
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.PEI.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.DAMINKAN, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.PEI.value)
+                  for i in range(1, 5)]))
+        self.player.agari_tile = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
+        self.player.menzenchin = False
+
+        yaku_types = Yakuhai(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.daisuushii(), True)
+        self.assertEqual(yaku_types.total_yaku, ['daisuushii'])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 1)
+
+    def test_shousuushii(self):  # 小四喜
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.SHAA.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 3
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.PEI.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.DAMINKAN, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.PEI.value)
+                  for i in range(1, 5)]))
+        self.player.agari_tile = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
+        self.player.menzenchin = False
+
+        yaku_types = Yakuhai(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.shousuushii(), True)
+        self.assertEqual(yaku_types.total_yaku, ['shousuushii'])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 1)
+
+    def test_no_shousangen(self):  # 小三元
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.PEI.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 8).index] += 3
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+                  for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 6)
+        self.player.menzenchin = False
+
+        yaku_types = Yakuhai(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.shousangen(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 0)
+
+    def test_shousangen(self):  # 小三元
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 8).index] += 3
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+                  for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 6)
+        self.player.menzenchin = False
+
+        yaku_types = Yakuhai(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.shousangen(), True)
+        self.assertEqual(yaku_types.total_yaku, ['shousangen'])
+        self.assertEqual(yaku_types.total_han, 2)
+        self.assertEqual(yaku_types.yakuman_count, 0)
+
+    def test_yakuhai(self):  # 役牌
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 8).index] += 3
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+                  for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 6)
+        self.player.menzenchin = False
+
+        yaku_types = Yakuhai(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.yakuhai(), True)
+        self.assertEqual(yaku_types.total_yaku,
+                         ['sangenpai_CHUN', 'bakaze_TON', 'jikaze_TON'])
+        self.assertEqual(yaku_types.total_han, 3)
+        self.assertEqual(yaku_types.yakuman_count, 0)
