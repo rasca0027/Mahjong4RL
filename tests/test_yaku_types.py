@@ -3,7 +3,9 @@ import unittest
 from mahjong.components import Tile, Suit, Jihai, Naki, Huro
 from mahjong.player import Player
 from mahjong.components import Stack
-from mahjong.yaku_types import TeYaku, Yakuhai, Peikou, Chanta, Sanshoku, Somete
+from mahjong.yaku_types import (
+    TeYaku, Yakuhai, Peikou, Chanta, Sanshoku, Somete
+)
 
 
 class TestTeYaku(unittest.TestCase):
@@ -548,7 +550,7 @@ class TestPeikou(unittest.TestCase):
                  [Tile(Suit.MANZU.value, i) for i in range(4, 7)]))
         self.player.agari_tile = Tile(Suit.SOUZU.value, 5)
         self.player.menzenchin = False
-        
+
         yaku_types = Peikou(self.player, self.stack, self.bakaze, True)
         self.assertEqual(yaku_types.ryanpeikou(), False)
         self.assertEqual(yaku_types.total_yaku, [])
