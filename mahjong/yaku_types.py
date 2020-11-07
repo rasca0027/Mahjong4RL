@@ -15,13 +15,13 @@ from .naki_and_actions import check_tenpai
 
 
 class YakuTypes(ABC):
-    _total_yaku = []
-    _total_han = 0
-    _yakuman_count = 0
-    _player = None
-    _bakaze = None
 
     def __init__(self, player: Player, stack: Stack, bakaze: Jihai, ron: bool):
+        self._total_yaku = []
+        self._total_han = 0
+        self._yakuman_count = 0
+        self._player = None
+        self._bakaze = None
         self.player = player
         self.stack = stack
         self.bakaze = bakaze
