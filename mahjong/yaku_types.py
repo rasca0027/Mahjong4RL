@@ -698,7 +698,42 @@ class Chanta(TeYaku):
         2 han (open)
         http://arcturus.su/wiki/Junchantaiyaochuu
         """
-        return NotImplemented
+        _, terminal_tiles = Tile.get_yaochuuhai()
+        koutsus, shuntsus, jantou = separate_sets(self.agari_hand,
+                                                  len(self.player.kabe),
+                                                  koutsu_first=False)
+
+        if jantou not in terminal_tiles:
+            return False
+
+        for shuntsu in shuntsus:
+            if (
+                shuntsu[0] not in terminal_tiles
+                and shuntsu[2] not in terminal_tiles
+            ):
+                return False
+
+        for koutsu in koutsus:
+            if koutsu not in terminal_tiles:
+                return False
+
+        for huru in self.player.kabe:
+            if huru.naki_type == Naki.CHII:
+                if (
+                    huru.tiles[0] not in terminal_tiles
+                    and huru.tiles[2] not in terminal_tiles
+                ):
+                    return False
+            else:
+                if huru.tiles[0] not in terminal_tiles:
+                    return False
+
+        self.total_yaku = 'junchantaiyaochuu'
+        if self.player.menzenchin:
+            self.total_han = 3
+        else:
+            self.total_han = 2
+        return True
 
     def chanta(self):  # 混全帯么九
         """Every tile group and the pair must contain at least one terminal or
@@ -707,7 +742,43 @@ class Chanta(TeYaku):
         1 han (open)
         http://arcturus.su/wiki/Chanta
         """
-        return NotImplemented
+        honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
+        koutsus, shuntsus, jantou = separate_sets(self.agari_hand,
+                                                  len(self.player.kabe),
+                                                  koutsu_first=False)
+
+        if jantou not in (terminal_tiles + honor_tiles):
+            return False
+
+        for shuntsu in shuntsus:
+            if (
+                shuntsu[0] not in terminal_tiles
+                and shuntsu[2] not in terminal_tiles
+            ):
+                return False
+
+        for koutsu in koutsus:
+            if koutsu not in (terminal_tiles + honor_tiles):
+                return False
+
+        for huru in self.player.kabe:
+            if huru.naki_type == Naki.CHII:
+                if (
+                    huru.tiles[0] not in terminal_tiles
+                    and huru.tiles[2] not in terminal_tiles
+                ):
+                    return False
+            else:
+                if huru.tiles[0] not in (terminal_tiles + honor_tiles):
+                    return False
+
+        self.total_yaku = 'chanta'
+        if self.player.menzenchin:
+            self.total_han = 2
+        else:
+            self.total_han = 1
+        return True
+
 
 
 class Koutsu(TeYaku):

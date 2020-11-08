@@ -690,11 +690,105 @@ class TestChanta(unittest.TestCase):
         self.assertEqual(yaku_types.total_han, 2)
         self.assertEqual(yaku_types.yakuman_count, 0)
 
-    def test_junchantaiyaochuu(self):  # 純全帯么九
-        ...
+    def test_no_junchantaiyaochuu(self):  # 純全帯么九
+        self.player.hand[Tile(Suit.MANZU.value, 4).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 3
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        naki_tile = Tile(Suit.SOUZU.value, 9)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.SOUZU.value, 9) for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.PINZU.value, 9)
+        self.player.menzenchin = False
 
-    def test_chanta(self):  # 混全帯么九
-        ...
+        yaku_types = Chanta(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.junchantaiyaochuu(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+
+    def test_junchantaiyaochuu_opened(self):  # 純全帯么九
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 3
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        naki_tile = Tile(Suit.SOUZU.value, 9)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.SOUZU.value, 9) for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.PINZU.value, 9)
+        self.player.menzenchin = False
+
+        yaku_types = Chanta(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.junchantaiyaochuu(), True)
+        self.assertEqual(yaku_types.total_yaku, ['junchantaiyaochuu'])
+        self.assertEqual(yaku_types.total_han, 2)
+
+    def test_junchantaiyaochuu_closed(self):  # 純全帯么九
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 9).index] += 3
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.agari_tile = Tile(Suit.PINZU.value, 9)
+
+        yaku_types = Chanta(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.junchantaiyaochuu(), True)
+        self.assertEqual(yaku_types.total_yaku, ['junchantaiyaochuu'])
+        self.assertEqual(yaku_types.total_han, 3)
+
+    def test_no_chanta(self):  # 混全帯么九
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 5).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 9).index] += 3
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+                  for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.PINZU.value, 9)
+        self.player.menzenchin = False
+
+        yaku_types = Chanta(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.chanta(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+
+    def test_chanta_opened(self):  # 混全帯么九
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 3
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        naki_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+        naki_tile.owner = 2
+        self.player.kabe.append(
+            Huro(Naki.PON, naki_tile,
+                 [Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+                  for i in range(1, 4)]))
+        self.player.agari_tile = Tile(Suit.PINZU.value, 9)
+        self.player.menzenchin = False
+
+        yaku_types = Chanta(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.chanta(), True)
+        self.assertEqual(yaku_types.total_yaku, ['chanta'])
+        self.assertEqual(yaku_types.total_han, 1)
+
+    def test_chanta_closed(self):  # 混全帯么九
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 3
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.agari_tile = Tile(Suit.PINZU.value, 9)
+
+        yaku_types = Chanta(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.chanta(), True)
+        self.assertEqual(yaku_types.total_yaku, ['chanta'])
+        self.assertEqual(yaku_types.total_han, 2)
 
 
 class TestKoutsu(unittest.TestCase):
