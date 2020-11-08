@@ -780,7 +780,6 @@ class Chanta(TeYaku):
         return True
 
 
-
 class Koutsu(TeYaku):
     def suuankou(self):  # 四暗刻 or 四暗刻単騎
         """This hand is composed of four groups of closed triplets.
