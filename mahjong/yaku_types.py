@@ -371,7 +371,30 @@ class TeYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Chuuren_poutou
         """
-        return NotImplemented
+        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
+        if len(suit_in_hand) == 1 and (suit_v := list(suit_in_hand)[0]) != 0:
+            tmp_hand = copy.deepcopy(self.agari_hand)
+            for i in [1, 9]:
+                if tmp_hand[Tile(suit_v, i).index] < 3:
+                    return False
+                else:
+                    tmp_hand[Tile(suit_v, i).index] -= 3
+            for i in range(2, 9):
+                if tmp_hand[Tile(suit_v, i).index] < 1:
+                    return False
+                else:
+                    tmp_hand[Tile(suit_v, i).index] -= 1
+
+            remain_tile = [k for k, v in tmp_hand.items() if v > 0][0]
+            if self.player.agari_tile.index == remain_tile:
+                self.total_yaku = 'junsei chuuren poutou'
+                self.yakuman_count = 2
+            else:
+                self.total_yaku = 'chuuren poutou'
+                self.yakuman_count = 1
+            return True
+
+        return False
 
     def toitoihou(self):  # 対々和
         """All triplets.
