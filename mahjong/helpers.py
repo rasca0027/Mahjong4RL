@@ -44,8 +44,9 @@ def separate_sets(
 ) -> Tuple[List[Tile], List[List[Tile]], Tile]:
     """Helper function for seperating player's remaining hands into sets.
     It should either be 14, 11, 8, 5, or 2 tiles.
-    Note that there's priority for koutsu over shuntsu,
-    so might not be useful for yaku types like 混老頭, 清老頭, etc
+    The arg koutsu_first would change the priority for koutsu and shuntsu,
+    for example in the usecase for checking 全帯么九, shuntsu should have
+    priority over koutsu.
     """
 
     def check_koutsu(sets_to_find):
