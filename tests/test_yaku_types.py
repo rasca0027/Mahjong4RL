@@ -4,7 +4,7 @@ from mahjong.components import Tile, Suit, Jihai, Naki, Huro
 from mahjong.player import Player
 from mahjong.components import Stack
 from mahjong.yaku_types import (
-    TeYaku, Yakuhai, Peikou, Chanta, Sanshoku, Somete
+    TeYaku, Yakuhai, Peikou, Chanta, Koutsu, Sanshoku, Somete
 )
 
 
@@ -887,14 +887,81 @@ class TestKoutsu(unittest.TestCase):
         self.stack = Stack
         self.bakaze = Jihai.TON
 
-    def test_suuankou(self):  # 四暗刻 or 四暗刻単騎
-        ...
+    def test_no_suuankou(self):  # 四暗刻
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.PINZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 4).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 2
+        self.player.agari_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+
+        yaku_types = Koutsu(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.suuankou(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 0)
+
+    def test_suuankou_tanki(self):  # 四暗刻単騎
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.PINZU.value, 3).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 4).index] += 3
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 1
+        self.player.agari_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+
+        yaku_types = Koutsu(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.suuankou(), True)
+        self.assertEqual(yaku_types.total_yaku, ['suuankou tanki'])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 2)
+
+    def test_suuankou(self):  # 四暗刻
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.PINZU.value, 3).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 4).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 2
+        self.player.agari_tile = Tile(Suit.MANZU.value, 4)
+
+        yaku_types = Koutsu(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.suuankou(), True)
+        self.assertEqual(yaku_types.total_yaku, ['suuankou'])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 1)
 
     def test_suukantsu(self):  # 四槓子
         ...
 
+    def test_no_sanankou(self):  # 三暗刻
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 4).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 5).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 6).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 1
+        self.player.agari_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+
+        yaku_types = Koutsu(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.sanankou(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+
     def test_sanankou(self):  # 三暗刻
-        ...
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 3
+        self.player.hand[Tile(Suit.PINZU.value, 3).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 4).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 6).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 1
+        self.player.agari_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+
+        yaku_types = Koutsu(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.sanankou(), True)
+        self.assertEqual(yaku_types.total_yaku, ['sanankou'])
+        self.assertEqual(yaku_types.total_han, 2)
 
     def test_sankantsu(self):  # 三槓子
         ...

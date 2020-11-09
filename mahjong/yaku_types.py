@@ -853,7 +853,18 @@ class Koutsu(TeYaku):
         yakuman
         http://arcturus.su/wiki/Suuankou
         """
-        return NotImplemented
+        huro_count = len(self.player.kabe)
+        koutsus, _, jantou = separate_sets(self.agari_hand, huro_count)
+        if len(koutsus) == 4:
+            if jantou == self.player.agari_tile:
+                self.total_yaku = 'suuankou tanki'
+                self.yakuman_count = 2
+            else:
+                self.total_yaku = 'suuankou'
+                self.yakuman_count = 1
+            return True
+
+        return False
 
     def suukantsu(self):  # 四槓子
         """Any hand with four calls of kan.
@@ -867,7 +878,14 @@ class Koutsu(TeYaku):
         2 han
         http://arcturus.su/wiki/Sanankou
         """
-        return NotImplemented
+        huro_count = len(self.player.kabe)
+        koutsus, _, jantou = separate_sets(self.agari_hand, huro_count)
+        if len(koutsus) == 3:
+            self.total_yaku = 'sanankou'
+            self.total_han = 2
+            return True
+
+        return False
 
     def sankantsu(self):  # 三槓子
         """This yaku requires kan to be called three times by one player.
