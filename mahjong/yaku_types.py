@@ -871,7 +871,14 @@ class Koutsu(TeYaku):
         yakuman
         http://arcturus.su/wiki/Suukantsu
         """
-        return NotImplemented
+        kan = [Naki.DAMINKAN, Naki.CHAKAN, Naki.ANKAN]
+        kantsus = [huro for huro in self.player.kabe if huro.naki_type in kan]
+        if len(kantsus) == 4:
+            self.total_yaku = 'suukantsu'
+            self.yakuman_count = 1
+            return True
+
+        return False
 
     def sanankou(self):  # 三暗刻
         """A hand contain three concealed triplets.
@@ -892,7 +899,14 @@ class Koutsu(TeYaku):
         2 han
         http://arcturus.su/wiki/Sankantsu
         """
-        return NotImplemented
+        kan = [Naki.DAMINKAN, Naki.CHAKAN, Naki.ANKAN]
+        kantsus = [huro for huro in self.player.kabe if huro.naki_type in kan]
+        if len(kantsus) == 3:
+            self.total_yaku = 'sankantsu'
+            self.total_han = 2
+            return True
+
+        return False
 
 
 class Sanshoku(TeYaku):
