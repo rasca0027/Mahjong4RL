@@ -592,5 +592,3 @@ class TestRemainsAreSets(unittest.TestCase):
         huro_count = len(self.player_1.kabe)
         self.assertEqual(
             check_remains_are_sets(remain_tiles, huro_count), False)
-
-
