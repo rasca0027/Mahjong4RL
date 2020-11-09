@@ -2,7 +2,7 @@ import copy
 from typing import List, DefaultDict, TYPE_CHECKING
 from itertools import groupby
 
-from .components import Tile, Suit, Naki, Huro
+from .components import Tile, Stack, Suit, Naki, Huro
 if TYPE_CHECKING:
     from .player import Player
 
@@ -202,17 +202,31 @@ def check_chii(hand: DefaultDict[int, int],
     return possible_sets
 
 
-def check_riichi(kabe: List[Huro], machi: List[Tile]) -> bool:
+def check_riichi(player: 'Player', machi: List[Tile], stack: Stack) -> bool:
     """Helper function to check if player can declare riichi
+    Conditions:
+    1. menzenchin (可以暗槓，但如果所暗杠的牌可以重组成顺子（包括听的牌）则不能暗杠。)
+    2. machi
+    3. at least 1,000 points
+    4. at least 4 tiles left to draw in playling wall
 
     Args:
         player (Player): Current player, 手牌 副露 棄牌
         machi (List of Tile): Every possible tile that could complete the hand
+        stack (Stack): to count remaining tiles in playling wall
 
     Returns:
         bool: True for opportunity to declare riichi, False otherwise.
     """
-    return not kabe and len(machi) > 0
+    if (
+        player.menzenchin
+        and machi
+        and player.points >= 1_000
+        and len(stack.playling_wall) >= 4
+    ):
+        return True
+
+    return False
 
 
 def check_tenpai(hand: DefaultDict, kabe: List[Huro]) -> List[Tile]:

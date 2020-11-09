@@ -1,6 +1,6 @@
 import unittest
 
-from mahjong.components import Tile, Suit, Jihai, Naki, Huro
+from mahjong.components import Tile, Stack, Suit, Jihai, Naki, Huro
 from mahjong.player import Player
 from mahjong.naki_and_actions import (
     check_ron, check_tsumo, check_furiten, check_own_discard_furiten,
@@ -527,23 +527,18 @@ class TestRiichi(unittest.TestCase):
     def setUp(self):
         # tenpai: 3 MANZU 5 SOUZU
         self.player = Player('test', 1)
-        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
-        self.player.hand[Tile(Suit.PINZU.value, 2).index] += 1
-        self.player.hand[Tile(Suit.PINZU.value, 3).index] += 1
-        self.player.hand[Tile(Suit.PINZU.value, 4).index] += 1
-        self.player.hand[Tile(Suit.PINZU.value, 5).index] += 1
-        self.player.hand[Tile(Suit.PINZU.value, 6).index] += 1
-        self.player.hand[Tile(Suit.PINZU.value, 7).index] += 1
-        self.player.hand[Tile(Suit.PINZU.value, 8).index] += 1
-        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        for i in range(1, 10):
+            self.player.hand[Tile(Suit.PINZU.value, i).index] += 1
         self.player.hand[Tile(Suit.MANZU.value, 3).index] += 2
         self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 2
+        self.stack = Stack()
 
     def test_riichi(self):
         machi = check_tenpai(self.player.hand, self.player.kabe)
-        self.assertEqual(check_riichi(self.player.kabe, machi), True)
+        riichi = check_riichi(self.player, machi, self.stack)
+        self.assertEqual(riichi, True)
 
-    def test_no_riichi(self):
+    def test_no_riichi_kabe(self):
         self.player.hand[Tile(Suit.PINZU.value, 1).index] -= 1
         self.player.hand[Tile(Suit.SOUZU.value, 5).index] -= 2
         naki_tile = Tile(Suit.SOUZU.value, 5)
@@ -552,9 +547,18 @@ class TestRiichi(unittest.TestCase):
             Huro(Naki.PON,
                  naki_tile,
                  [Tile(Suit.SOUZU.value, 5) for i in range(3)]))
+        self.player.menzenchin = False
 
         machi = check_tenpai(self.player.hand, self.player.kabe)
-        self.assertEqual(check_riichi(self.player.kabe, machi), False)
+        riichi = check_riichi(self.player, machi, self.stack)
+        self.assertEqual(riichi, False)
+
+    def test_riichi_stack(self):
+        for i in range(120):
+            _ = self.stack.draw()
+        machi = check_tenpai(self.player.hand, self.player.kabe)
+        riichi = check_riichi(self.player, machi, self.stack)
+        self.assertEqual(riichi, False)
 
 
 class TestRemainsAreSets(unittest.TestCase):

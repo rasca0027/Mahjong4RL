@@ -96,9 +96,9 @@ class TestStack(unittest.TestCase):
         self.assertEqual(len(self.test_stack.dora_indicators), 1)
         self.assertEqual(len(self.test_stack.doras), 1)
         self.assertEqual(len(self.test_stack.uradoras), 1)
-        self.assertEqual(next(self.test_stack.playling_wall),
+        self.assertEqual(self.test_stack.draw(),
                          self.test_stack.stack[0])
-        self.assertEqual(next(self.test_stack.rinshanpai),
+        self.assertEqual(self.test_stack.draw(from_rinshan=True),
                          self.test_stack.stack[-1])
 
     def test_add_dora(self):
