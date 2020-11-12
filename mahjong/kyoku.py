@@ -24,6 +24,8 @@ class Turn:
         # TODO: make sure players are sorted by seating position
         self.players = players
         self.stack = stack
+        self.first_turn = True
+        self.oya_draws = 0  # temporary
         self.atamahane = atamahane
         self.winner = []
 
@@ -72,6 +74,8 @@ class Turn:
           discard_tile: the discarded tile in this turn
                 if Ron/Tsumo/流局 -> None
         """
+        self.first_turn = False
+
         state = 0
         # TODO: add test when finish action_with_naki()
         player.action_with_naki(naki)
@@ -151,10 +155,17 @@ class Turn:
           discard_tile: the discarded tile in this turn
                 if Ron/Tsumo/流局 -> None
         """
+        if player.jikaze == Jihai.TON:
+            self.oya_draws += 1
+        if self.oya_draws >= 2:
+            self.first_turn = False
+
         new_tile = self.stack.draw(from_rinshan)
         new_tile.owner = player.seating_position
         player.tmp_furiten = False
-        (action, naki), action_tile = player.action_with_new_tile(new_tile)
+        (action, naki), action_tile = player.action_with_new_tile(
+                new_tile, self.first_turn
+            )
         state = 0
         if action == Action.NAKI:
             if naki in (Naki.ANKAN, Naki.CHAKAN):
@@ -164,6 +175,8 @@ class Turn:
                 if self.check_suukaikan(player.kabe):
                     return -1, None
             state, action_tile = self.draw_flow(player, from_rinshan=True)
+        elif action == Action.RYUUKYOKU:
+            return -1, None
         elif action == Action.TSUMO:
             self.winner.append(player)
             return 1, None
@@ -171,7 +184,7 @@ class Turn:
             # TODO: invalid action, raise error
             pass
 
-        if state < 1:
+        if state == 0:
             player.add_kawa(action_tile)
 
         return state, action_tile
@@ -213,8 +226,6 @@ class Kyoku:
         self.atamahane = atamahane
 
         # deal tiles to each player to produce their starting hands
-
-        pass
 
     @property
     def honba(self):
