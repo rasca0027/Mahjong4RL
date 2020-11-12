@@ -15,13 +15,13 @@ from .naki_and_actions import check_tenpai
 
 
 class YakuTypes(ABC):
-    _total_yaku = []
-    _total_han = 0
-    _yakuman_count = 0
-    _player = None
-    _bakaze = None
 
     def __init__(self, player: Player, stack: Stack, bakaze: Jihai, ron: bool):
+        self._total_yaku = []
+        self._total_han = 0
+        self._yakuman_count = 0
+        self._player = None
+        self._bakaze = None
         self.player = player
         self.stack = stack
         self.bakaze = bakaze
@@ -390,7 +390,7 @@ class TeYaku(YakuTypes):
                 return False
         # check with huro
         for huro in self.player.kabe:
-            if huro[0] == huro[1]:
+            if huro.tiles[0] == huro.tiles[1]:
                 continue
             else:
                 return False
@@ -481,7 +481,7 @@ class Yakuhai(TeYaku):
         http://arcturus.su/wiki/Daisangen
         """
         for rank in [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN]:
-            tile = Tile(Suit.JIHAI, rank.value)
+            tile = Tile(Suit.JIHAI.value, rank.value)
             index = tile.index
             if self.agari_hand[index] >= 3:
                 continue
@@ -516,7 +516,7 @@ class Yakuhai(TeYaku):
         """
         four_winds = [Jihai.TON, Jihai.NAN, Jihai.SHAA, Jihai.PEI]
         for rank in four_winds:
-            tile = Tile(Suit.JIHAI, rank.value)
+            tile = Tile(Suit.JIHAI.value, rank.value)
             index = tile.index
             if self.agari_hand[index] >= 3:
                 continue
@@ -537,7 +537,7 @@ class Yakuhai(TeYaku):
         four_winds = [Jihai.TON, Jihai.NAN, Jihai.SHAA, Jihai.PEI]
         has_small_flag = False
         for rank in four_winds:
-            tile = Tile(Suit.JIHAI, rank.value)
+            tile = Tile(Suit.JIHAI.value, rank.value)
             index = tile.index
             tile_cnt = self.agari_hand.get(index, 0)
             if tile_cnt == 3:
@@ -564,7 +564,7 @@ class Yakuhai(TeYaku):
         """
         has_small_flag = False
         for rank in [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN]:
-            tile = Tile(Suit.JIHAI, rank.value)
+            tile = Tile(Suit.JIHAI.value, rank.value)
             index = tile.index
             tile_cnt = self.agari_hand.get(index, 0)
             if tile_cnt >= 3:
@@ -590,21 +590,22 @@ class Yakuhai(TeYaku):
         1 han per counted triplet
         http://arcturus.su/wiki/Yakuhai
         """
-        yakuhai = [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN,
-                   self.bakaze, self.player.jikaze]
-        # 字牌的 index 跟 Jihai value 一樣
-        yakuhai_k = list(map(lambda x: x.value, yakuhai))
+        yakuhai = {'sangenpai': [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN],
+                   'bakaze': [self.bakaze],
+                   'jikaze': [self.player.jikaze]}
 
         agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
         for tile in self.huro_tiles:
             agari_hand_and_kabe[tile.index] += 1
 
         found_yakuhai = False
-        for k, v in agari_hand_and_kabe.items():
-            if k in yakuhai_k and v >= 3:  # 刻子或槓子
-                self.total_yaku = f"yakuhai_{get_name(Jihai, k)}"
-                self.total_han = 1
-                found_yakuhai = True
+        for tile_type, tile_list in yakuhai.items():
+            for tile in tile_list:
+                tile_index = Tile(Suit.JIHAI.value, tile.value).index
+                if agari_hand_and_kabe[tile_index] >= 3:
+                    self.total_yaku = f"{tile_type}_{get_name(Jihai, tile)}"
+                    self.total_han = 1
+                    found_yakuhai = True
 
         return found_yakuhai
 
