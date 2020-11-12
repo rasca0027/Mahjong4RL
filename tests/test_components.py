@@ -7,6 +7,13 @@ class TestTile(unittest.TestCase):
 
     def setUp(self):
         self.tile = Tile(Suit.MANZU.value, 2)  # 二萬
+        self.tile_2 = Tile(Suit.JIHAI.value, Jihai.CHUN.value)  # 紅中
+
+    def test_str(self):
+        tile_str = "Tile of 2 MANZU"
+        tile_str_2 = "Tile of CHUN"
+        self.assertEqual(str(self.tile), tile_str)
+        self.assertEqual(str(self.tile_2), tile_str_2)
 
     def test_getter(self):
         self.assertEqual(self.tile.suit, 1)
@@ -38,6 +45,18 @@ class TestTile(unittest.TestCase):
         self.tile.suit = 1
         with self.assertRaises(ValueError):
             self.tile.rank = 10
+
+    def test_owner_getter(self):
+        self.tile.owner = 0
+        self.assertEqual(self.tile.owner, 0)
+
+    def test_owner_setter(self):
+        self.tile.owner = 0
+        with self.assertRaises(ValueError):
+            self.tile.owner = 5
+
+    def test_akadora(self):
+        self.assertEqual(self.tile.akadora(), None)
 
     def test_index(self):
         self.assertEqual(self.tile.index, 12)
@@ -107,6 +126,30 @@ class TestStack(unittest.TestCase):
         self.assertEqual(len(self.test_stack.uradora_indicators), 2)
         self.assertEqual(len(self.test_stack.doras), 2)
         self.assertEqual(len(self.test_stack.uradoras), 2)
+
+    def test_add_dora_value_error(self):
+        self.test_stack.add_dora_indicator()
+        self.test_stack.add_dora_indicator()
+        self.test_stack.add_dora_indicator()
+        self.test_stack.add_dora_indicator()
+        with self.assertRaises(ValueError):
+            self.test_stack.add_dora_indicator()
+
+    def test_get_dora_indicator(self):
+        dora_indicator = self.test_stack.get_dora_indicator()
+        self.assertEqual(dora_indicator, [self.test_stack.stack[-5]])
+
+    def test_get_unadora_indicator(self):
+        unadora_indicator = self.test_stack.get_unadora_indicator()
+        self.assertEqual(unadora_indicator, [self.test_stack.stack[-6]])
+
+    def test_get_dora(self):
+        [dora] = self.test_stack.get_dora()
+        self.assertEqual(dora, self.test_stack.stack[-5].next_tile())
+
+    def test_get_unadora(self):
+        [unadora] = self.test_stack.get_unadora()
+        self.assertEqual(unadora, self.test_stack.stack[-6].next_tile())
 
     def test_compute_dora(self):
         dora_indicator1 = Tile(Suit.JIHAI.value, Jihai.HAKU.value)

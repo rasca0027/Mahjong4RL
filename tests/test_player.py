@@ -63,8 +63,8 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(self.player.jikaze, Jihai.TON)
         self.player.jikaze = Jihai.NAN
         self.assertEqual(self.player.jikaze, Jihai.NAN)
-        self.player.jikaze = Jihai((self.player.jikaze.value - 3) % 4 + 4)
-        self.assertEqual(self.player.jikaze, Jihai.SHAA)
+        self.player.jikaze = Jihai((self.player.jikaze.value + 3) % 4 + 4)
+        self.assertEqual(self.player.jikaze, Jihai.TON)
 
         with self.assertRaises(ValueError):
             self.player.jikaze = Jihai.HAKU
