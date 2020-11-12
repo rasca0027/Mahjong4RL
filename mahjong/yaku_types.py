@@ -1,6 +1,6 @@
 import copy
 import math
-from typing import List
+from typing import List, Optional
 from collections import defaultdict
 from itertools import combinations
 from abc import ABC, abstractmethod
@@ -16,10 +16,9 @@ from .naki_and_actions import check_tenpai
 
 class YakuTypes(ABC):
 
-
     def __init__(
         self, player: Player, stack: Stack,
-        bakaze: Jihai, ron: bool, first_turn: bool
+        bakaze: Jihai, ron: bool, first_turn: Optional[bool] = False
     ):
         self._total_yaku = []
         self._total_han = 0
