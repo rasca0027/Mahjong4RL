@@ -37,6 +37,7 @@ class Naki(Enum):
 
 @unique
 class Action(Enum):
+    RYUUKYOKU = -1
     NOACT = 0
     NAKI = 1
     RIICHI = 2

@@ -24,6 +24,8 @@ class Turn:
         # TODO: make sure players are sorted by seating position
         self.players = players
         self.stack = stack
+        self.first_turn = True
+        self.oya_draws = 0  # temporary
         self.atamahane = atamahane
         self.winner = []
 
@@ -77,6 +79,8 @@ class Turn:
                 if Ron/Tsumo/流局 -> None
           discard_pos: the discarder's index
         """
+        self.first_turn = False
+
         state = 0
         # TODO: add test when finish action_with_naki()
         player.action_with_naki(naki)
@@ -159,10 +163,17 @@ class Turn:
                 if Ron/Tsumo/流局 -> None
           discard_pos: the discarder's index
         """
+        if player.jikaze == Jihai.TON:
+            self.oya_draws += 1
+        if self.oya_draws >= 2:
+            self.first_turn = False
+
         new_tile = self.stack.draw(from_rinshan)
         new_tile.owner = player.seating_position
         player.tmp_furiten = False
-        (action, naki), action_tile = player.action_with_new_tile(new_tile)
+        (action, naki), action_tile = player.action_with_new_tile(
+                new_tile, self.first_turn
+            )
         state = 0
         discard_pos = None
         if action == Action.NAKI:
@@ -174,12 +185,14 @@ class Turn:
                     return -1, action_tile, discard_pos
             state, action_tile, discard_pos = self.draw_flow(player,
                                                              from_rinshan=True)
+        elif action == Action.RYUUKYOKU:
+            return -1, action_tile, discard_pos    
         elif action == Action.TSUMO:
             self.winner.append(player)
             return 1, action_tile, discard_pos
         # TODO: invalid action, raise error
 
-        if state < 1:
+        if state == 0:
             player.add_kawa(action_tile)
             discard_pos = player.seating_position
 
@@ -222,8 +235,6 @@ class Kyoku:
         self.atamahane = atamahane
 
         # deal tiles to each player to produce their starting hands
-
-        pass
 
     @property
     def honba(self):

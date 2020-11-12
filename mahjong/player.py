@@ -2,8 +2,11 @@ from typing import Tuple, List, Set, DefaultDict
 from collections import defaultdict
 
 from .utils import get_name
+from .helpers import nine_yaochuus
 from .components import Huro, Tile, Action, Jihai, Naki
-from .naki_and_actions import check_tenpai
+from .naki_and_actions import (
+    check_tenpai, check_tsumo, check_ankan, check_chakan
+)
 
 
 class Player:
@@ -111,7 +114,7 @@ class Player:
         return action, naki
 
     def action_with_new_tile(
-        self, tile: Tile
+        self, tile: Tile, first_turn: bool
     ) -> Tuple[Tuple[Action, Naki], Tile]:
         """"Player has to select an action reacting to the new drawn tile.
         Args:
@@ -120,14 +123,25 @@ class Player:
           (action, naki): TSUMO/ANKAN/CHAKAN
           discard_tile: Tile
         """
-        self.tmp_huro = None
-        action = None
-        naki = None
-        discard_tile = None
+        action_list = []
+        if first_turn and nine_yaochuus(self.hand):
+            action_list.append((Action.RYUUKYOKU, None))
+        if check_tsumo(self, tile):
+            action_list.append((Action.TSUMO, None))
+        if check_ankan(self.hand, tile):
+            action_list.append((Action.NAKI, Naki.ANKAN))
+        if check_chakan(self.hand, self.kabe, tile):
+            action_list.append((Action.NAKI, Naki.CHAKAN))
+
+        action, naki = self.get_input(action_list)
+
         if action == Action.TSUMO:
             self.agari_tile = tile
+            discard_tile = None
+        elif action == Action.NAKI:
+            self.tmp_huro = None
         else:
-            ...  # pick discard tile
+            discard_tile = None
 
         return (action, naki), discard_tile
 

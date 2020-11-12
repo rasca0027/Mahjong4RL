@@ -16,6 +16,18 @@ def is_yaochuu(suit: int, rank: int) -> bool:
     return False
 
 
+def nine_yaochuus(hand: DefaultDict[int, int], new_tile: Tile) -> bool:
+    yaochuu_found = 0
+    for tile_index in hand.keys():
+        suit = tile_index // 10
+        rank = tile_index % 10
+        if is_yaochuu(suit, rank):
+            yaochuu_found += 1
+    if is_yaochuu(new_tile.suit, new_tile.rank):
+        yaochuu_found += 1
+    return yaochuu_found >= 9
+
+
 def consists_jantou_and_sets(remain_tiles: DefaultDict[int, int],
                              took_out_sets_n: int) -> bool:
     """Helper function to check all tiles in remain_tiles consists one Jantou

@@ -1,6 +1,6 @@
 import copy
 import math
-from typing import List
+from typing import List, Optional
 from collections import defaultdict
 from itertools import combinations
 from abc import ABC, abstractmethod
@@ -16,16 +16,18 @@ from .naki_and_actions import check_tenpai
 
 class YakuTypes(ABC):
 
-    def __init__(self, player: Player, stack: Stack, bakaze: Jihai, ron: bool):
+    def __init__(
+        self, player: Player, stack: Stack,
+        bakaze: Jihai, ron: bool, first_turn: Optional[bool] = False
+    ):
         self._total_yaku = []
         self._total_han = 0
         self._yakuman_count = 0
-        self._player = None
-        self._bakaze = None
         self.player = player
         self.stack = stack
         self.bakaze = bakaze
         self.is_ron = ron
+        self.first_turn = first_turn
         self.agari_hand = copy.deepcopy(self.player.hand)
         self.agari_hand = defaultdict(
             int, {k: v for k, v in self.agari_hand.items() if v > 0})
@@ -276,19 +278,27 @@ class JouKyouYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Tenhou
         """
-        return NotImplemented
+        if (self.player.jikaze == self.bakaze and
+                self.first_turn and not self.is_ron):
+            self.total_yaku = 'tenhou'
+            self.yakuman_count = 1
+            return True
+        return False
 
     def chiihou(self):  # 地和
         """The non-dealer hand is a winning hand with the first tile draw.
         yakuman
         http://arcturus.su/wiki/Chiihou
         """
-        return NotImplemented
+        if self.first_turn and self.is_ron:
+            self.total_yaku = 'chiihou'
+            self.yakuman_count = 1
+            return True
+        return False
 
     def nagashi_mangan(self):  # 流し満貫
         """All the discards are terminals and/or honors.
         In addition, none of these discards were called by other players.
-        yakuman
         http://arcturus.su/wiki/Nagashi_mangan
         """
         honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
