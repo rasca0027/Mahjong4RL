@@ -473,7 +473,48 @@ class TeYaku(YakuTypes):
         1 han (closed only)
         http://arcturus.su/wiki/Pinfu
         """
-        return NotImplemented
+        huro_count = len(self.player.kabe)
+        _, shuntsus, jantou = separate_sets(self.agari_hand, huro_count)
+
+        yakuhai_v = [Jihai.HAKU.value, Jihai.HATSU.value, Jihai.CHUN.value,
+                     self.bakaze.value, self.player.jikaze.value]
+
+        def is_ryanmen() -> bool:  # 两面听牌
+            tenpai_tiles = check_tenpai(self.player.hand, self.player.kabe)
+            wait_patterns = {}
+            for idx, pot_agari_tile in enumerate(tenpai_tiles):
+                tmp_agari_hand = copy.deepcopy(self.player.hand)
+                tmp_agari_hand[pot_agari_tile.index] += 1
+
+                _, shuntsus, jantou = separate_sets(tmp_agari_hand, 0)
+                wait_patterns[idx] = [shuntsus, jantou]
+
+            for idx in wait_patterns.keys():
+                [shuntsus, jantou] = wait_patterns[idx]
+                if self.player.agari_tile == jantou:  # 單騎聽
+                    return False
+                for shuntsu in shuntsus:
+                    if self.player.agari_tile == shuntsu[1]:  # 坎張聽
+                        return False
+                    elif (
+                        (self.player.agari_tile == shuntsu[0]
+                         and shuntsu[2].rank == 9)
+                        or (self.player.agari_tile == shuntsu[2]
+                            and shuntsu[0].rank == 1)
+                    ):
+                        return False  # 邊張聽
+                return True
+
+        if (
+            len(shuntsus) == 4  # 四個順子
+            and jantou.rank not in yakuhai_v  # 雀頭不是役牌
+            and is_ryanmen()  # 两面听牌
+        ):
+            self.total_yaku = "pinfu"
+            self.total_han = 1
+            return True
+
+        return False
 
     def tanyao(self):  # 断么九
         """A hand contain only numbered tiles 2-8 from any of the three main suits.
@@ -812,28 +853,60 @@ class Koutsu(TeYaku):
         yakuman
         http://arcturus.su/wiki/Suuankou
         """
-        return NotImplemented
+        huro_count = len(self.player.kabe)
+        koutsus, _, jantou = separate_sets(self.agari_hand, huro_count)
+        if len(koutsus) == 4:
+            if jantou == self.player.agari_tile:
+                self.total_yaku = 'suuankou tanki'
+                self.yakuman_count = 2
+            else:
+                self.total_yaku = 'suuankou'
+                self.yakuman_count = 1
+            return True
+
+        return False
 
     def suukantsu(self):  # 四槓子
         """Any hand with four calls of kan.
         yakuman
         http://arcturus.su/wiki/Suukantsu
         """
-        return NotImplemented
+        kan = [Naki.DAMINKAN, Naki.CHAKAN, Naki.ANKAN]
+        kantsus = [huro for huro in self.player.kabe if huro.naki_type in kan]
+        if len(kantsus) == 4:
+            self.total_yaku = 'suukantsu'
+            self.yakuman_count = 1
+            return True
+
+        return False
 
     def sanankou(self):  # 三暗刻
         """A hand contain three concealed triplets.
         2 han
         http://arcturus.su/wiki/Sanankou
         """
-        return NotImplemented
+        huro_count = len(self.player.kabe)
+        koutsus, _, jantou = separate_sets(self.agari_hand, huro_count)
+        if len(koutsus) == 3:
+            self.total_yaku = 'sanankou'
+            self.total_han = 2
+            return True
+
+        return False
 
     def sankantsu(self):  # 三槓子
         """This yaku requires kan to be called three times by one player.
         2 han
         http://arcturus.su/wiki/Sankantsu
         """
-        return NotImplemented
+        kan = [Naki.DAMINKAN, Naki.CHAKAN, Naki.ANKAN]
+        kantsus = [huro for huro in self.player.kabe if huro.naki_type in kan]
+        if len(kantsus) == 3:
+            self.total_yaku = 'sankantsu'
+            self.total_han = 2
+            return True
+
+        return False
 
 
 class Sanshoku(TeYaku):
