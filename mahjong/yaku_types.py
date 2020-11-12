@@ -29,7 +29,8 @@ class YakuTypes(ABC):
         self.agari_hand = copy.deepcopy(self.player.hand)
         self.agari_hand = defaultdict(
             int, {k: v for k, v in self.agari_hand.items() if v > 0})
-        self.agari_hand[self.player.agari_tile.index] += 1
+        if self.player.agari_tile:
+            self.agari_hand[self.player.agari_tile.index] += 1
         self.huro_tiles = [
             tile for huro in self.player.kabe for tile in huro.tiles]
 
@@ -181,8 +182,16 @@ class JouKyouYaku(YakuTypes):
         return self._total_yaku
 
     @total_yaku.setter
-    def total_yaku(self, yaku):
-        self._total_yaku = yaku
+    def total_yaku(self, yaku_name):
+        self._total_yaku.append(yaku_name)
+
+    @property
+    def total_han(self):
+        return self._total_han
+
+    @total_han.setter
+    def total_han(self, han):
+        self._total_han += han
 
     def menzen_tsumo(self):  # 門前清自摸和
         """A player with a closed tenpai hand may win with tsumo.
@@ -204,14 +213,13 @@ class JouKyouYaku(YakuTypes):
         return NotImplemented
 
     def houtei_raoyui(self):  # 河底撈魚
-        """A player wins with the tsumo on the haiteihai, the last
-        drawable tile from the live wall.
+        """Win by last discard.
         1 han
         http://arcturus.su/wiki/Haitei_raoyue_and_houtei_raoyui
         """
-        if not self.is_ron:
+        if self.is_ron:
             try:
-                self.stack.draw()
+                _ = self.stack.draw()
             except StopIteration:
                 # no more tile
                 self.total_yaku = 'houtei_raoyui'
@@ -238,13 +246,14 @@ class JouKyouYaku(YakuTypes):
         return NotImplemented
 
     def haitei_raoyue(self):  # 海底撈月
-        """Win by last discard.
+        """A player wins with the tsumo on the haiteihai, the last
+        drawable tile from the live wall.
         1 han
         http://arcturus.su/wiki/Haitei_raoyue_and_houtei_raoyui
         """
-        if self.is_ron:
+        if not self.is_ron:
             try:
-                self.stack.draw()
+                _ = self.stack.draw()
             except StopIteration:
                 self.total_yaku = 'haitei_raoyue'
                 self.total_han = 1
