@@ -869,14 +869,19 @@ class Koutsu(TeYaku):
         """
         huro_count = len(self.player.kabe)
         koutsus, _, jantou = separate_sets(self.agari_hand, huro_count)
-        if len(koutsus) == 4:
+        kantsus = [huro for huro in self.player.kabe
+                   if huro.naki_type == Naki.ANKAN]
+        ankou = len(koutsus) + len(kantsus)
+
+        if ankou == 4:
             if jantou == self.player.agari_tile:
                 self.total_yaku = 'suuankou tanki'
                 self.yakuman_count = 2
-            else:
+                return True
+            elif not self.is_ron:
                 self.total_yaku = 'suuankou'
                 self.yakuman_count = 1
-            return True
+                return True
 
         return False
 
@@ -901,7 +906,11 @@ class Koutsu(TeYaku):
         """
         huro_count = len(self.player.kabe)
         koutsus, _, jantou = separate_sets(self.agari_hand, huro_count)
-        if len(koutsus) == 3:
+        kantsus = [huro for huro in self.player.kabe
+                   if huro.naki_type == Naki.ANKAN]
+        ankou = len(koutsus) + len(kantsus)
+
+        if ankou == 3 and self.player.agari_tile not in koutsus:
             self.total_yaku = 'sanankou'
             self.total_han = 2
             return True
