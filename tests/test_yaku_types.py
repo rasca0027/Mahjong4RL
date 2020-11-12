@@ -119,8 +119,59 @@ class TestTeYaku(unittest.TestCase):
         self.assertEqual(yaku_types.total_han, 0)
         self.assertEqual(yaku_types.yakuman_count, 2)
 
-    def test_chuuren_poutou(self):  # 九連宝燈 or 純正九蓮宝燈
-        ...
+    def test_no_chuuren_poutou(self):  # 九蓮宝燈
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 0
+        self.player.hand[Tile(Suit.SOUZU.value, 3).index] += 2
+        self.player.hand[Tile(Suit.SOUZU.value, 4).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 7).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 8).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 9).index] += 3
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 2)
+
+        yaku_types = TeYaku(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.chuuren_poutou(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 0)
+
+    def test_chuuren_poutou(self):  # 九蓮宝燈
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 0
+        self.player.hand[Tile(Suit.SOUZU.value, 3).index] += 2
+        self.player.hand[Tile(Suit.SOUZU.value, 4).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 7).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 8).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 9).index] += 3
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 2)
+
+        yaku_types = TeYaku(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.chuuren_poutou(), True)
+        self.assertEqual(yaku_types.total_yaku, ['chuuren poutou'])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 1)
+
+    def test_junsei_chuuren_poutou(self):  # 純正九蓮宝燈
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 4).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 6).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 7).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 8).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 9).index] += 3
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 5)
+
+        yaku_types = TeYaku(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.chuuren_poutou(), True)
+        self.assertEqual(yaku_types.total_yaku, ['junsei chuuren poutou'])
+        self.assertEqual(yaku_types.total_han, 0)
+        self.assertEqual(yaku_types.yakuman_count, 2)
 
     def test_no_toitoihou(self):  # 対々和
         self.player.hand[Tile(Suit.PINZU.value, 8).index] += 1
