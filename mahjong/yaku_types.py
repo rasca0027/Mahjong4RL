@@ -503,21 +503,24 @@ class TeYaku(YakuTypes):
                 _, shuntsus, jantou = separate_sets(tmp_agari_hand, 0)
                 wait_patterns[idx] = [shuntsus, jantou]
 
+            ryanmen = False
             for idx in wait_patterns.keys():
                 [shuntsus, jantou] = wait_patterns[idx]
                 if self.player.agari_tile == jantou:  # 單騎聽
-                    return False
+                    continue
                 for shuntsu in shuntsus:
                     if self.player.agari_tile == shuntsu[1]:  # 坎張聽
-                        return False
+                        continue
                     elif (
                         (self.player.agari_tile == shuntsu[0]
                          and shuntsu[2].rank == 9)
                         or (self.player.agari_tile == shuntsu[2]
                             and shuntsu[0].rank == 1)
                     ):
-                        return False  # 邊張聽
-                return True
+                        continue  # 邊張聽
+                ryanmen = True
+
+            return ryanmen
 
         if (
             len(shuntsus) == 4  # 四個順子

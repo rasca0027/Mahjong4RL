@@ -515,6 +515,27 @@ class TestTeYaku(unittest.TestCase):
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, 0)
 
+    def test_no_pinfu_middle_wait(self):  # 平和
+        # 坎張聽
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 1
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 4).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 7).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 2).index] += 2
+        self.player.hand[Tile(Suit.PINZU.value, 5).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 6).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 7).index] += 1
+        self.player.agari_tile = Tile(Suit.SOUZU.value, 8)
+
+        yaku_types = TeYaku(self.player, self.stack, self.bakaze, True)
+        self.assertEqual(yaku_types.pinfu(), False)
+        self.assertEqual(yaku_types.total_yaku, [])
+        self.assertEqual(yaku_types.total_han, 0)
+
     def test_pinfu(self):  # 平和
         self.player.hand[Tile(Suit.MANZU.value, 1).index] += 1
         self.player.hand[Tile(Suit.MANZU.value, 2).index] += 1
