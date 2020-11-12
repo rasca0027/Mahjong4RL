@@ -31,7 +31,7 @@ class Turn:
 
     def discard_flow(
         self, discard_tile: Tile, discard_pos: int
-    ) -> Tuple[int, Tile]:
+    ) -> Tuple[int, Tile, int]:
         """ An event flow starting with a discard tile. It contains two flows,
         Naki and Draw.
         Args:
@@ -43,26 +43,30 @@ class Turn:
                   1 -> somebody RON or TSUMO
           discard_tile: the discarded tile in this turn
                 if Ron/Tsumo/流局 -> None
+          discard_pos: the discarder's index
         """
         state = 0
         discarder = self.players[discard_pos]
         player_pos, (action, naki) = self.ensemble_actions(discard_tile,
                                                            discard_pos)
         if action == Action.NOACT:
-            state, discard_tile = self.draw_flow(
+            state, discard_tile, discard_pos = self.draw_flow(
                 self.players[discarder.get_shimocha()])
         elif action == Action.NAKI:
             discarder.furiten_tiles_idx.add(discard_tile.index)
-            state, discard_tile = self.naki_flow(naki)
+            state, discard_tile, discard_pos = self.naki_flow(naki)
         elif action == Action.RON:
             self.winner.append(player_pos)
             state = 1
+            discard_tile = None
+            discard_pos = None
+        # TODO: invalid action, raise error
 
-        return state, discard_tile
+        return state, discard_tile, discard_pos
 
     def naki_flow(
         self, player: Player, naki: Naki
-    ) -> Tuple[int, Tile]:
+    ) -> Tuple[int, Tile, int]:
         """An event flow deals with Naki process
         Args:
           player: The player that calls naki
@@ -73,16 +77,19 @@ class Turn:
                   1 -> somebody RON or TSUMO
           discard_tile: the discarded tile in this turn
                 if Ron/Tsumo/流局 -> None
+          discard_pos: the discarder's index
         """
         self.first_turn = False
 
         state = 0
         # TODO: add test when finish action_with_naki()
         player.action_with_naki(naki)
+        discard_pos = player.seating_position
         if naki == Naki.DAMINKAN:
             if self.check_suukaikan(player.kabe):
                 return -1, None
-            state, discard_tile = self.draw_flow(player, from_rinshan=True)
+            state, discard_tile, discard_pos = self.draw_flow(
+                player, from_rinshan=True)
         elif naki in (Naki.CHII, Naki.PON):
             # TODO: add test when finish discard_after_naki()
             discard_tile = player.discard_after_naki()
@@ -90,7 +97,7 @@ class Turn:
             # TODO: invalid action, raise error
             pass
 
-        return state, discard_tile
+        return state, discard_tile, discard_pos
 
     def ensemble_actions(
         self, discard_tile: Tile, discard_pos: int
@@ -113,13 +120,13 @@ class Turn:
             reverse=True)[0]
 
         if action == Action.RON and not self.atamahane:
-            ron_players = [i[0] for i in naki_actions if i[1] == Action.RON]
+            ron_players = [i[0] for i in naki_actions if i[1][0] == Action.RON]
             if len(ron_players) > 1:
                 self.winner = ron_players
 
         return pos, (action, naki)
 
-    def kan_flow(self, kan_player, kan_tile, kan_type):
+    def kan_flow(self, kan_player: Player, kan_tile: Tile, kan_type: Naki):
         """ An event flow followed by a player ankans or chakans
         Other players could Chankan. There are only two posible actions,
         RON and NOACT.
@@ -142,7 +149,7 @@ class Turn:
 
     def draw_flow(
         self, player, from_rinshan: bool = False
-    ) -> Tuple[int, Tile]:
+    ) -> Tuple[int, Tile, int]:
         """ An event flow that triggers a player to draw a tile and ends with
         that player discarding a tile.
         Args:
@@ -151,9 +158,10 @@ class Turn:
         Return:
           state: -1 -> 流局
                   0 -> 繼續
-                  pos -> player at pos 胡牌
+                  1 -> somebody RON or TSUMO
           discard_tile: the discarded tile in this turn
                 if Ron/Tsumo/流局 -> None
+          discard_pos: the discarder's index
         """
         if player.jikaze == Jihai.TON:
             self.oya_draws += 1
@@ -167,27 +175,28 @@ class Turn:
                 new_tile, self.first_turn
             )
         state = 0
+        discard_pos = None
         if action == Action.NAKI:
             if naki in (Naki.ANKAN, Naki.CHAKAN):
                 player.action_with_naki(action)
                 if kan_state := self.kan_flow(player, new_tile, naki):
-                    return kan_state, None
+                    return kan_state, action_tile, discard_pos
                 if self.check_suukaikan(player.kabe):
-                    return -1, None
-            state, action_tile = self.draw_flow(player, from_rinshan=True)
+                    return -1, action_tile, discard_pos
+            state, action_tile, discard_pos = self.draw_flow(player,
+                                                             from_rinshan=True)
         elif action == Action.RYUUKYOKU:
-            return -1, None
+            return -1, action_tile, discard_pos    
         elif action == Action.TSUMO:
             self.winner.append(player)
-            return 1, None
-        else:
-            # TODO: invalid action, raise error
-            pass
+            return 1, action_tile, discard_pos
+        # TODO: invalid action, raise error
 
         if state == 0:
             player.add_kawa(action_tile)
+            discard_pos = player.seating_position
 
-        return state, action_tile
+        return state, action_tile, discard_pos
 
     def check_suukaikan(self, kabe: List[Huro]) -> bool:
         if len(self.stack.doras) >= 4:  # 場上已經有三或四個槓子
