@@ -124,7 +124,7 @@ class Player:
         action = None
         naki = None
         discard_tile = None
-        if action in Action.TSUMO:
+        if action == Action.TSUMO:
             self.agari_tile = tile
         else:
             ...  # pick discard tile
