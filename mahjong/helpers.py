@@ -5,6 +5,16 @@ from .naki_and_actions import check_remains_are_sets
 from .components import Tile, Suit
 
 
+def convert_hand(hand: DefaultDict[int, int]) -> List[Tile]:
+    """Convert hand in default dict format to list of tiles
+    """
+    hand_tiles = []
+    for tile_index in hand.keys():
+        for i in range(hand[tile_index]):
+            hand_tiles.append(Tile.from_index(tile_index))
+    return hand_tiles
+
+
 def is_yaochuu(suit: int, rank: int) -> bool:
     '''determine the tile is yaochuu or not by its suit and rank
     '''
