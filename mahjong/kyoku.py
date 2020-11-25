@@ -105,9 +105,9 @@ class Turn:
         """This function ensembles the action from each player and return
         the highest priority action.
         Return:
-          is_naki: True if there's a naki action from player else False
           pos: the position of the player with highest priority on naki action
-          action: the naki action from the player
+          action: the action from the player
+          naki: Naki
         """
         naki_actions = [
             (i, self.players[i].action_with_discard_tile(
@@ -186,7 +186,7 @@ class Turn:
             state, action_tile, discard_pos = self.draw_flow(player,
                                                              from_rinshan=True)
         elif action == Action.RYUUKYOKU:
-            return -1, action_tile, discard_pos    
+            return -1, action_tile, discard_pos
         elif action == Action.TSUMO:
             self.winner.append(player)
             return 1, action_tile, discard_pos

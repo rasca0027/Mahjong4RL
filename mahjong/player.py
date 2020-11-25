@@ -5,7 +5,8 @@ from .utils import get_name
 from .helpers import nine_yaochuus, convert_hand
 from .components import Huro, Tile, Action, Jihai, Naki
 from .naki_and_actions import (
-    check_tenpai, check_tsumo, check_ankan, check_chakan
+    check_tenpai, check_tsumo, check_ankan, check_chakan,
+    check_daminkan, check_pon, check_chii
 )
 
 
@@ -97,17 +98,23 @@ class Player:
           action: CHI/PON/DAMINKAN/RON
         """
         self.tmp_huro = None
-        # TODO: connect player's input with the action
 
-        action = Action.NOACT  # tmp, otherwise linter doesn't let me through
-        naki = Naki.NONE
+        action_list = []
+        if check_daminkan(self.hand, tile):
+            action_list.append((Action.NAKI, Naki.DAMINKAN, None))
+        if check_pon(self.hand, tile):
+            action_list.append((Action.NAKI, Naki.PON, None))
+        if possible_chiis := check_chii(self.hand, tile):
+            action_list.append((Action.NAKI, Naki.CHII, possible_chiis))
+
+        action, naki = self.get_input(action_list)
+
         # set temporary and permanent furiten
         if action == Action.NOACT:
             if tile in check_tenpai(self.hand, self.kabe):
                 self.tmp_furiten = True
                 if self.is_riichi:
                     self.permanent_furiten = True
-
         elif action == Action.RON:
             self.agari_tile = tile
 
@@ -133,7 +140,7 @@ class Player:
         if possible_kans := check_chakan(self.hand, self.kabe, tile):
             action_list.append((Action.NAKI, Naki.CHAKAN, possible_kans))
 
-        (action, naki), discard_tile = self.get_input(action_list)
+        action, naki = self.get_input(action_list)
 
         if action == Action.TSUMO:
             self.agari_tile = tile
@@ -166,7 +173,10 @@ class Player:
         # can react with RON (CHANKAN)
         return Action.NOACT
 
-    def get_input(self, action_list: List[Tuple[Action, Naki, List[Tile]]]) -> Tuple[Action, Naki]:
+    def get_input(
+        self,
+        action_list: List[Tuple[Action, Naki, List[Tile]]]
+    ) -> Tuple[Action, Naki]:
         """Gets user input to choose action and sets tmp_huro
         """
         options_str = ""
@@ -177,14 +187,21 @@ class Player:
             if act == Action.NAKI:
                 naki_options_str += f"{naki.value}: {naki}\n"
                 naki_huros[naki.value] = possible_huros
-        selected_action = input("Please select action using number:\n" + options_str)
+        selected_action = input(
+            "Please select action using number:\n" + options_str
+        )
         if selected_action == 1:  # NAKI
-            selected_naki = input("Please select naki type using number:\n" + naki_options_str)
+            selected_naki = input(
+                "Please select naki type using number:\n" + naki_options_str
+            )
             possible_huro_options = naki_huros[selected_naki]
             possible_huro_options_str = ""
             for i, huro in enumerate(possible_huro_options):
                 possible_huro_options_str += f"{i}: {huro}\n"
-            selected_huro = input("Please select huro set using number:\n" + possible_huro_options_str)
+            selected_huro = input(
+                "Please select huro set using number:\n" +
+                possible_huro_options_str
+            )
             self.tmp_huro = possible_huro_options[selected_huro]
         else:
             selected_naki = None
@@ -203,20 +220,15 @@ class Player:
         for tile in hand_tiles:
             hand_representation += f" {tile} |"
         if new_tile:
-            hand_representation += "| {new_tile} |"
+            hand_representation += f"| {new_tile} |"
         hand_representation += "\n"
 
-        discard = input("Please selected the tile you want to discard:\n" + hand_representation)
-        
+        discard = input(
+            "Please selected the tile you want to discard:\n" +
+            hand_representation
+        )
+
         if discard < 0 or discard > len(hand_tiles):
             raise ValueError
 
         return hand_tiles[discard]
-
-    def validate_input(self):
-        input_ = input()
-        try:
-            int(input_)
-        except ValueError:
-            print("digit please :(")
-        return
