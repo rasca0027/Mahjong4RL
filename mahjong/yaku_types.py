@@ -278,8 +278,10 @@ class JouKyouYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Tenhou
         """
-        if (self.player.jikaze == self.bakaze and
-                self.first_turn and not self.is_ron):
+        if (
+            self.player.jikaze == self.bakaze
+            and self.first_turn and not self.is_ron
+        ):
             self.total_yaku = 'tenhou'
             self.yakuman_count = 1
             return True
