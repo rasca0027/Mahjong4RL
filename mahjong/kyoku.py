@@ -172,8 +172,8 @@ class Turn:
         new_tile.owner = player.seating_position
         player.tmp_furiten = False
         (action, naki), action_tile = player.action_with_new_tile(
-                new_tile, self.first_turn
-            )
+            new_tile, self.first_turn
+        )
         state = 0
         discard_pos = None
         if action == Action.NAKI:
