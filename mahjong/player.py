@@ -210,8 +210,8 @@ class Player:
                 huro_str = ",".join([str(h) for h in huro])
                 possible_huro_str += f"{i}: {huro_str}\n"
             selected_huro = int(input(
-                "Please select huro set using number:\n" +
-                possible_huro_str
+                f"""Please select huro set using number:
+                {possible_huro_str}"""
             ))
             if selected_huro < 0 or selected_huro > len(possible_huro_opt) - 1:
                 raise ValueError
@@ -234,8 +234,8 @@ class Player:
         hand_representation = self.show_tiles(hand_tiles)
 
         discard = int(input(
-            "Please selected the tile you want to discard:\n" +
-            hand_representation
+            f"""Please selected the tile you want to discard:
+            {hand_representation}"""
         ))
 
         if discard < 0 or discard > len(hand_tiles) - 1:
