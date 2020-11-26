@@ -10,8 +10,8 @@ class TestTile(unittest.TestCase):
         self.tile_2 = Tile(Suit.JIHAI.value, Jihai.CHUN.value)  # 紅中
 
     def test_str(self):
-        tile_str = "Tile of 2 MANZU"
-        tile_str_2 = "Tile of CHUN"
+        tile_str = "2 MANZU"
+        tile_str_2 = "CHUN"
         self.assertEqual(str(self.tile), tile_str)
         self.assertEqual(str(self.tile_2), tile_str_2)
 
