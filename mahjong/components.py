@@ -54,9 +54,9 @@ class Tile:
 
     def __str__(self):
         if self._suit == Suit.JIHAI.value:
-            return f"Tile of { get_name(Jihai, self._rank) }"
+            return f"{ get_name(Jihai, self._rank) }"
         else:
-            return f"Tile of { self._rank } { get_name(Suit, self._suit) }"
+            return f"{ self._rank } { get_name(Suit, self._suit) }"
 
     @property
     def suit(self):
