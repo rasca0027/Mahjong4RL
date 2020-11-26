@@ -1,9 +1,8 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from mahjong.game import Game
 from mahjong.components import Jihai
-from mahjong.kyoku import Kyoku
 
 
 class TestGame(unittest.TestCase):
@@ -41,5 +40,3 @@ class TestGame(unittest.TestCase):
 
     def test_ryuukyoku(self):
         ...
-
-    

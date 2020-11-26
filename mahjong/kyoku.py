@@ -172,8 +172,8 @@ class Turn:
         new_tile.owner = player.seating_position
         player.tmp_furiten = False
         (action, naki), action_tile = player.action_with_new_tile(
-                new_tile, self.first_turn
-            )
+            new_tile, self.first_turn
+        )
         state = 0
         discard_pos = None
         if action == Action.NAKI:
@@ -186,7 +186,7 @@ class Turn:
             state, action_tile, discard_pos = self.draw_flow(player,
                                                              from_rinshan=True)
         elif action == Action.RYUUKYOKU:
-            return -1, action_tile, discard_pos    
+            return -1, action_tile, discard_pos
         elif action == Action.TSUMO:
             self.winner.append(player)
             return 1, action_tile, discard_pos

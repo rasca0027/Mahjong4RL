@@ -21,6 +21,3 @@ class TestRoundup(unittest.TestCase):
 
     def test_roundup(self):
         self.assertEqual(roundup(1), 100)
-
-
-
