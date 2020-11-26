@@ -16,6 +16,18 @@ def is_yaochuu(suit: int, rank: int) -> bool:
     return False
 
 
+def nine_yaochuus(hand: DefaultDict[int, int], new_tile: Tile) -> bool:
+    yaochuu_found = 0
+    for tile_index in hand.keys():
+        suit = tile_index // 10
+        rank = tile_index % 10
+        if is_yaochuu(suit, rank):
+            yaochuu_found += 1
+    if is_yaochuu(new_tile.suit, new_tile.rank):
+        yaochuu_found += 1
+    return yaochuu_found >= 9
+
+
 def consists_jantou_and_sets(remain_tiles: DefaultDict[int, int],
                              took_out_sets_n: int) -> bool:
     """Helper function to check all tiles in remain_tiles consists one Jantou
@@ -40,13 +52,41 @@ def consists_jantou_and_sets(remain_tiles: DefaultDict[int, int],
 
 
 def separate_sets(
-    hand: DefaultDict[int, int], huro_count: int
+    hand: DefaultDict[int, int], huro_count: int, koutsu_first: bool = True
 ) -> Tuple[List[Tile], List[List[Tile]], Tile]:
     """Helper function for seperating player's remaining hands into sets.
     It should either be 14, 11, 8, 5, or 2 tiles.
-    Note that there's priority for koutsu over shuntsu,
-    so might not be useful for yaku types like 混老頭, 清老頭, etc
+    The arg koutsu_first would change the priority for koutsu and shuntsu,
+    for example in the usecase for checking 全帯么九, shuntsu should have
+    priority over koutsu.
     """
+
+    def check_koutsu(sets_to_find):
+        if remain_tiles[tile_index] >= 3:  # check for Koutsu
+            remain_tiles[tile_index] -= 3
+            sets_to_find -= 1
+            koutsu.append(Tile.from_index(tile_index))
+        return sets_to_find
+
+    def check_shuntsu(sets_to_find):
+        if remain_tiles[tile_index + 2] > 0:  # check for Shuntsu
+            chii_n = min(
+                remain_tiles[tile_index],
+                remain_tiles[tile_index + 1],
+                remain_tiles[tile_index + 2]
+            )
+            if chii_n > 0:
+                remain_tiles[tile_index] -= chii_n
+                remain_tiles[tile_index + 1] -= chii_n
+                remain_tiles[tile_index + 2] -= chii_n
+                sets_to_find -= chii_n
+                for _ in range(chii_n):
+                    shuntsu.append([
+                        Tile.from_index(tile_index),
+                        Tile.from_index(tile_index + 1),
+                        Tile.from_index(tile_index + 2)
+                    ])
+        return sets_to_find
 
     for possible_jantou in hand.keys():
         if hand[possible_jantou] >= 2:  # try using it as jantou
@@ -62,27 +102,12 @@ def separate_sets(
                         sets_to_find -= 1
                         koutsu.append(Tile.from_index(tile_index))
                 else:  # numbered tiles
-                    if remain_tiles[tile_index] >= 3:  # check for Koutsu
-                        remain_tiles[tile_index] -= 3
-                        sets_to_find -= 1
-                        koutsu.append(Tile.from_index(tile_index))
-                    if remain_tiles[tile_index + 2] > 0:  # check for Shuntsu
-                        chii_n = min(
-                            remain_tiles[tile_index],
-                            remain_tiles[tile_index + 1],
-                            remain_tiles[tile_index + 2]
-                        )
-                        if chii_n > 0:
-                            remain_tiles[tile_index] -= chii_n
-                            remain_tiles[tile_index + 1] -= chii_n
-                            remain_tiles[tile_index + 2] -= chii_n
-                            sets_to_find -= chii_n
-                            for _ in range(chii_n):
-                                shuntsu.append([
-                                    Tile.from_index(tile_index),
-                                    Tile.from_index(tile_index + 1),
-                                    Tile.from_index(tile_index + 2)
-                                ])
+                    if koutsu_first:
+                        sets_to_find = check_koutsu(sets_to_find)
+                        sets_to_find = check_shuntsu(sets_to_find)
+                    else:
+                        sets_to_find = check_shuntsu(sets_to_find)
+                        sets_to_find = check_koutsu(sets_to_find)
             if sets_to_find == 0:
                 return koutsu, shuntsu, Tile.from_index(possible_jantou)
     return [], [], None

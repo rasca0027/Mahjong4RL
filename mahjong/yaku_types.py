@@ -1,6 +1,6 @@
 import copy
 import math
-from typing import List
+from typing import List, Optional
 from collections import defaultdict
 from itertools import combinations
 from abc import ABC, abstractmethod
@@ -15,21 +15,24 @@ from .naki_and_actions import check_tenpai
 
 
 class YakuTypes(ABC):
-    _total_yaku = []
-    _total_han = 0
-    _yakuman_count = 0
-    _player = None
-    _bakaze = None
 
-    def __init__(self, player: Player, stack: Stack, bakaze: Jihai, ron: bool):
+    def __init__(
+        self, player: Player, stack: Stack,
+        bakaze: Jihai, ron: bool, first_turn: Optional[bool] = False
+    ):
+        self._total_yaku = []
+        self._total_han = 0
+        self._yakuman_count = 0
         self.player = player
         self.stack = stack
         self.bakaze = bakaze
         self.is_ron = ron
+        self.first_turn = first_turn
         self.agari_hand = copy.deepcopy(self.player.hand)
         self.agari_hand = defaultdict(
             int, {k: v for k, v in self.agari_hand.items() if v > 0})
-        self.agari_hand[self.player.agari_tile.index] += 1
+        if self.player.agari_tile:
+            self.agari_hand[self.player.agari_tile.index] += 1
         self.huro_tiles = [
             tile for huro in self.player.kabe for tile in huro.tiles]
 
@@ -181,8 +184,16 @@ class JouKyouYaku(YakuTypes):
         return self._total_yaku
 
     @total_yaku.setter
-    def total_yaku(self, yaku):
-        self._total_yaku = yaku
+    def total_yaku(self, yaku_name):
+        self._total_yaku.append(yaku_name)
+
+    @property
+    def total_han(self):
+        return self._total_han
+
+    @total_han.setter
+    def total_han(self, han):
+        self._total_han += han
 
     def menzen_tsumo(self):  # 門前清自摸和
         """A player with a closed tenpai hand may win with tsumo.
@@ -204,19 +215,15 @@ class JouKyouYaku(YakuTypes):
         return NotImplemented
 
     def houtei_raoyui(self):  # 河底撈魚
-        """A player wins with the tsumo on the haiteihai, the last
-        drawable tile from the live wall.
+        """Win by last discard.
         1 han
         http://arcturus.su/wiki/Haitei_raoyue_and_houtei_raoyui
         """
-        if not self.is_ron:
-            try:
-                self.stack.draw()
-            except StopIteration:
-                # no more tile
-                self.total_yaku = 'houtei_raoyui'
-                self.total_han = 1
-                return True
+        if self.is_ron and len(self.stack.playling_wall) == 0:
+            self.total_yaku = 'houtei_raoyui'
+            self.total_han = 1
+            return True
+
         return False
 
     def riichi(self):  # 立直
@@ -238,17 +245,16 @@ class JouKyouYaku(YakuTypes):
         return NotImplemented
 
     def haitei_raoyue(self):  # 海底撈月
-        """Win by last discard.
+        """A player wins with the tsumo on the haiteihai, the last
+        drawable tile from the live wall.
         1 han
         http://arcturus.su/wiki/Haitei_raoyue_and_houtei_raoyui
         """
-        if self.is_ron:
-            try:
-                self.stack.draw()
-            except StopIteration:
-                self.total_yaku = 'haitei_raoyue'
-                self.total_han = 1
-                return True
+        if not self.is_ron and len(self.stack.playling_wall) == 0:
+            self.total_yaku = 'haitei_raoyue'
+            self.total_han = 1
+            return True
+
         return False
 
     def rinshan_kaihou(self):  # 嶺上開花
@@ -272,19 +278,29 @@ class JouKyouYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Tenhou
         """
-        return NotImplemented
+        if (
+            self.player.jikaze == self.bakaze
+            and self.first_turn and not self.is_ron
+        ):
+            self.total_yaku = 'tenhou'
+            self.yakuman_count = 1
+            return True
+        return False
 
     def chiihou(self):  # 地和
         """The non-dealer hand is a winning hand with the first tile draw.
         yakuman
         http://arcturus.su/wiki/Chiihou
         """
-        return NotImplemented
+        if self.first_turn and self.is_ron:
+            self.total_yaku = 'chiihou'
+            self.yakuman_count = 1
+            return True
+        return False
 
     def nagashi_mangan(self):  # 流し満貫
         """All the discards are terminals and/or honors.
         In addition, none of these discards were called by other players.
-        yakuman
         http://arcturus.su/wiki/Nagashi_mangan
         """
         honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
@@ -371,7 +387,30 @@ class TeYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Chuuren_poutou
         """
-        return NotImplemented
+        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
+        if len(suit_in_hand) == 1 and (suit_v := list(suit_in_hand)[0]) != 0:
+            tmp_hand = copy.deepcopy(self.agari_hand)
+            for i in [1, 9]:
+                if tmp_hand[Tile(suit_v, i).index] < 3:
+                    return False
+                else:
+                    tmp_hand[Tile(suit_v, i).index] -= 3
+            for i in range(2, 9):
+                if tmp_hand[Tile(suit_v, i).index] < 1:
+                    return False
+                else:
+                    tmp_hand[Tile(suit_v, i).index] -= 1
+
+            remain_tile = [k for k, v in tmp_hand.items() if v > 0][0]
+            if self.player.agari_tile.index == remain_tile:
+                self.total_yaku = 'junsei chuuren poutou'
+                self.yakuman_count = 2
+            else:
+                self.total_yaku = 'chuuren poutou'
+                self.yakuman_count = 1
+            return True
+
+        return False
 
     def toitoihou(self):  # 対々和
         """All triplets.
@@ -390,7 +429,7 @@ class TeYaku(YakuTypes):
                 return False
         # check with huro
         for huro in self.player.kabe:
-            if huro[0] == huro[1]:
+            if huro.tiles[0] == huro.tiles[1]:
                 continue
             else:
                 return False
@@ -450,7 +489,51 @@ class TeYaku(YakuTypes):
         1 han (closed only)
         http://arcturus.su/wiki/Pinfu
         """
-        return NotImplemented
+        huro_count = len(self.player.kabe)
+        _, shuntsus, jantou = separate_sets(self.agari_hand, huro_count)
+
+        yakuhai_v = [Jihai.HAKU.value, Jihai.HATSU.value, Jihai.CHUN.value,
+                     self.bakaze.value, self.player.jikaze.value]
+
+        def is_ryanmen() -> bool:  # 两面听牌
+            tenpai_tiles = check_tenpai(self.player.hand, self.player.kabe)
+            wait_patterns = {}
+            for idx, pot_agari_tile in enumerate(tenpai_tiles):
+                tmp_agari_hand = copy.deepcopy(self.player.hand)
+                tmp_agari_hand[pot_agari_tile.index] += 1
+
+                _, shuntsus, jantou = separate_sets(tmp_agari_hand, 0)
+                wait_patterns[idx] = [shuntsus, jantou]
+
+            ryanmen = False
+            for idx in wait_patterns.keys():
+                [shuntsus, jantou] = wait_patterns[idx]
+                if self.player.agari_tile == jantou:  # 單騎聽
+                    continue
+                for shuntsu in shuntsus:
+                    if self.player.agari_tile == shuntsu[1]:  # 坎張聽
+                        continue
+                    elif (
+                        (self.player.agari_tile == shuntsu[0]
+                         and shuntsu[2].rank == 9)
+                        or (self.player.agari_tile == shuntsu[2]
+                            and shuntsu[0].rank == 1)
+                    ):
+                        continue  # 邊張聽
+                ryanmen = True
+
+            return ryanmen
+
+        if (
+            len(shuntsus) == 4  # 四個順子
+            and jantou.rank not in yakuhai_v  # 雀頭不是役牌
+            and is_ryanmen()  # 两面听牌
+        ):
+            self.total_yaku = "pinfu"
+            self.total_han = 1
+            return True
+
+        return False
 
     def tanyao(self):  # 断么九
         """A hand contain only numbered tiles 2-8 from any of the three main suits.
@@ -481,7 +564,7 @@ class Yakuhai(TeYaku):
         http://arcturus.su/wiki/Daisangen
         """
         for rank in [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN]:
-            tile = Tile(Suit.JIHAI, rank.value)
+            tile = Tile(Suit.JIHAI.value, rank.value)
             index = tile.index
             if self.agari_hand[index] >= 3:
                 continue
@@ -516,7 +599,7 @@ class Yakuhai(TeYaku):
         """
         four_winds = [Jihai.TON, Jihai.NAN, Jihai.SHAA, Jihai.PEI]
         for rank in four_winds:
-            tile = Tile(Suit.JIHAI, rank.value)
+            tile = Tile(Suit.JIHAI.value, rank.value)
             index = tile.index
             if self.agari_hand[index] >= 3:
                 continue
@@ -537,7 +620,7 @@ class Yakuhai(TeYaku):
         four_winds = [Jihai.TON, Jihai.NAN, Jihai.SHAA, Jihai.PEI]
         has_small_flag = False
         for rank in four_winds:
-            tile = Tile(Suit.JIHAI, rank.value)
+            tile = Tile(Suit.JIHAI.value, rank.value)
             index = tile.index
             tile_cnt = self.agari_hand.get(index, 0)
             if tile_cnt == 3:
@@ -564,7 +647,7 @@ class Yakuhai(TeYaku):
         """
         has_small_flag = False
         for rank in [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN]:
-            tile = Tile(Suit.JIHAI, rank.value)
+            tile = Tile(Suit.JIHAI.value, rank.value)
             index = tile.index
             tile_cnt = self.agari_hand.get(index, 0)
             if tile_cnt >= 3:
@@ -590,21 +673,22 @@ class Yakuhai(TeYaku):
         1 han per counted triplet
         http://arcturus.su/wiki/Yakuhai
         """
-        yakuhai = [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN,
-                   self.bakaze, self.player.jikaze]
-        # 字牌的 index 跟 Jihai value 一樣
-        yakuhai_k = list(map(lambda x: x.value, yakuhai))
+        yakuhai = {'sangenpai': [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN],
+                   'bakaze': [self.bakaze],
+                   'jikaze': [self.player.jikaze]}
 
         agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
         for tile in self.huro_tiles:
             agari_hand_and_kabe[tile.index] += 1
 
         found_yakuhai = False
-        for k, v in agari_hand_and_kabe.items():
-            if k in yakuhai_k and v >= 3:  # 刻子或槓子
-                self.total_yaku = f"yakuhai_{get_name(Jihai, k)}"
-                self.total_han = 1
-                found_yakuhai = True
+        for tile_type, tile_list in yakuhai.items():
+            for tile in tile_list:
+                tile_index = Tile(Suit.JIHAI.value, tile.value).index
+                if agari_hand_and_kabe[tile_index] >= 3:
+                    self.total_yaku = f"{tile_type}_{get_name(Jihai, tile)}"
+                    self.total_han = 1
+                    found_yakuhai = True
 
         return found_yakuhai
 
@@ -697,7 +781,42 @@ class Chanta(TeYaku):
         2 han (open)
         http://arcturus.su/wiki/Junchantaiyaochuu
         """
-        return NotImplemented
+        _, terminal_tiles = Tile.get_yaochuuhai()
+        koutsus, shuntsus, jantou = separate_sets(self.agari_hand,
+                                                  len(self.player.kabe),
+                                                  koutsu_first=False)
+
+        if jantou not in terminal_tiles:
+            return False
+
+        for shuntsu in shuntsus:
+            if (
+                shuntsu[0] not in terminal_tiles
+                and shuntsu[2] not in terminal_tiles
+            ):
+                return False
+
+        for koutsu in koutsus:
+            if koutsu not in terminal_tiles:
+                return False
+
+        for huru in self.player.kabe:
+            if huru.naki_type == Naki.CHII:
+                if (
+                    huru.tiles[0] not in terminal_tiles
+                    and huru.tiles[2] not in terminal_tiles
+                ):
+                    return False
+            else:
+                if huru.tiles[0] not in terminal_tiles:
+                    return False
+
+        self.total_yaku = 'junchantaiyaochuu'
+        if self.player.menzenchin:
+            self.total_han = 3
+        else:
+            self.total_han = 2
+        return True
 
     def chanta(self):  # 混全帯么九
         """Every tile group and the pair must contain at least one terminal or
@@ -706,7 +825,42 @@ class Chanta(TeYaku):
         1 han (open)
         http://arcturus.su/wiki/Chanta
         """
-        return NotImplemented
+        honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
+        koutsus, shuntsus, jantou = separate_sets(self.agari_hand,
+                                                  len(self.player.kabe),
+                                                  koutsu_first=False)
+
+        if jantou not in (terminal_tiles + honor_tiles):
+            return False
+
+        for shuntsu in shuntsus:
+            if (
+                shuntsu[0] not in terminal_tiles
+                and shuntsu[2] not in terminal_tiles
+            ):
+                return False
+
+        for koutsu in koutsus:
+            if koutsu not in (terminal_tiles + honor_tiles):
+                return False
+
+        for huru in self.player.kabe:
+            if huru.naki_type == Naki.CHII:
+                if (
+                    huru.tiles[0] not in terminal_tiles
+                    and huru.tiles[2] not in terminal_tiles
+                ):
+                    return False
+            else:
+                if huru.tiles[0] not in (terminal_tiles + honor_tiles):
+                    return False
+
+        self.total_yaku = 'chanta'
+        if self.player.menzenchin:
+            self.total_han = 2
+        else:
+            self.total_han = 1
+        return True
 
 
 class Koutsu(TeYaku):
@@ -718,28 +872,69 @@ class Koutsu(TeYaku):
         yakuman
         http://arcturus.su/wiki/Suuankou
         """
-        return NotImplemented
+        huro_count = len(self.player.kabe)
+        koutsus, _, jantou = separate_sets(self.agari_hand, huro_count)
+        kantsus = [huro for huro in self.player.kabe
+                   if huro.naki_type == Naki.ANKAN]
+        ankou = len(koutsus) + len(kantsus)
+
+        if ankou == 4:
+            if jantou == self.player.agari_tile:
+                self.total_yaku = 'suuankou tanki'
+                self.yakuman_count = 2
+                return True
+            elif not self.is_ron:
+                self.total_yaku = 'suuankou'
+                self.yakuman_count = 1
+                return True
+
+        return False
 
     def suukantsu(self):  # 四槓子
         """Any hand with four calls of kan.
         yakuman
         http://arcturus.su/wiki/Suukantsu
         """
-        return NotImplemented
+        kan = [Naki.DAMINKAN, Naki.CHAKAN, Naki.ANKAN]
+        kantsus = [huro for huro in self.player.kabe if huro.naki_type in kan]
+        if len(kantsus) == 4:
+            self.total_yaku = 'suukantsu'
+            self.yakuman_count = 1
+            return True
+
+        return False
 
     def sanankou(self):  # 三暗刻
         """A hand contain three concealed triplets.
         2 han
         http://arcturus.su/wiki/Sanankou
         """
-        return NotImplemented
+        huro_count = len(self.player.kabe)
+        koutsus, _, jantou = separate_sets(self.agari_hand, huro_count)
+        kantsus = [huro for huro in self.player.kabe
+                   if huro.naki_type == Naki.ANKAN]
+        ankou = len(koutsus) + len(kantsus)
+
+        if ankou == 3 and self.player.agari_tile not in koutsus:
+            self.total_yaku = 'sanankou'
+            self.total_han = 2
+            return True
+
+        return False
 
     def sankantsu(self):  # 三槓子
         """This yaku requires kan to be called three times by one player.
         2 han
         http://arcturus.su/wiki/Sankantsu
         """
-        return NotImplemented
+        kan = [Naki.DAMINKAN, Naki.CHAKAN, Naki.ANKAN]
+        kantsus = [huro for huro in self.player.kabe if huro.naki_type in kan]
+        if len(kantsus) == 3:
+            self.total_yaku = 'sankantsu'
+            self.total_han = 2
+            return True
+
+        return False
 
 
 class Sanshoku(TeYaku):
