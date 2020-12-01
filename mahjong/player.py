@@ -27,7 +27,6 @@ class Player:
         self.tmp_furiten: bool = False
         self.permanent_furiten: bool = False
         self.agari_tile: Tile = None
-        # TODO: Build Player's connection (socket)?
 
     def __str__(self):
         return (
@@ -155,6 +154,7 @@ class Player:
     def action_with_naki(self, naki: Naki) -> None:
         # add tmp_huro to kabe
         self.kabe.append(self.tmp_huro)
+        # TODO: remove the huro tiles from player hand
         if naki != Naki.ANKAN:
             self.menzenchin = False
         self.tmp_huro = None
@@ -221,10 +221,8 @@ class Player:
             self.tmp_huro = Huro(
                 Naki(selected_naki),
                 new_tile,
-                # TODO: this may contain extra tile
                 possible_huro_opt[selected_huro]
             )
-            # TODO: remove the huro tiles from player hand
         else:
             selected_naki = None
 
