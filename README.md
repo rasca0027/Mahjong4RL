@@ -14,6 +14,11 @@ We aim to create a game system of Japanese Mahjong from scratch. We will be impl
 ## 🚀 Usage
 
 ```python
+from mahjong.game import Game
+
+names = ['Kelly', 'Leo', 'Ball', 'Hao']
+game = Game(names)
+game.start_game()
 ```
 
 ## 👀 Run Tests
