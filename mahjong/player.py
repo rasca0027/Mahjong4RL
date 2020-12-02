@@ -152,16 +152,29 @@ class Player:
 
         return (action, naki), discard_tile
 
-    def action_with_naki(self, naki: Naki) -> None:
+    def action_with_naki(self, naki: Naki) -> List[Tile]:
+        """Add Player's naki to kabe
+        Returns:
+          kuikae_tiles: if any
+        """
         # add tmp_huro to kabe
         self.kabe.append(self.tmp_huro)
         if naki != Naki.ANKAN:
             self.menzenchin = False
-        self.tmp_huro = None
-        return
 
-    def discard_after_naki(self) -> Tile:
-        discard = self.get_discard()
+        # check Kuikae 喰い替え
+        kuikae_tiles = []
+        if naki == Naki.CHII:
+            kuikae_tiles.append(self.tmp_huro.tiles)
+        elif naki == Naki.PON:
+            kuikae_tiles.append(self.tmp_huro.tiles[0])
+
+        self.tmp_huro = None
+
+        return kuikae_tiles
+
+    def discard_after_naki(self, kuikae_tiles: List[Tile]) -> Tile:
+        discard = self.get_discard(kuikae_tiles=kuikae_tiles)
         return discard
 
     def action_with_chakan(self, kan_tile, kan_type) -> Action:
@@ -225,12 +238,22 @@ class Player:
         naki = Naki(selected_naki) if selected_naki else None
         return Action(selected_action), naki
 
-    def get_discard(self, new_tile: Tile = None) -> Tile:
+    def get_discard(
+        self,
+        new_tile: Tile = None,
+        kuikae_tiles: List[Tile] = []
+    ) -> Tile:
         """Add in the newly drawn tile and discard a tile
         """
         hand_tiles = convert_hand(self.hand)
         if new_tile:
             hand_tiles.append(new_tile)
+        if kuikae_tiles:
+            # not allowed to choose from this list
+            # TODO: now just hide from hand_representation,
+            # need to change to something else if UI changes
+            hand_tiles = [tile for tile in hand_tiles
+                          if tile not in kuikae_tiles]
         hand_representation = self.show_tiles(hand_tiles)
 
         discard = int(input(
