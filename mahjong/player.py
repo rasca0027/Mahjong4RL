@@ -154,11 +154,18 @@ class Player:
     def action_with_naki(self, naki: Naki) -> None:
         # add tmp_huro to kabe
         self.kabe.append(self.tmp_huro)
-        # TODO: remove the huro tiles from player hand
+        self.remove_huro_tiles()
         if naki != Naki.ANKAN:
             self.menzenchin = False
         self.tmp_huro = None
         return
+
+    def remove_huro_tiles(self) -> None:
+        """Remove the called tiles from player's hand.
+        """
+        for tile in self.tmp_huro.tiles:
+            if tile != self.tmp_huro.naki_tile:
+                self.hand[tile.index] -= 1
 
     def discard_after_naki(self) -> Tile:
         discard = self.get_discard()
