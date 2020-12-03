@@ -27,7 +27,6 @@ class Player:
         self.tmp_furiten: bool = False
         self.permanent_furiten: bool = False
         self.agari_tile: Tile = None
-        # TODO: Build Player's connection (socket)?
 
     def __str__(self):
         return (
@@ -100,14 +99,14 @@ class Player:
         self.tmp_huro = None
 
         action_list = [(Action.NOACT, None, [])]
-        if check_daminkan(self.hand, tile):
-            action_list.append((Action.NAKI, Naki.DAMINKAN, None))
-        if check_pon(self.hand, tile):
-            action_list.append((Action.NAKI, Naki.PON, None))
+        if possible_kans := check_daminkan(self.hand, tile):
+            action_list.append((Action.NAKI, Naki.DAMINKAN, possible_kans))
+        if possible_pons := check_pon(self.hand, tile):
+            action_list.append((Action.NAKI, Naki.PON, possible_pons))
         if possible_chiis := check_chii(self.hand, tile):
             action_list.append((Action.NAKI, Naki.CHII, possible_chiis))
 
-        action, naki = self.get_input(tile, action_list)
+        action, naki = self.get_input(tile, action_list, True)
 
         # set temporary and permanent furiten
         if action == Action.NOACT:
@@ -140,7 +139,7 @@ class Player:
         if possible_kans := check_chakan(self.hand, self.kabe, tile):
             action_list.append((Action.NAKI, Naki.CHAKAN, possible_kans))
 
-        action, naki = self.get_input(tile, action_list)
+        action, naki = self.get_input(tile, action_list, False)
 
         if action == Action.TSUMO:
             self.agari_tile = tile
@@ -155,6 +154,7 @@ class Player:
     def action_with_naki(self, naki: Naki) -> None:
         # add tmp_huro to kabe
         self.kabe.append(self.tmp_huro)
+        # TODO: remove the huro tiles from player hand
         if naki != Naki.ANKAN:
             self.menzenchin = False
         self.tmp_huro = None
@@ -176,14 +176,17 @@ class Player:
     def get_input(
         self,
         new_tile: Tile,
-        action_list: List[Tuple[Action, Naki, List[Tile]]]
+        action_list: List[Tuple[Action, Naki, List[Tile]]],
+        discard: bool
     ) -> Tuple[Action, Naki]:
         """Gets user input to choose action and sets tmp_huro
         """
         hand_tiles = convert_hand(self.hand)
-        if new_tile:
+        if discard:
+            print(f"The discarded tile is: | {new_tile} |")
+        else:
             hand_tiles.append(new_tile)
-        hand_representation = self.show_tiles(hand_tiles)
+        hand_representation = self.show_tiles(hand_tiles, discard)
         print(hand_representation)
 
         options_str = ""
@@ -217,6 +220,7 @@ class Player:
                 raise ValueError
             self.tmp_huro = Huro(
                 Naki(selected_naki),
+                new_tile,
                 possible_huro_opt[selected_huro]
             )
         else:
@@ -231,7 +235,7 @@ class Player:
         hand_tiles = convert_hand(self.hand)
         if new_tile:
             hand_tiles.append(new_tile)
-        hand_representation = self.show_tiles(hand_tiles)
+        hand_representation = self.show_tiles(hand_tiles, False)
 
         discard = int(input(
             f"""Please selected the tile you want to discard:
@@ -243,7 +247,7 @@ class Player:
 
         return hand_tiles[discard]
 
-    def show_tiles(self, hand_tiles: List[Tile]) -> str:
+    def show_tiles(self, hand_tiles: List[Tile], discard: bool) -> str:
         """Convert hand into string representation
         """
         hand_representation = f"----- {self.name}'s hand -----\n"
@@ -251,7 +255,10 @@ class Player:
             hand_representation += f"  {i}  |"
         hand_representation += "\n"
 
-        for tile in hand_tiles:
-            hand_representation += f" {tile} |"
+        for i, tile in enumerate(hand_tiles):
+            if not discard and i == len(hand_tiles) - 1:
+                hand_representation += f"| {tile} ||"
+            else:
+                hand_representation += f" {tile} |"
         hand_representation += "\n"
         return hand_representation

@@ -114,9 +114,15 @@ class Turn:
                 discard_tile, discard_pos))
             for i in range(0, 4) if i != discard_pos
         ]
+
+        def sort_action(x):
+            return (
+                x[1][0].value,
+                x[1][1].value if x[1][1] else 0
+            )
         pos, (action, naki) = sorted(
             naki_actions,
-            key=lambda x: (x[1][0].value, x[1][1].value),
+            key=sort_action,
             reverse=True)[0]
 
         if action == Action.RON and not self.atamahane:
