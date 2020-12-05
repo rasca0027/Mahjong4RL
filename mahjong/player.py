@@ -165,9 +165,16 @@ class Player:
         # check Kuikae 喰い替え
         kuikae_tiles = []
         if naki == Naki.CHII:
-            kuikae_tiles.append(self.tmp_huro.tiles)
+            # Middle tile or Same end tile of a chii
+            kuikae_tiles.append(self.tmp_huro.naki_tile)
+            # Different end tile of a chii
+            if self.tmp_huro.naki_tile == self.tmp_huro.tiles[0]:
+                kuikae_tiles.append(self.tmp_huro.tiles[2].next_tile())
+            elif self.tmp_huro.naki_tile == self.tmp_huro.tiles[2]:
+                kuikae_tiles.append(self.tmp_huro.tiles[0].prev_tile())
+
         elif naki == Naki.PON:
-            kuikae_tiles.append(self.tmp_huro.tiles[0])
+            kuikae_tiles.append(self.tmp_huro.naki_tile)
 
         self.tmp_huro = None
 
