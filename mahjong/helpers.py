@@ -9,8 +9,8 @@ def convert_hand(hand: DefaultDict[int, int]) -> List[Tile]:
     """Convert hand in default dict format to list of tiles
     """
     hand_tiles = []
-    for tile_index in hand.keys():
-        for i in range(hand[tile_index]):
+    for tile_index, tile_count in sorted(hand.items()):
+        for i in range(tile_count):
             hand_tiles.append(Tile.from_index(tile_index))
     return hand_tiles
 

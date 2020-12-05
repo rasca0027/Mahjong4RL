@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import Mock, MagicMock, PropertyMock
 
 from mahjong.player import Player
 from mahjong.components import Stack, Tile, Action, Suit, Naki, Huro
@@ -29,6 +29,14 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.assertEqual(self.turn.draw_flow(self.player_1), (1, None, None))
 
     def test_ankan(self):
+        naki_tile = Tile(Suit.SOUZU.value, 5)
+        naki_tile.owner = self.player_1.seating_position
+        kan = Huro(Naki.ANKAN,
+                   naki_tile,
+                   [Tile(Suit.SOUZU.value, 5) for i in range(4)])
+
+        self.player_1.tmp_huro = kan
+
         self.player_1.action_with_new_tile = MagicMock()
         self.player_1.action_with_new_tile.side_effect = [
             ((Action.NAKI, Naki.CHAKAN), None),
@@ -43,6 +51,15 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.assertEqual(len(self.tile_stack.doras), 2)
 
     def test_chakan(self):
+        # change type from PON to KAN, what's tmp_huro in this case?
+        naki_tile = Tile(Suit.SOUZU.value, 5)
+        naki_tile.owner = self.player_1.seating_position
+        kan = Huro(Naki.ANKAN,
+                   naki_tile,
+                   [Tile(Suit.SOUZU.value, 5) for i in range(4)])
+
+        self.player_1.tmp_huro = kan
+
         self.player_1.action_with_new_tile = MagicMock()
         self.player_1.action_with_new_tile.side_effect = [
             ((Action.NAKI, Naki.CHAKAN), None),
@@ -56,6 +73,14 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.assertEqual(len(self.tile_stack.doras), 2)
 
     def test_chakan_chankan(self):
+        naki_tile = Tile(Suit.SOUZU.value, 5)
+        naki_tile.owner = self.player_1.seating_position
+        kan = Huro(Naki.ANKAN,
+                   naki_tile,
+                   [Tile(Suit.SOUZU.value, 5) for i in range(4)])
+
+        self.player_1.tmp_huro = kan
+
         self.player_1.action_with_new_tile = MagicMock()
         self.player_1.action_with_new_tile.side_effect = [
             ((Action.NAKI, Naki.CHAKAN), None),
@@ -67,6 +92,25 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.assertEqual(discard_pos, None)
 
     def test_ankan_twice(self):
+        naki_tile_1 = Tile(Suit.SOUZU.value, 5)
+        naki_tile_1.owner = self.player_1.seating_position
+        naki_tile_2 = Tile(Suit.SOUZU.value, 6)
+        naki_tile_2.owner = self.player_1.seating_position
+        kan_1 = Huro(Naki.ANKAN,
+                     naki_tile_1,
+                     [Tile(Suit.SOUZU.value, 5) for i in range(4)])
+        kan_2 = Huro(Naki.ANKAN,
+                     naki_tile_2,
+                     [Tile(Suit.SOUZU.value, 6) for i in range(4)])
+
+        self.player_1 = Mock()
+        self.player_1.seating_position = 0
+        self.player_1.get_shimocha = lambda : 1 % 4
+        self.player_1.kawa = []
+        self.player_1.add_kawa = lambda tile: self.player_1.kawa.append(tile)
+        p = PropertyMock(side_effect=[kan_1, kan_2])
+        type(self.player_1).tmp_huro = p
+
         self.player_1.action_with_new_tile = MagicMock()
         self.player_1.action_with_new_tile.side_effect = [
             ((Action.NAKI, Naki.ANKAN), None),
@@ -205,6 +249,13 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.assertEqual(self.turn.check_suukaikan(kabe), False)
 
     def test_rinshan_kaihou(self):
+        naki_tile = Tile(Suit.SOUZU.value, 5)
+        naki_tile.owner = self.player_1.seating_position
+        kan = Huro(Naki.ANKAN,
+                   naki_tile,
+                   [Tile(Suit.SOUZU.value, 5) for i in range(4)])
+
+        self.player_1.tmp_huro = kan
         self.player_1.action_with_new_tile = MagicMock()
         self.player_1.action_with_new_tile.side_effect = [
             ((Action.NAKI, Naki.ANKAN), None),
