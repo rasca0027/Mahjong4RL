@@ -192,6 +192,7 @@ class Player:
         if discard:
             print(f"The discarded tile is: | {new_tile} |")
         else:
+            print(f"Drawed tile is: | {new_tile} |")
             hand_tiles.append(new_tile)
         hand_representation = self.show_tiles(hand_tiles, discard)
         print(hand_representation)
@@ -244,10 +245,9 @@ class Player:
             hand_tiles.append(new_tile)
         hand_representation = self.show_tiles(hand_tiles, False)
 
-        discard = int(input(
-            f"""Please selected the tile you want to discard:
-            {hand_representation}"""
-        ))
+        print("Please selected the tile you want to discard:")
+        print(hand_representation)
+        discard = int(input("Discard tile No.: "))
 
         if discard < 0 or discard > len(hand_tiles) - 1:
             raise ValueError
