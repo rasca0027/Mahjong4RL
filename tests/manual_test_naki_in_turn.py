@@ -4,7 +4,7 @@ from typing import List
 
 from mahjong.kyoku import Kyoku, Turn
 from mahjong.player import Player
-from mahjong.components import Suit, Tile, Jihai
+from mahjong.components import Naki, Suit, Tile, Jihai, Huro
 
 
 def show_tiles(hand_tiles: List[Tile], discard: bool) -> str:
@@ -62,6 +62,15 @@ class TestPon(unittest.TestCase):
         state, discard_tile, discard_pos = turn.discard_flow(
             discard_tile, discard_pos)
 
+        pon_in_kabe = Huro(Naki.PON, pon_tile, [pon_tile, pon_tile, pon_tile])
+
+        # Raw input: 1, 2, 0, 0
+
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, to_discard_tile)
         self.assertEqual(discard_pos, self.players[1].seating_position)
+        self.assertEqual(
+            pon_in_kabe.naki_type, self.players[1].kabe[0].naki_type)
+        self.assertEqual(
+            pon_in_kabe.naki_tile, self.players[1].kabe[0].naki_tile)
+        self.assertEqual(pon_in_kabe.tiles, self.players[1].kabe[0].tiles)
