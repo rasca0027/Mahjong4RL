@@ -5,7 +5,6 @@ from typing import List
 from mahjong.kyoku import Kyoku, Turn
 from mahjong.player import Player
 from mahjong.components import Suit, Tile, Jihai
-from mahjong.helpers import convert_hand
 
 
 def show_tiles(hand_tiles: List[Tile], discard: bool) -> str:
@@ -46,8 +45,10 @@ class TestPon(unittest.TestCase):
         # change tile in hand to test pon
         pon_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
         pon_tile.owner = self.players[0].seating_position
+        to_discard_tile = Tile(Suit.JIHAI.value, Jihai.HAKU.value)
         self.current_kyoku.players[0].hand[pon_tile.index] = 1
         self.current_kyoku.players[1].hand[pon_tile.index] = 2
+        self.current_kyoku.players[1].hand[to_discard_tile.index] = 1
         self.current_kyoku.players[2].hand[pon_tile.index] = 0
         self.current_kyoku.players[3].hand[pon_tile.index] = 0
 
@@ -61,4 +62,6 @@ class TestPon(unittest.TestCase):
         state, discard_tile, discard_pos = turn.discard_flow(
             discard_tile, discard_pos)
 
-        print(f'returned value, state: {state}, {discard_tile}, {discard_pos}')
+        self.assertEqual(state, 0)
+        self.assertEqual(discard_tile, to_discard_tile)
+        self.assertEqual(discard_pos, self.players[1].seating_position)

@@ -201,12 +201,12 @@ class TestDaminkan(unittest.TestCase):
     def test_daminkan(self):
         discarded_tile = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
         self.assertEqual(
-            check_daminkan(self.player.hand, discarded_tile), [
+            check_daminkan(self.player.hand, discarded_tile), [[
                 discarded_tile,
                 Tile(Suit.JIHAI.value, Jihai.SHAA.value),
                 Tile(Suit.JIHAI.value, Jihai.SHAA.value),
                 Tile(Suit.JIHAI.value, Jihai.SHAA.value)
-            ]
+            ], ]
         )
 
     def test_no_daminkan(self):
@@ -226,16 +226,16 @@ class TestPon(unittest.TestCase):
         discard_shaa = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
         discard_hatsu = Tile(Suit.JIHAI.value, Jihai.HATSU.value)
         discard_haku = Tile(Suit.JIHAI.value, Jihai.HAKU.value)
-        self.assertEqual(check_pon(self.player.hand, discard_shaa), [
+        self.assertEqual(check_pon(self.player.hand, discard_shaa), [[
             discard_shaa,
             Tile(Suit.JIHAI.value, Jihai.SHAA.value),
             Tile(Suit.JIHAI.value, Jihai.SHAA.value)
-        ])
-        self.assertEqual(check_pon(self.player.hand, discard_hatsu), [
+        ], ])
+        self.assertEqual(check_pon(self.player.hand, discard_hatsu), [[
             discard_hatsu,
             Tile(Suit.JIHAI.value, Jihai.HATSU.value),
             Tile(Suit.JIHAI.value, Jihai.HATSU.value)
-        ])
+        ], ])
         self.assertEqual(check_pon(self.player.hand, discard_haku), [])
 
 
