@@ -133,7 +133,7 @@ def check_chakan(hand: DefaultDict[int, int], kabe: List[Huro], new_tile: Tile
 
 def check_daminkan(
     hand: DefaultDict[int, int], discarded_tile: Tile
-) -> List[Tile]:
+) -> List[List[Tile]]:
     """Helper function to check if discarded tile can
        form a tile grouping of four identical tiles with
        current hand
@@ -146,17 +146,19 @@ def check_daminkan(
     Returns:
         List of possible daminkan tiles for consistency
     """
+    possible_sets = []
     if hand[discarded_tile.index] == 3:
-        return [
+        possible_sets.append([
             discarded_tile,
             Tile.from_index(discarded_tile.index),
             Tile.from_index(discarded_tile.index),
-            Tile.from_index(discarded_tile.index)
-        ]
-    return []
+            Tile.from_index(discarded_tile.index)])
+    return possible_sets
 
 
-def check_pon(hand: DefaultDict[int, int], discarded_tile: Tile) -> List[Tile]:
+def check_pon(
+    hand: DefaultDict[int, int], discarded_tile: Tile
+) -> List[List[Tile]]:
     """Helper function to check if new tile can form a tile grouping of three
        identical tiles with current hand
 
@@ -169,13 +171,13 @@ def check_pon(hand: DefaultDict[int, int], discarded_tile: Tile) -> List[Tile]:
     """
     # TODO: 其實我不知道這樣寫是不是會影響到tile owner?
     # 是不是要看是哪一家捨牌
+    possible_sets = []
     if hand[discarded_tile.index] >= 2:
-        return [
+        possible_sets.append([
             discarded_tile,
             Tile.from_index(discarded_tile.index),
-            Tile.from_index(discarded_tile.index)
-        ]
-    return []
+            Tile.from_index(discarded_tile.index)])
+    return possible_sets
 
 
 def check_chii(hand: DefaultDict[int, int],
