@@ -192,7 +192,7 @@ class Player:
         if discard:
             print(f"The discarded tile is: | {new_tile} |")
         else:
-            print(f"Drawed tile is: | {new_tile} |")
+            print(f"Drawn tile is: | {new_tile} |")
             hand_tiles.append(new_tile)
         hand_representation = self.show_tiles(hand_tiles, discard)
         print(hand_representation)
