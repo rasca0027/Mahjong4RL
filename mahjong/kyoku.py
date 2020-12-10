@@ -83,7 +83,7 @@ class Turn:
 
         state = 0
         # TODO: add test when finish action_with_naki()
-        player.action_with_naki(naki)
+        kuikae_tiles = player.action_with_naki(naki)
         discard_pos = player.seating_position
         if naki == Naki.DAMINKAN:
             if self.check_suukaikan(player.kabe):
@@ -92,7 +92,7 @@ class Turn:
                 player, from_rinshan=True)
         elif naki in (Naki.CHII, Naki.PON):
             # TODO: add test when finish discard_after_naki()
-            discard_tile = player.discard_after_naki()
+            discard_tile = player.discard_after_naki(kuikae_tiles)
         else:
             # TODO: invalid action, raise error
             pass
