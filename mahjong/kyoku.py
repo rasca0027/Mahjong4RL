@@ -115,11 +115,10 @@ class Turn:
             for i in range(0, 4) if i != discard_pos
         ]
 
-        def sort_action(x):
-            return (
-                x[1][0].value,
-                x[1][1].value if x[1][1] else 0
-            )
+        def sort_action(naki_actions):
+            (action, naki) = naki_actions[1]
+            return (action.value, naki.value if naki else 0)
+
         pos, (action, naki) = sorted(
             naki_actions,
             key=sort_action,
