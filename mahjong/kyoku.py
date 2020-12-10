@@ -54,7 +54,8 @@ class Turn:
                 self.players[discarder.get_shimocha()])
         elif action == Action.NAKI:
             discarder.furiten_tiles_idx.add(discard_tile.index)
-            state, discard_tile, discard_pos = self.naki_flow(naki)
+            state, discard_tile, discard_pos = self.naki_flow(
+                self.players[player_pos], naki)
         elif action == Action.RON:
             self.winner.append(player_pos)
             state = 1

@@ -98,7 +98,7 @@ class Player:
         """
         self.tmp_huro = None
 
-        action_list = [(Action.NOACT, None, [])]
+        action_list = [(Action.NOACT, Naki.NONE, [])]
         if possible_kans := check_daminkan(self.hand, tile):
             action_list.append((Action.NAKI, Naki.DAMINKAN, possible_kans))
         if possible_pons := check_pon(self.hand, tile):
@@ -106,7 +106,11 @@ class Player:
         if possible_chiis := check_chii(self.hand, tile):
             action_list.append((Action.NAKI, Naki.CHII, possible_chiis))
 
-        action, naki = self.get_input(tile, action_list, True)
+        if action_list == [(Action.NOACT, Naki.NONE, [])]:
+            action = Action.NOACT
+            naki = Naki.NONE
+        else:
+            action, naki = self.get_input(tile, action_list, True)
 
         # set temporary and permanent furiten
         if action == Action.NOACT:
@@ -129,17 +133,21 @@ class Player:
           (action, naki): TSUMO/ANKAN/CHAKAN
           discard_tile: Tile
         """
-        action_list = [(Action.NOACT, None, [])]
+        action_list = [(Action.NOACT, Naki.NONE, [])]
         if first_turn and nine_yaochuus(self.hand, tile):
-            action_list.append((Action.RYUUKYOKU, None, []))
+            action_list.append((Action.RYUUKYOKU, Naki.NONE, []))
         if check_tsumo(self, tile):
-            action_list.append((Action.TSUMO, None, []))
+            action_list.append((Action.TSUMO, Naki.NONE, []))
         if possible_kans := check_ankan(self.hand, tile):
             action_list.append((Action.NAKI, Naki.ANKAN, possible_kans))
         if possible_kans := check_chakan(self.hand, self.kabe, tile):
             action_list.append((Action.NAKI, Naki.CHAKAN, possible_kans))
 
-        action, naki = self.get_input(tile, action_list, False)
+        if action_list == [(Action.NOACT, Naki.NONE, [])]:
+            action = Action.NOACT
+            naki = Naki.NONE
+        else:
+            action, naki = self.get_input(tile, action_list, False)
 
         if action == Action.TSUMO:
             self.agari_tile = tile
@@ -158,7 +166,7 @@ class Player:
         """
         # add tmp_huro to kabe
         self.kabe.append(self.tmp_huro)
-        self.remove_huro_tiles()
+        self.remove_huro_tiles(self.tmp_huro.naki_type)
         if naki != Naki.ANKAN:
             self.menzenchin = False
 
@@ -180,12 +188,16 @@ class Player:
 
         return kuikae_tiles
 
-    def remove_huro_tiles(self) -> None:
+    def remove_huro_tiles(self, naki_type: Naki) -> None:
         """Remove the called tiles from player's hand.
         """
         for tile in self.tmp_huro.tiles:
-            if tile != self.tmp_huro.naki_tile:
-                self.hand[tile.index] -= 1
+            if naki_type == Naki.PON:
+                self.hand[tile.index] -= 2
+                break
+            else:
+                if tile != self.tmp_huro.naki_tile:
+                    self.hand[tile.index] -= 1
 
     def discard_after_naki(self, kuikae_tiles: List[Tile]) -> Tile:
         discard = self.get_discard(kuikae_tiles=kuikae_tiles)
