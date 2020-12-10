@@ -286,7 +286,7 @@ class Kyoku:
         state, discard_tile, discard_pos = turn.draw_flow(self.oya_player)
         # Tenhoo
         while state == 0:
-            state, distard_tile, discard_pos = turn.discard_flow(
+            state, discard_tile, discard_pos = turn.discard_flow(
                 discard_tile, discard_pos)
 
         if state == -1:
