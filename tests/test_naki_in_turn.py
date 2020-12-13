@@ -1,5 +1,7 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
+
+import pyinputplus as pyinput
 
 from mahjong.kyoku import Kyoku, Turn
 from mahjong.player import Player
@@ -34,24 +36,24 @@ class TestPon(unittest.TestCase):
         self.current_kyoku.players[2].hand[pon_tile.index] = 0
         self.current_kyoku.players[3].hand[pon_tile.index] = 0
 
-        with patch('builtins.input') as mock_input:
-            mock_input.side_effect = [1, 2, 0, 0]
+        pyinput.inputNum = MagicMock(side_effect=[1, 0, 0])
+        pyinput.inputChoice = MagicMock(return_value=2)
 
-            turn = Turn(
-                self.current_kyoku.players, self.current_kyoku.tile_stack
-            )
+        turn = Turn(
+            self.current_kyoku.players, self.current_kyoku.tile_stack
+        )
 
-            mock_draw_flow = MagicMock(
-                return_value=(0, pon_tile, self.players[0].seating_position))
-            state, discard_tile, discard_pos = mock_draw_flow(
-                self.current_kyoku.oya_player)
+        mock_draw_flow = MagicMock(
+            return_value=(0, pon_tile, self.players[0].seating_position))
+        state, discard_tile, discard_pos = mock_draw_flow(
+            self.current_kyoku.oya_player)
 
-            state, discard_tile, discard_pos = turn.discard_flow(
-                discard_tile, discard_pos)
+        state, discard_tile, discard_pos = turn.discard_flow(
+            discard_tile, discard_pos)
 
-            pon_in_kabe = Huro(
-                Naki.PON, pon_tile, [pon_tile, pon_tile, pon_tile]
-            )
+        pon_in_kabe = Huro(
+            Naki.PON, pon_tile, [pon_tile, pon_tile, pon_tile]
+        )
 
         # Raw input: 1, 2, 0, 0
 
