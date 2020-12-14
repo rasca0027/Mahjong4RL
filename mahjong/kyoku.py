@@ -291,21 +291,22 @@ class Kyoku:
                 discard_tile, discard_pos)
 
         if state == -1:
-            # TODO: deal with Ryuukyoku
-            # nagashi mangan 流局滿貫
-            # if check_nagashi():
-            # return self.oya_player, 1
             # Ryuukyoku 流局
-            # else:
-            # 檢查流局是否聽牌
             tenpai_players = []
-            noten_players = []
-            for player in self.players:
-                if check_tenpai(player.hand, player.kabe):
-                    tenpai_players.append(player)
-                else:
-                    noten_players.append(player)
-            self.apply_noten_points(tenpai_players, noten_players)
+            if nagashi_player := self.check_nagashi_mangan():
+                # 這裡採用流局規則
+                self.winner = nagashi_player
+                self.apply_points(5, 20, True, None)
+                tenpai_players = [nagashi_player]
+            else:
+                # 檢查流局是否聽牌
+                noten_players = []
+                for player in self.players:
+                    if check_tenpai(player.hand, player.kabe):
+                        tenpai_players.append(player)
+                    else:
+                        noten_players.append(player)
+                self.apply_noten_points(tenpai_players, noten_players)
             if self.oya_player in tenpai_players:
                 return True, self.kyotaku, self.honba + 1
             else:
@@ -322,6 +323,20 @@ class Kyoku:
                 # return next oya, kyotaku, honba
                 return True, 0, self.honba + 1
             return False, 0, 0
+
+    def nagashi_mangan(self):  # 流し満貫
+        """All the discards are terminals and/or honors.
+        In addition, none of these discards were called by other players.
+        http://arcturus.su/wiki/Nagashi_mangan
+        """
+        honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
+        yaochuuhai = honor_tiles + terminal_tiles
+
+        for player in self.players:
+            if (all(map(lambda idx: Tile.from_index(idx) in yaochuuhai,
+                    player.furiten_tiles_idx))):
+                return player
+        return None
 
     def apply_noten_points(tenpai: List[Player], noten: List[Player]):
         if len(tenpai) == 1:

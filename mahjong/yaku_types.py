@@ -298,21 +298,6 @@ class JouKyouYaku(YakuTypes):
             return True
         return False
 
-    def nagashi_mangan(self):  # 流し満貫
-        """All the discards are terminals and/or honors.
-        In addition, none of these discards were called by other players.
-        http://arcturus.su/wiki/Nagashi_mangan
-        """
-        honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
-        yaochuuhai = honor_tiles + terminal_tiles
-
-        if (all(map(lambda idx: Tile.from_index(idx) in yaochuuhai,
-                    self.player.furiten_tiles_idx))):
-            self.total_yaku = "nagashi_mangan"
-            self.total_han = 5
-            return True
-        return False
-
 
 class TeYaku(YakuTypes):
     @property
