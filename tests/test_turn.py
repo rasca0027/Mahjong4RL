@@ -4,6 +4,7 @@ from unittest.mock import Mock, MagicMock, PropertyMock
 from mahjong.player import Player
 from mahjong.components import Stack, Tile, Action, Suit, Naki, Huro
 from mahjong.kyoku import Turn
+from mahjong.event_logger import KyokuLogger
 
 
 class TestTurnDrawFlow(unittest.TestCase):
@@ -16,12 +17,12 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()
-
+        self.logger = KyokuLogger()
         for player in self.players:
             for i in range(13):
                 player.hand[self.tile_stack.draw().index] += 1
 
-        self.turn = Turn(self.players, self.tile_stack)
+        self.turn = Turn(self.players, self.tile_stack, self.logger)
 
     def test_tsumo(self):
         self.player_1.action_with_new_tile = MagicMock(
@@ -105,7 +106,7 @@ class TestTurnDrawFlow(unittest.TestCase):
 
         self.player_1 = Mock()
         self.player_1.seating_position = 0
-        self.player_1.get_shimocha = lambda : 1 % 4
+        self.player_1.get_shimocha = lambda: 1 % 4
         self.player_1.kawa = []
         self.player_1.add_kawa = lambda tile: self.player_1.kawa.append(tile)
         p = PropertyMock(side_effect=[kan_1, kan_2])
@@ -276,12 +277,12 @@ class TestTurnEnsembleActions(unittest.TestCase):
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()
-
+        self.logger = KyokuLogger()
         for player in self.players:
             for i in range(13):
                 player.hand[self.tile_stack.draw().index] += 1
 
-        self.turn = Turn(self.players, self.tile_stack)
+        self.turn = Turn(self.players, self.tile_stack, self.logger)
 
     def test_all_noact(self):
         discard_player = self.player_1
@@ -409,12 +410,13 @@ class TestTurnKanFlow(unittest.TestCase):
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()
+        self.logger = KyokuLogger()
 
         for player in self.players:
             for i in range(13):
                 player.hand[self.tile_stack.draw().index] += 1
 
-        self.turn = Turn(self.players, self.tile_stack)
+        self.turn = Turn(self.players, self.tile_stack, self.logger)
 
     def test_kan_flow_no_act(self):
         kan_player = self.player_1
@@ -450,12 +452,12 @@ class TestTurnNakiFlow(unittest.TestCase):
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()
-
+        self.logger = KyokuLogger()
         for player in self.players:
             for i in range(13):
                 player.hand[self.tile_stack.draw().index] += 1
 
-        self.turn = Turn(self.players, self.tile_stack)
+        self.turn = Turn(self.players, self.tile_stack, self.logger)
 
     def test_daminkan(self):
         self.player_1.action_with_naki = MagicMock(return_value=None)
@@ -534,12 +536,13 @@ class TestTurnDiscardFlow(unittest.TestCase):
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
         self.tile_stack = Stack()
+        self.logger = KyokuLogger()
 
         for player in self.players:
             for i in range(13):
                 player.hand[self.tile_stack.draw().index] += 1
 
-        self.turn = Turn(self.players, self.tile_stack)
+        self.turn = Turn(self.players, self.tile_stack, self.logger)
 
     def test_all_noact(self):
         self.turn.ensemble_actions = MagicMock(

@@ -1,4 +1,4 @@
-from typing import Bool, List, Tuple, Optional
+from typing import List, Tuple, Optional
 
 from .player import Player
 from .components import Stack, Tile, Action, Huro, Naki, Jihai
@@ -22,7 +22,7 @@ class Turn:
         players: List[Player],
         stack: Stack,
         logger: KyokuLogger,
-        atamahane: Bool = True,
+        atamahane: bool = True,
     ) -> None:
         # TODO: make sure players are sorted by seating position
         self.players = players
@@ -209,7 +209,7 @@ class Turn:
         # Log Draw
         self.logger.log(
             p_pos=player.seating_position,
-            action=Action.Draw,
+            action=Action.DRAW,
             action_tile=new_tile,
         )
 
@@ -223,7 +223,6 @@ class Turn:
         if action == Action.NAKI:
             if naki in (Naki.ANKAN, Naki.CHAKAN):
                 player.action_with_naki(action)
-
                 ankan_huro = None
                 for h in player.kabe:
                     if h.tiles[0] == new_tile:
@@ -263,7 +262,7 @@ class Turn:
         # Discard the action tile
         if state == 0:
             self.logger.log(
-                p_pos=player.seating_pos,
+                p_pos=player.seating_position,
                 action=Action.DISCARD,
                 action_tile=action_tile,
             )
@@ -303,6 +302,7 @@ class Kyoku:
         self.kyotaku = kyotaku  # 供託
         self.bakaze = bakaze
         self.tile_stack = Stack()
+        self.logger = KyokuLogger()
 
         # Atamahane 「頭跳ね」 is more known as the "head bump" rule.
         # http://arcturus.su/wiki/Atamahane
@@ -351,7 +351,7 @@ class Kyoku:
         self.deal()
 
         # 莊家 oya draw flow
-        turn = Turn(self.players, self.tile_stack)
+        turn = Turn(self.players, self.tile_stack, self.logger)
         state, discard_tile, discard_pos = turn.draw_flow(self.oya_player)
         # Tenhoo
         while state == 0:

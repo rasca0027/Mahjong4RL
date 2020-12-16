@@ -40,7 +40,7 @@ class KyokuLogger:
         self.logger = []
 
     def log(self, **kwargs):
-        self.logger.append(ActionLog(kwargs))
+        self.logger.append(ActionLog(**kwargs))
 
     def __str__(self):
         return "\n".join(self.single_log.__str__)

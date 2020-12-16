@@ -1,6 +1,7 @@
 import copy
 from typing import DefaultDict, List, Tuple
 
+from .components import Tile, Suit
 from .naki_and_actions import check_remains_are_sets
 
 
