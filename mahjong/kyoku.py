@@ -291,23 +291,8 @@ class Kyoku:
                 discard_tile, discard_pos)
 
         if state == -1:
-            # Ryuukyoku 流局
-            tenpai_players = []
-            if nagashi_player := self.check_nagashi_mangan():
-                # 這裡採用流局規則
-                self.winner = nagashi_player
-                self.apply_points(5, 20, True, None)
-                tenpai_players = [nagashi_player]
-            else:
-                # 檢查流局是否聽牌
-                noten_players = []
-                for player in self.players:
-                    if check_tenpai(player.hand, player.kabe):
-                        tenpai_players.append(player)
-                    else:
-                        noten_players.append(player)
-                self.apply_noten_points(tenpai_players, noten_players)
-            if self.oya_player in tenpai_players:
+            renchen = self.ryuukyoku()
+            if renchen:
                 return True, self.kyotaku, self.honba + 1
             else:
                 return False, self.kyotaku, 0
@@ -324,10 +309,30 @@ class Kyoku:
                 return True, 0, self.honba + 1
             return False, 0, 0
 
-    def nagashi_mangan(self):  # 流し満貫
+    def ryuukyoku(self):  # 流局
+        tenpai_players = []
+        if nagashi_player := self.check_nagashi_mangan():
+            # 這裡採用流局滿貫不算和牌的規則
+            self.winner = nagashi_player
+            self.apply_points(5, 20, True, None)
+            tenpai_players = [nagashi_player]
+        else:
+            # 檢查流局是否聽牌
+            noten_players = []
+            for player in self.players:
+                if check_tenpai(player.hand, player.kabe):
+                    tenpai_players.append(player)
+                else:
+                    noten_players.append(player)
+            self.apply_noten_points(tenpai_players, noten_players)
+
+        return self.oya_player in tenpai_players
+
+    def check_nagashi_mangan(self):  # 流し満貫
         """All the discards are terminals and/or honors.
         In addition, none of these discards were called by other players.
         http://arcturus.su/wiki/Nagashi_mangan
+        Return: the nagashi mangan player, or None
         """
         honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
         yaochuuhai = honor_tiles + terminal_tiles

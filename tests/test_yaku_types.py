@@ -161,7 +161,7 @@ class TestJouKyouYaku(unittest.TestCase):
     def test_chiihou(self):  # 地和
         ...
 
-    def test_no_nagashi_mangan(self):  # 流し満貫
+    def nagashi_mangan(self):  # 流し満貫
         for i in range(2, 8):
             self.player.hand[Tile(Suit.PINZU.value, i).index] += 1
         self.player.hand[Tile(Suit.MANZU.value, 3).index] += 3
@@ -178,7 +178,7 @@ class TestJouKyouYaku(unittest.TestCase):
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, 0)
 
-    def test_nagashi_mangan(self):  # 流し満貫
+    def nagashi_mangan_2(self):  # 流し満貫
         for i in range(2, 8):
             self.player.hand[Tile(Suit.PINZU.value, i).index] += 1
         self.player.hand[Tile(Suit.MANZU.value, 3).index] += 3
