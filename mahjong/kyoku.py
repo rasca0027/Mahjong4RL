@@ -343,10 +343,9 @@ class Kyoku:
                 naki_tile_owners.add(huro.naki_tile.owner)
 
         for pos, player in enumerate(self.players):
-            if pos not in naki_tile_owners and (
-                    all(map(lambda idx: Tile.from_index(idx) in yaochuuhai,
-                    player.furiten_tiles_idx))
-            ):
+            if pos not in naki_tile_owners and (all(
+                    map(lambda idx: Tile.from_index(idx) in yaochuuhai,
+                        player.furiten_tiles_idx))):
                 return player
         return None
 
