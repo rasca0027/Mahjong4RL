@@ -337,9 +337,16 @@ class Kyoku:
         honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
         yaochuuhai = honor_tiles + terminal_tiles
 
+        naki_tile_owners = set()
         for player in self.players:
-            if (all(map(lambda idx: Tile.from_index(idx) in yaochuuhai,
-                    player.furiten_tiles_idx))):
+            for huro in player.kabe:
+                naki_tile_owners.add(huro.naki_tile.owner)
+
+        for pos, player in enumerate(self.players):
+            if pos not in naki_tile_owners and (
+                    all(map(lambda idx: Tile.from_index(idx) in yaochuuhai,
+                    player.furiten_tiles_idx))
+            ):
                 return player
         return None
 
