@@ -17,7 +17,7 @@ class ActionLog:
         return
 
     def __str__(self):
-        str_ = f"Player {self.p_pos} {self.action.value}"
+        str_ = f"Player {self.p_pos} {self.action.name}"
         if self.action == Action.RYUUKYOKU:
             return "Ryuukyoku"
 
@@ -27,20 +27,20 @@ class ActionLog:
             return str_
 
         if self.naki_type:
-            str_ += f" {self.naki_type}"
+            str_ += f" {self.naki_type.name}"
             if self.action_tile:
                 str_ += f" with {self.action_tile}"
             if self.huro:
                 str_ += f" forms {self.huro}"
-        return
+        return str_
 
 
 class KyokuLogger:
     def __init__(self):
-        self.logger = []
+        self.logs = []
 
     def log(self, **kwargs):
-        self.logger.append(ActionLog(**kwargs))
+        self.logs.append(ActionLog(**kwargs))
 
     def __str__(self):
-        return "\n".join(self.single_log.__str__)
+        return "\n".join(map(str, self.logs))

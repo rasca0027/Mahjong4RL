@@ -44,7 +44,8 @@ class Action(Enum):
     RON = 3
     TSUMO = 4
     DRAW = 5
-    DISCARD = 6
+    DRAW_RINSHAN = 6
+    DISCARD = 7
 
 
 class Tile:

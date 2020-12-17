@@ -207,9 +207,13 @@ class Turn:
 
         new_tile = self.stack.draw(from_rinshan)
         # Log Draw
+        if from_rinshan:
+            action = Action.DRAW_RINSHAN
+        else:
+            action = Action.DRAW
         self.logger.log(
             p_pos=player.seating_position,
-            action=Action.DRAW,
+            action=action,
             action_tile=new_tile,
         )
 
@@ -222,19 +226,14 @@ class Turn:
         discard_pos = None
         if action == Action.NAKI:
             if naki in (Naki.ANKAN, Naki.CHAKAN):
-                player.action_with_naki(action)
-                ankan_huro = None
-                for h in player.kabe:
-                    if h.tiles[0] == new_tile:
-                        ankan_huro = h
-
                 self.logger.log(
                     p_pos=player.seating_position,
                     action=action,
                     action_tile=new_tile,
                     naki_type=naki,
-                    huro=ankan_huro,
+                    huro=player.tmp_huro,
                 )
+                player.action_with_naki(action)
 
                 if kan_state := self.kan_flow(player, new_tile, naki):
                     return kan_state, action_tile, discard_pos
