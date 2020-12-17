@@ -1,6 +1,8 @@
 from typing import Tuple, List, Set, DefaultDict
 from collections import defaultdict
 
+import pyinputplus as pyinput
+
 from .utils import get_name
 from .helpers import nine_yaochuus, convert_hand
 from .components import Huro, Tile, Action, Jihai, Naki
@@ -233,32 +235,40 @@ class Player:
         options_str = ""
         naki_options_str = ""
         naki_huros = {}
+        naki_choices = []
         for act, naki, possible_huros in action_list:
             options_str += f"{act.value}: {act}\n"
             if act == Action.NAKI:
                 naki_options_str += f"{naki.value}: {naki}\n"
                 naki_huros[naki.value] = possible_huros
-        selected_action = int(input(
-            "Please select action using number:\n" + options_str
-        ))
-        if selected_action < 0 or selected_action > len(action_list) - 1:
-            raise ValueError
+                naki_choices.append(str(naki.value))
+
+        selected_action = pyinput.inputNum(
+            "Please select action using number:\n" + options_str,
+            min=0,
+            max=len(action_list) - 1
+        )
 
         if selected_action == 1:  # NAKI
-            selected_naki = int(input(
-                "Please select naki type using number:\n" + naki_options_str
+            selected_naki = int(pyinput.inputChoice(
+                naki_choices,
+                prompt=f"""Please select naki type using number:
+{naki_options_str}""",
+                blank=True
             ))
             possible_huro_opt = naki_huros[selected_naki]
             possible_huro_str = ""
             for i, huro in enumerate(possible_huro_opt):
-                huro_str = ",".join([str(h) for h in huro])
+                huro_str = ", ".join([str(h) for h in huro])
                 possible_huro_str += f"{i}: {huro_str}\n"
-            selected_huro = int(input(
+
+            selected_huro = pyinput.inputNum(
                 f"""Please select huro set using number:
-                {possible_huro_str}"""
-            ))
-            if selected_huro < 0 or selected_huro > len(possible_huro_opt) - 1:
-                raise ValueError
+{possible_huro_str}""",
+                min=0,
+                max=len(possible_huro_opt) - 1
+            )
+
             self.tmp_huro = Huro(
                 Naki(selected_naki),
                 new_tile,
@@ -290,11 +300,11 @@ class Player:
 
         print("Please selected the tile you want to discard:")
         print(hand_representation)
-        discard = int(input("Discard tile No.: "))
-
-        if discard < 0 or discard > len(hand_tiles) - 1:
-            raise ValueError
-
+        discard = pyinput.inputNum(
+            "Discard tile No.: ",
+            min=0,
+            max=len(hand_tiles) - 1
+        )
         return hand_tiles[discard]
 
     def show_tiles(self, hand_tiles: List[Tile], discard: bool) -> str:
