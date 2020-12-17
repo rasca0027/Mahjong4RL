@@ -1,8 +1,8 @@
 import copy
 from typing import DefaultDict, List, Tuple
 
-from .naki_and_actions import check_remains_are_sets
 from .components import Tile, Suit
+from .naki_and_actions import check_remains_are_sets
 
 
 def convert_hand(hand: DefaultDict[int, int]) -> List[Tile]:

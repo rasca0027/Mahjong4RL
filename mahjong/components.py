@@ -43,6 +43,9 @@ class Action(Enum):
     RIICHI = 2
     RON = 3
     TSUMO = 4
+    DRAW = 5
+    DRAW_RINSHAN = 6
+    DISCARD = 7
 
 
 class Tile:
@@ -236,6 +239,9 @@ class Huro:
     def tiles(self, tiles: List[Tile]):
         self._tiles = tiles
 
+    def __str__(self):
+        return "|".join(map(str, self.tiles))
+
     def add_kan(self, tile: Tile):
         # change type from PON to KAN
         if self.naki_type != Naki.PON:
@@ -245,3 +251,30 @@ class Huro:
             )
         self.naki_type = Naki.CHAKAN
         self._tiles.append(tile)
+
+    def check_naki_type(self, naki_str: str) -> bool:
+        """Check if the naki type is as the same as input
+        Arg:
+          naki_str: All naki actions including CHII, PON, DAMINKAN,
+            CHAKAN, ANKAN, [KAN]
+        Return:
+          is_same: True if it meets the criterion
+        """
+        if naki_str == "CHII":
+            return self.naki_type == Naki.CHII
+        elif naki_str == "PON":
+            return self.naki_type == Naki.PON
+        elif naki_str == "KAN":
+            return (
+                self.naki_type == Naki.DAMINKAN or
+                self.naki_type == Naki.CHAKAN or
+                self.naki_type == Naki.ANKAN
+            )
+        elif naki_str == "DAMINKAN":
+            return self.naki_type == Naki.DAMINKAN
+        elif naki_str == "CHAKAN":
+            return self.naki_type == Naki.CHAKAN
+        elif naki_str == "ANKAN":
+            return self.naki_type == Naki.ANKAN
+        else:
+            raise ValueError(f"{naki_str} not supported")

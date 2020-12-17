@@ -2,6 +2,7 @@ from typing import List, Tuple, Optional
 
 from .player import Player
 from .components import Stack, Tile, Action, Huro, Naki, Jihai
+from .event_logger import KyokuLogger
 from .utils import roundup
 from .naki_and_actions import check_tenpai
 
@@ -17,9 +18,11 @@ class Turn:
     the declaration of tsumo. see flowchart in README
     """
     def __init__(
-        self, players: List[Player],
+        self,
+        players: List[Player],
         stack: Stack,
-        atamahane=True
+        logger: KyokuLogger,
+        atamahane: bool = True,
     ) -> None:
         # TODO: make sure players are sorted by seating position
         self.players = players
@@ -28,6 +31,7 @@ class Turn:
         self.oya_draws = 0  # temporary
         self.atamahane = atamahane
         self.winner = []
+        self.logger = logger
 
     def discard_flow(
         self, discard_tile: Tile, discard_pos: int
@@ -47,20 +51,36 @@ class Turn:
         """
         state = 0
         discarder = self.players[discard_pos]
-        player_pos, (action, naki) = self.ensemble_actions(discard_tile,
-                                                           discard_pos)
+        player_pos, (action, naki) = self.ensemble_actions(
+            discard_tile, discard_pos)
+
         if action == Action.NOACT:
             state, discard_tile, discard_pos = self.draw_flow(
                 self.players[discarder.get_shimocha()])
         elif action == Action.NAKI:
+            # log Naki here
+            self.logger.log(
+                p_pos=player_pos,
+                action=action,
+                action_tile=discard_tile,
+                naki_type=naki,
+            )
+
             discarder.furiten_tiles_idx.add(discard_tile.index)
             state, discard_tile, discard_pos = self.naki_flow(
                 self.players[player_pos], naki)
         elif action == Action.RON:
+            # log Ron here
+            self.logger.log(
+                p_pos=player_pos,
+                action=action,
+                action_tile=discard_tile,
+            )
             self.winner.append(player_pos)
             state = 1
             discard_tile = None
             discard_pos = None
+
         # TODO: invalid action, raise error
 
         return state, discard_tile, discard_pos
@@ -94,6 +114,12 @@ class Turn:
         elif naki in (Naki.CHII, Naki.PON):
             # TODO: add test when finish discard_after_naki()
             discard_tile = player.discard_after_naki(kuikae_tiles)
+            # Log discard after naki
+            self.logger.log(
+                p_pos=discard_pos,
+                action=Action.DISCARD,
+                action_tile=discard_tile,
+            )
         else:
             # TODO: invalid action, raise error
             pass
@@ -151,6 +177,11 @@ class Turn:
             act = p.action_with_chakan(kan_tile, kan_type)
             if act == Action.RON:
                 self.winner.append(p.seating_position)
+                self.logger.log(
+                    p_pos=p.seating_position,
+                    action=act,
+                    action_tile=kan_tile,
+                )
         return 1 if self.winner else 0
 
     def draw_flow(
@@ -175,6 +206,17 @@ class Turn:
             self.first_turn = False
 
         new_tile = self.stack.draw(from_rinshan)
+        # Log Draw
+        if from_rinshan:
+            action = Action.DRAW_RINSHAN
+        else:
+            action = Action.DRAW
+        self.logger.log(
+            p_pos=player.seating_position,
+            action=action,
+            action_tile=new_tile,
+        )
+
         new_tile.owner = player.seating_position
         player.tmp_furiten = False
         (action, naki), action_tile = player.action_with_new_tile(
@@ -184,21 +226,45 @@ class Turn:
         discard_pos = None
         if action == Action.NAKI:
             if naki in (Naki.ANKAN, Naki.CHAKAN):
+                self.logger.log(
+                    p_pos=player.seating_position,
+                    action=action,
+                    action_tile=new_tile,
+                    naki_type=naki,
+                    huro=player.tmp_huro,
+                )
                 player.action_with_naki(action)
+
                 if kan_state := self.kan_flow(player, new_tile, naki):
                     return kan_state, action_tile, discard_pos
                 if self.check_suukaikan(player.kabe):
                     return -1, action_tile, discard_pos
-            state, action_tile, discard_pos = self.draw_flow(player,
-                                                             from_rinshan=True)
+            state, action_tile, discard_pos = self.draw_flow(
+                player, from_rinshan=True)
+
         elif action == Action.RYUUKYOKU:
+            self.logger.log(
+                p_pos=player.seating_position,
+                action=action,
+            )
             return -1, action_tile, discard_pos
         elif action == Action.TSUMO:
+            self.logger.log(
+                p_pos=player.seating_position,
+                action=action,
+                action_tile=new_tile,
+            )
             self.winner.append(player)
             return 1, action_tile, discard_pos
         # TODO: invalid action, raise error
 
+        # Discard the action tile
         if state == 0:
+            self.logger.log(
+                p_pos=player.seating_position,
+                action=Action.DISCARD,
+                action_tile=action_tile,
+            )
             player.add_kawa(action_tile)
             discard_pos = player.seating_position
 
@@ -235,6 +301,7 @@ class Kyoku:
         self.kyotaku = kyotaku  # 供託
         self.bakaze = bakaze
         self.tile_stack = Stack()
+        self.logger = KyokuLogger()
 
         # Atamahane 「頭跳ね」 is more known as the "head bump" rule.
         # http://arcturus.su/wiki/Atamahane
@@ -283,7 +350,7 @@ class Kyoku:
         self.deal()
 
         # 莊家 oya draw flow
-        turn = Turn(self.players, self.tile_stack)
+        turn = Turn(self.players, self.tile_stack, self.logger)
         state, discard_tile, discard_pos = turn.draw_flow(self.oya_player)
         # Tenhoo
         while state == 0:
