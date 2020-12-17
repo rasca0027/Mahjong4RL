@@ -161,40 +161,6 @@ class TestJouKyouYaku(unittest.TestCase):
     def test_chiihou(self):  # 地和
         ...
 
-    def test_no_nagashi_mangan(self):  # 流し満貫
-        for i in range(2, 8):
-            self.player.hand[Tile(Suit.PINZU.value, i).index] += 1
-        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 3
-        self.player.hand[Tile(Suit.MANZU.value, 9).index] += 2
-        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 2
-
-        self.player.furiten_tiles_idx.add(Tile(Suit.MANZU.value, 5).index)
-        self.player.furiten_tiles_idx.add(Tile(Suit.SOUZU.value, 9).index)
-        self.player.furiten_tiles_idx.add(
-            Tile(Suit.JIHAI.value, Jihai.CHUN.value).index)
-
-        yaku_types = JouKyouYaku(self.player, self.stack, self.bakaze, True)
-        self.assertEqual(yaku_types.nagashi_mangan(), False)
-        self.assertEqual(yaku_types.total_yaku, [])
-        self.assertEqual(yaku_types.total_han, 0)
-
-    def test_nagashi_mangan(self):  # 流し満貫
-        for i in range(2, 8):
-            self.player.hand[Tile(Suit.PINZU.value, i).index] += 1
-        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 3
-        self.player.hand[Tile(Suit.MANZU.value, 9).index] += 2
-        self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 2
-
-        self.player.furiten_tiles_idx.add(Tile(Suit.MANZU.value, 1).index)
-        self.player.furiten_tiles_idx.add(Tile(Suit.SOUZU.value, 9).index)
-        self.player.furiten_tiles_idx.add(
-            Tile(Suit.JIHAI.value, Jihai.CHUN.value).index)
-
-        yaku_types = JouKyouYaku(self.player, self.stack, self.bakaze, True)
-        self.assertEqual(yaku_types.nagashi_mangan(), True)
-        self.assertEqual(yaku_types.total_yaku, ['nagashi_mangan'])
-        self.assertEqual(yaku_types.total_han, 5)
-
 
 class TestTeYaku(unittest.TestCase):
 
