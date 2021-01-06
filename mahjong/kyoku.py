@@ -3,6 +3,7 @@ from typing import List, Tuple, Optional
 from .player import Player
 from .components import Stack, Tile, Action, Huro, Naki, Jihai
 from .event_logger import KyokuLogger
+from .helpers import get_atamahane_winner
 from .utils import roundup
 from .naki_and_actions import check_tenpai
 
@@ -30,7 +31,7 @@ class Turn:
         self.first_turn = True
         self.oya_draws = 0  # temporary
         self.atamahane = atamahane
-        self.winner = []
+        self.winners = []
         self.logger = logger
 
     def discard_flow(
@@ -127,18 +128,6 @@ class Turn:
 
         return state, discard_tile, discard_pos, Action.NOACT
 
-    def get_atamahane_winner(self, discard_pos: int, ron_players: List[int]):
-        """This function determines the actual winner according to order of
-        seating closest to discarder.
-        Return:
-            winner_pos: List[int]
-        """
-        seats = [x + 4 for x in ron_players]
-        winner_pos = min[seats]
-        if winner_pos >= 4:
-            winner_pos -= 4
-        return [winner_pos]
-
     def ensemble_actions(
         self, discard_tile: Tile, discard_pos: int
     ) -> Tuple[bool, int, Action]:
@@ -167,16 +156,13 @@ class Turn:
         if action == Action.RON:
             ron_players = [i[0] for i in naki_actions if i[1][0] == Action.RON]
             if self.atamahane:
-                self.winner = self.get_atamahane_winner(
-                    discard_pos,
-                    ron_players
-                )
+                self.winners = get_atamahane_winner(discard_pos, ron_players)
             else:
                 if len(ron_players) >= 3:
                     return -1, (Action.RYUUKYOKU, None)
-                self.winner = ron_players
+                self.winners = ron_players
         elif action == Action.TSUMO:
-            self.winner = [pos]
+            self.winners = [pos]
 
         return pos, (action, naki)
 
@@ -203,7 +189,7 @@ class Turn:
                     action=act,
                     action_tile=kan_tile,
                 )
-                self.winner = [p]
+                self.winners = [p]
                 return 1, kan_tile, kan_player.seating_position, act
         return 0
 
@@ -317,7 +303,7 @@ class Kyoku:
         kyotaku: int,
         atamahane: Optional[bool] = True,
     ):
-        self.winner: List[Player] = []
+        self.winners: List[Player] = []
         self.players: List[Player] = players
         self.oya_player: Player = self.get_oya_player()
         self.honba: int = honba
@@ -390,10 +376,10 @@ class Kyoku:
         else:
             tsumo = act == Action.TSUMO
             loser = self.players[discard_pos]
-            self.winner = [self.players[pos] for pos in turn.winner]
+            self.winners = [self.players[pos] for pos in turn.winners]
             han, fu = self.calculate_yaku()
             self.apply_points(han, fu, tsumo, loser)
-            if self.oya_player in self.winner:
+            if self.oya_player in self.winners:
                 # return next oya, kyotaku, honba
                 return True, 0, self.honba + 1
             return False, 0, 0
@@ -401,9 +387,9 @@ class Kyoku:
     def ryuukyoku(self):  # 流局
         tenpai_players = []
         if nagashi_player := self.check_nagashi_mangan():
-            # 這裡採用流局滿貫不算和牌的規則
-            self.winner = [nagashi_player]
-            self.apply_points(5, 20, True, None)
+            # 這裡採用流局滿貫不算和牌的規則，差別在本場和供託
+            self.winners = [nagashi_player]
+            self.apply_points(5, 20, True, None, True)
             tenpai_players = [nagashi_player]
         else:
             # 檢查流局是否聽牌
@@ -472,31 +458,42 @@ class Kyoku:
                      han: int,
                      fu: int,
                      tsumo: bool,
-                     loser: Optional[Player] = None):
+                     loser: Optional[Player] = None,
+                     ryuukyoku: bool = False) -> None:
         pt = self.calculate_base_points(han, fu)
-        # TODO: only handle atamahane for now
-        if self.winner == self.oya_player:
-            if tsumo:
-                self.winner.points += roundup(pt * 2) * 3 + 300 * self.honba
-                for i in range(1, 4):  # TODO: should be 0 ~ 3
-                    self.players[i].points -= roundup(pt * 2) + \
-                        100 * self.honba
-            else:
-                self.winner.points += roundup(pt * 6) + 300 * self.honba
-                loser.points -= roundup(pt * 6) + 300 * self.honba
-        else:  # 子家
-            if tsumo:
+        discard_pos = loser.seating_position if loser else None
+        atamahane_winner = get_atamahane_winner(discard_pos, self.winners)
+
+        if tsumo:
+            winner = self.winners[0]
+            if winner == self.oya_player:
+                winner.points += roundup(pt * 2) * 3 + 300 * self.honba
+                for i in range(4):
+                    if self.players[i] != self.oya_player:
+                        self.players[i].points -= roundup(pt * 2)
+                        + 100 * self.honba
+            else:  # 子家
                 self.oya_player.points -= roundup(pt * 2) + 100 * self.honba
                 tmp_pt = roundup(pt * 2) + 100 * self.honba
-                for i in range(1, 4):  # TODO: should be 0 ~ 3
-                    if self.players[i] != self.winner:
-                        self.players[i].points -= roundup(pt) + \
-                            100 * self.honba
+                for i in range(4):
+                    if self.players[i] != self.winner and self.players[
+                            i] != self.oya_player:
+                        self.players[i].points -= roundup(pt)
+                        + 100 * self.honba
                         tmp_pt += roundup(pt) + 100 * self.honba
                 self.winner.points += tmp_pt
-            else:
-                self.winner.points += roundup(pt * 4) + 300 * self.honba
-                loser.points -= roundup(pt * 4) + 300 * self.honba
-        if self.kyotaku > 0:
-            self.winner.points += self.kyotaku * 1_000
+        else:  # ron
+            for winner in self.winners:
+                if winner == self.oya_player:
+                    winner.points += roundup(pt * 6)
+                    loser.points -= roundup(pt * 6)
+                else:  # 子家
+                    winner.points += roundup(pt * 4)
+                    loser.points -= roundup(pt * 4)
+            if not ryuukyoku:
+                atamahane_winner.points += 300 * self.honba
+                loser.points -= 300 * self.honba
+
+        if not ryuukyoku and self.kyotaku > 0:
+            atamahane_winner.points += self.kyotaku * 1_000
         return

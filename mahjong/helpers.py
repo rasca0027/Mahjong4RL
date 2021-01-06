@@ -139,3 +139,18 @@ def is_pon(tile_set: List[Tile]) -> bool:
     if len(tile_set) != 3:
         return False
     return tile_set[0] == tile_set[1] == tile_set[2]
+
+
+def get_atamahane_winner(discard_pos: int, winners: List[int]):
+    """This function determines the actual winner according to order of
+    seating closest to discarder.
+    Return:
+        winner_pos: List[int]
+    """
+    if not discard_pos:
+        return [winners[0]]
+    seats = [x + 4 for x in winners]
+    winner_pos = min[seats]
+    if winner_pos >= 4:
+        winner_pos -= 4
+    return [winner_pos]
