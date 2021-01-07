@@ -56,7 +56,7 @@ class Turn:
             discard_tile, discard_pos)
 
         if action == Action.NOACT:
-            state, discard_tile, discard_pos = self.draw_flow(
+            state, discard_tile, discard_pos, action = self.draw_flow(
                 self.players[discarder.get_shimocha()])
 
         elif action == Action.NAKI:
@@ -69,7 +69,7 @@ class Turn:
             )
 
             discarder.furiten_tiles_idx.add(discard_tile.index)
-            state, discard_tile, discard_pos = self.naki_flow(
+            state, discard_tile, discard_pos, act = self.naki_flow(
                 self.players[player_pos], naki)
 
         elif action == Action.RON:
@@ -156,7 +156,8 @@ class Turn:
         if action == Action.RON:
             ron_players = [i[0] for i in naki_actions if i[1][0] == Action.RON]
             if self.atamahane:
-                self.winners = get_atamahane_winner(discard_pos, ron_players)
+                self.winners = [
+                    get_atamahane_winner(discard_pos, ron_players)]
             else:
                 if len(ron_players) >= 3:
                     return -1, (Action.RYUUKYOKU, None)
@@ -189,8 +190,9 @@ class Turn:
                     action=act,
                     action_tile=kan_tile,
                 )
-                self.winners = [p]
-                return 1, kan_tile, kan_player.seating_position, act
+                self.winners.append(p.seating_position)
+        if len(self.winners) > 0:
+            return 1, kan_tile, kan_player.seating_position, act
         return 0
 
     def draw_flow(
@@ -249,7 +251,7 @@ class Turn:
                     return kan_state, action_tile, discard_pos
                 if self.check_suukaikan(player.kabe):
                     return -1, action_tile, discard_pos
-            state, action_tile, discard_pos = self.draw_flow(
+            state, action_tile, discard_pos, act = self.draw_flow(
                 player, from_rinshan=True)
 
         elif action == Action.RYUUKYOKU:
@@ -367,7 +369,7 @@ class Kyoku:
                 discard_tile, discard_pos)
 
         if state == -1:
-            renchen = self.ryuukyoku()
+            renchen = self.handle_ryuukyoku()
             if renchen:
                 return True, self.kyotaku, self.honba + 1
             else:
@@ -384,7 +386,7 @@ class Kyoku:
                 return True, 0, self.honba + 1
             return False, 0, 0
 
-    def ryuukyoku(self):  # 流局
+    def handle_ryuukyoku(self):  # 流局
         tenpai_players = []
         if nagashi_player := self.check_nagashi_mangan():
             # 這裡採用流局滿貫不算和牌的規則，差別在本場和供託
@@ -462,7 +464,9 @@ class Kyoku:
                      ryuukyoku: bool = False) -> None:
         pt = self.calculate_base_points(han, fu)
         discard_pos = loser.seating_position if loser else None
-        atamahane_winner = get_atamahane_winner(discard_pos, self.winners)
+        winners_pos = [p.seating_position for p in self.winners]
+        atamahane_winner_pos = get_atamahane_winner(discard_pos, winners_pos)
+        atamahane_winner = self.players[atamahane_winner_pos]
 
         if tsumo:
             winner = self.winners[0]
@@ -476,12 +480,12 @@ class Kyoku:
                 self.oya_player.points -= roundup(pt * 2) + 100 * self.honba
                 tmp_pt = roundup(pt * 2) + 100 * self.honba
                 for i in range(4):
-                    if self.players[i] != self.winner and self.players[
+                    if self.players[i] != winner and self.players[
                             i] != self.oya_player:
                         self.players[i].points -= roundup(pt)
                         + 100 * self.honba
                         tmp_pt += roundup(pt) + 100 * self.honba
-                self.winner.points += tmp_pt
+                winner.points += tmp_pt
         else:  # ron
             for winner in self.winners:
                 if winner == self.oya_player:

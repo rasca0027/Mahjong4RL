@@ -52,7 +52,7 @@ class TestPon(unittest.TestCase):
         state, discard_tile, discard_pos = mock_draw_flow(
             self.current_kyoku.oya_player)
 
-        state, discard_tile, discard_pos = turn.discard_flow(
+        state, discard_tile, discard_pos, act = turn.discard_flow(
             discard_tile, discard_pos)
 
         pon_in_kabe = Huro(

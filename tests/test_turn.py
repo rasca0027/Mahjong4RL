@@ -27,7 +27,10 @@ class TestTurnDrawFlow(unittest.TestCase):
     def test_tsumo(self):
         self.player_1.action_with_new_tile = MagicMock(
             return_value=((Action.TSUMO, Naki.NONE), None))
-        self.assertEqual(self.turn.draw_flow(self.player_1), (1, None, None))
+        self.assertEqual(
+            self.turn.draw_flow(self.player_1),
+            (1, None, None, Action.TSUMO)
+        )
 
     def test_ankan(self):
         naki_tile = Tile(Suit.SOUZU.value, 5)
@@ -44,7 +47,8 @@ class TestTurnDrawFlow(unittest.TestCase):
             ((Action.NOACT, Naki.NONE), Tile(0, 1))]
         self.turn.kan_flow = MagicMock(return_value=0)
 
-        state, discard_tile, discard_pos = self.turn.draw_flow(self.player_1)
+        state, discard_tile, discard_pos, act = self.turn.draw_flow(
+            self.player_1)
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
         self.assertEqual(discard_pos, 0)
@@ -66,7 +70,8 @@ class TestTurnDrawFlow(unittest.TestCase):
             ((Action.NAKI, Naki.CHAKAN), None),
             ((Action.NOACT, Naki.NONE), Tile(0, 1))]
         self.turn.kan_flow = MagicMock(return_value=0)
-        state, discard_tile, discard_pos = self.turn.draw_flow(self.player_1)
+        state, discard_tile, discard_pos, act = self.turn.draw_flow(
+            self.player_1)
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
         self.assertEqual(discard_pos, 0)
@@ -117,7 +122,8 @@ class TestTurnDrawFlow(unittest.TestCase):
             ((Action.NAKI, Naki.ANKAN), None),
             ((Action.NAKI, Naki.ANKAN), None),
             ((Action.NOACT, Naki.NONE), Tile(0, 1))]
-        state, discard_tile, discard_pos = self.turn.draw_flow(self.player_1)
+        state, discard_tile, discard_pos, act = self.turn.draw_flow(
+            self.player_1)
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
         self.assertEqual(discard_pos, 0)
@@ -182,7 +188,8 @@ class TestTurnDrawFlow(unittest.TestCase):
         def m(_):
             self.player_1.kabe.append(kan_4)
         self.player_1.action_with_naki.side_effect = m
-        state, discard_tile, discard_pos = self.turn.draw_flow(self.player_1)
+        state, discard_tile, discard_pos, act = self.turn.draw_flow(
+            self.player_1)
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
         self.assertEqual(discard_pos, 0)
@@ -261,7 +268,8 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.player_1.action_with_new_tile.side_effect = [
             ((Action.NAKI, Naki.ANKAN), None),
             ((Action.TSUMO, Naki.NONE), None)]
-        state, discard_tile, discard_pos = self.turn.draw_flow(self.player_1)
+        state, discard_tile, discard_pos, act = self.turn.draw_flow(
+            self.player_1)
         self.assertEqual(state, 1)
         self.assertEqual(discard_tile, None)
         self.assertEqual(discard_pos, None)
@@ -397,7 +405,7 @@ class TestTurnEnsembleActions(unittest.TestCase):
         self.assertEqual(pos, 2)
         self.assertEqual(action, Action.RON)
         self.assertEqual(naki, Naki.NONE)
-        self.assertEqual(self.turn.winner, [2, 3])
+        self.assertEqual(self.turn.winners, [2, 3])
 
 
 class TestTurnKanFlow(unittest.TestCase):
@@ -437,9 +445,9 @@ class TestTurnKanFlow(unittest.TestCase):
         self.player_3.action_with_chakan = MagicMock(return_value=Action.NOACT)
         self.player_4.action_with_chakan = MagicMock(return_value=Action.RON)
 
-        state = self.turn.kan_flow(kan_player, kan_tile, kan_type)
+        state, t, pos, act = self.turn.kan_flow(kan_player, kan_tile, kan_type)
         self.assertEqual(state, 1)
-        self.assertEqual(self.turn.winner, [1, 3])
+        self.assertEqual(self.turn.winners, [1, 3])
 
 
 class TestTurnNakiFlow(unittest.TestCase):
@@ -462,7 +470,7 @@ class TestTurnNakiFlow(unittest.TestCase):
     def test_daminkan(self):
         self.player_1.action_with_naki = MagicMock(return_value=None)
         self.turn.draw_flow = MagicMock(return_value=(0, Tile(0, 1), 0))
-        state, discard_tile, discard_pos = self.turn.naki_flow(
+        state, discard_tile, discard_pos, act = self.turn.naki_flow(
             self.player_1, Naki.DAMINKAN)
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
@@ -473,7 +481,7 @@ class TestTurnNakiFlow(unittest.TestCase):
         for _ in range(3):
             self.tile_stack.add_dora_indicator()
         self.player_1.action_with_naki = MagicMock(return_value=None)
-        state, discard_tile = self.turn.naki_flow(
+        state, discard_tile, pos, act = self.turn.naki_flow(
             self.player_1, Naki.DAMINKAN)
 
         self.assertEqual(state, -1)
@@ -509,7 +517,7 @@ class TestTurnNakiFlow(unittest.TestCase):
         self.player_1.action_with_naki = MagicMock(
             self.player_1.kabe.append(kan_4))
         self.turn.draw_flow = MagicMock(return_value=(0, Tile(0, 1), 0))
-        state, discard_tile, discard_pos = self.turn.naki_flow(
+        state, discard_tile, discard_pos, act = self.turn.naki_flow(
             self.player_1, Naki.DAMINKAN)
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
@@ -519,7 +527,7 @@ class TestTurnNakiFlow(unittest.TestCase):
     def test_chii(self):
         self.player_1.action_with_naki = MagicMock(return_value=None)
         self.player_1.discard_after_naki = MagicMock(return_value=Tile(0, 1))
-        state, discard_tile, discard_pos = self.turn.naki_flow(
+        state, discard_tile, discard_pos, act = self.turn.naki_flow(
             self.player_1, Naki.CHII)
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, Tile(0, 1))
@@ -547,8 +555,9 @@ class TestTurnDiscardFlow(unittest.TestCase):
     def test_all_noact(self):
         self.turn.ensemble_actions = MagicMock(
             return_value=(2, (Action.NOACT, Naki.NONE)))
-        self.turn.draw_flow = MagicMock(return_value=(0, Tile(0, 1), 0))
-        state, discard_tile, discard_pos = self.turn.discard_flow(
+        self.turn.draw_flow = MagicMock(return_value=(
+            0, Tile(0, 1), 0, Action.NOACT))
+        state, discard_tile, discard_pos, act = self.turn.discard_flow(
             Tile(0, 2),
             self.player_1.seating_position)
         self.assertEqual(state, 0)
@@ -558,8 +567,9 @@ class TestTurnDiscardFlow(unittest.TestCase):
     def test_all_noact_then_tsumo(self):
         self.turn.ensemble_actions = MagicMock(
             return_value=(2, (Action.NOACT, Naki.NONE)))
-        self.turn.draw_flow = MagicMock(return_value=(1, None, None))
-        state, discard_tile, discard_pos = self.turn.discard_flow(
+        self.turn.draw_flow = MagicMock(return_value=(
+            1, None, None, Action.TSUMO))
+        state, discard_tile, discard_pos, act = self.turn.discard_flow(
             Tile(0, 2),
             self.player_1.seating_position)
         self.assertEqual(state, 1)
@@ -569,8 +579,9 @@ class TestTurnDiscardFlow(unittest.TestCase):
     def test_call_naki(self):
         self.turn.ensemble_actions = MagicMock(
             return_value=(2, (Action.NAKI, Naki.CHII)))
-        self.turn.naki_flow = MagicMock(return_value=(0, Tile(0, 1), 2))
-        state, discard_tile, discard_pos = self.turn.discard_flow(
+        self.turn.naki_flow = MagicMock(return_value=(
+            0, Tile(0, 1), 2, Action.NAKI))
+        state, discard_tile, discard_pos, act = self.turn.discard_flow(
             Tile(1, 1),
             self.player_1.seating_position)
         self.assertEqual(state, 0)
@@ -580,7 +591,7 @@ class TestTurnDiscardFlow(unittest.TestCase):
     def test_ron(self):
         self.turn.ensemble_actions = MagicMock(
             return_value=(2, (Action.RON, Naki.NONE)))
-        state, discard_tile, discard_pos = self.turn.discard_flow(
+        state, discard_tile, discard_pos, act = self.turn.discard_flow(
             Tile(1, 1),
             self.player_1.seating_position)
         self.assertEqual(state, 1)

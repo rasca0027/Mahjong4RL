@@ -148,9 +148,9 @@ def get_atamahane_winner(discard_pos: int, winners: List[int]):
         winner_pos: List[int]
     """
     if not discard_pos:
-        return [winners[0]]
+        return winners[0]
     seats = [x + 4 for x in winners]
-    winner_pos = min[seats]
+    winner_pos = min(seats)
     if winner_pos >= 4:
         winner_pos -= 4
-    return [winner_pos]
+    return winner_pos

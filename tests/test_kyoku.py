@@ -23,7 +23,7 @@ class TestTurnDrawFlow(unittest.TestCase):
         )
 
     def test_att(self):
-        self.assertEqual(self.kyoku.winner, [])
+        self.assertEqual(self.kyoku.winners, [])
         self.assertEqual(self.kyoku.players, self.players)
         self.assertEqual(self.kyoku.oya_player, self.player_1)
         self.assertEqual(self.kyoku.honba, 0)
