@@ -141,15 +141,22 @@ def is_pon(tile_set: List[Tile]) -> bool:
     return tile_set[0] == tile_set[1] == tile_set[2]
 
 
-def get_atamahane_winner(discard_pos: int, winners: List[int]):
+def get_atamahane_winner(houjuu_pos: int, winners: List[int]) -> int:
     """This function determines the actual winner according to order of
     seating closest to discarder.
+    Args:
+        houjuu_pos (放銃):
+            position of the player who discarded the tile that becomes
+            another player's winning tile
+        winners:
+            List of winning players' seating posotion
     Return:
-        winner_pos: List[int]
+        winner_pos: int
     """
-    if not discard_pos:
+    if not houjuu_pos:
         return winners[0]
-    seats = [x + 4 for x in winners]
+
+    seats = [x + 4 if x < houjuu_pos else x for x in winners]
     winner_pos = min(seats)
     if winner_pos >= 4:
         winner_pos -= 4
