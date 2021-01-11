@@ -54,8 +54,8 @@ class TestPoints(unittest.TestCase):
         self.kyoku.apply_points(4, 25, True)
         self.assertEqual(self.player_1.points, 21_700)
         self.assertEqual(self.player_2.points, 31_700)
-        self.assertEqual(self.player_3.points, 23_400)
-        self.assertEqual(self.player_4.points, 23_400)
+        self.assertEqual(self.player_3.points, 23_300)
+        self.assertEqual(self.player_4.points, 23_300)
 
     def test_tsumo_with_kyotaku(self):
         self.kyoku.winners = [self.player_1]

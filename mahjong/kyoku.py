@@ -477,13 +477,12 @@ class Kyoku:
                         self.players[i].points -= roundup(pt * 2)
                         + 100 * self.honba
             else:  # 子家
-                self.oya_player.points -= roundup(pt * 2) + 100 * self.honba
                 tmp_pt = roundup(pt * 2) + 100 * self.honba
-                for i in range(4):
-                    if self.players[i] != winner and self.players[
-                            i] != self.oya_player:
-                        self.players[i].points -= roundup(pt)
-                        + 100 * self.honba
+                for player in self.players:
+                    if player == self.oya_player:
+                        player.points -= roundup(pt * 2) + 100 * self.honba
+                    elif player != winner:
+                        player.points -= roundup(pt) + 100 * self.honba
                         tmp_pt += roundup(pt) + 100 * self.honba
                 winner.points += tmp_pt
         else:  # ron
