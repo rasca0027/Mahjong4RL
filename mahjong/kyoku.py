@@ -31,7 +31,7 @@ class Turn:
         self.first_turn = True
         self.oya_draws = 0  # temporary
         self.atamahane = atamahane
-        self.winners = []
+        self.winners_pos = []
         self.logger = logger
 
     def discard_flow(
@@ -156,14 +156,14 @@ class Turn:
         if action == Action.RON:
             ron_players = [i[0] for i in naki_actions if i[1][0] == Action.RON]
             if self.atamahane:
-                self.winners = [
+                self.winners_pos = [
                     get_atamahane_winner(discard_pos, ron_players)]
             else:
                 if len(ron_players) >= 3:
                     return -1, (Action.RYUUKYOKU, None)
-                self.winners = ron_players
+                self.winners_pos = ron_players
         elif action == Action.TSUMO:
-            self.winners = [pos]
+            self.winners_pos = [pos]
 
         return pos, (action, naki)
 
@@ -190,8 +190,8 @@ class Turn:
                     action=act,
                     action_tile=kan_tile,
                 )
-                self.winners.append(p.seating_position)
-        if len(self.winners) > 0:
+                self.winners_pos.append(p.seating_position)
+        if len(self.winners_pos) > 0:
             return 1, kan_tile, kan_player.seating_position, act
         return 0
 
@@ -377,7 +377,9 @@ class Kyoku:
 
         else:
             tsumo = act == Action.TSUMO
-            loser = self.players[discard_pos]
+            loser = None
+            if discard_pos:
+                loser = self.players[discard_pos]
             self.winners = [self.players[pos] for pos in turn.winners]
             han, fu = self.calculate_yaku()
             self.apply_points(han, fu, tsumo, loser)

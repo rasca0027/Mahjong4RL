@@ -405,7 +405,7 @@ class TestTurnEnsembleActions(unittest.TestCase):
         self.assertEqual(pos, 2)
         self.assertEqual(action, Action.RON)
         self.assertEqual(naki, Naki.NONE)
-        self.assertEqual(self.turn.winners, [2, 3])
+        self.assertEqual(self.turn.winners_pos, [2, 3])
 
 
 class TestTurnKanFlow(unittest.TestCase):
@@ -447,7 +447,7 @@ class TestTurnKanFlow(unittest.TestCase):
 
         state, t, pos, act = self.turn.kan_flow(kan_player, kan_tile, kan_type)
         self.assertEqual(state, 1)
-        self.assertEqual(self.turn.winners, [1, 3])
+        self.assertEqual(self.turn.winners_pos, [1, 3])
 
 
 class TestTurnNakiFlow(unittest.TestCase):
