@@ -472,21 +472,30 @@ class Kyoku:
 
         if tsumo:
             winner = self.winners[0]
+            ignore = 0 if ryuukyoku else 1
             if winner == self.oya_player:
-                winner.points += roundup(pt * 2) * 3 + 300 * self.honba
+                winner.points += roundup(pt * 2) * 3
+                + 300 * self.honba * ignore
                 for i in range(4):
                     if self.players[i] != self.oya_player:
                         self.players[i].points -= roundup(pt * 2)
-                        + 100 * self.honba
+                        + 100 * self.honba * ignore
             else:  # 子家
-                tmp_pt = roundup(pt * 2) + 100 * self.honba
+                tmp_pt = 0
                 for player in self.players:
                     if player == self.oya_player:
-                        player.points -= roundup(pt * 2) + 100 * self.honba
+                        player.points -= (
+                            roundup(pt * 2) + 100 * self.honba * ignore)
+                        tmp_pt += (
+                            roundup(pt * 2) + 100 * self.honba * ignore)
                     elif player != winner:
-                        player.points -= roundup(pt) + 100 * self.honba
-                        tmp_pt += roundup(pt) + 100 * self.honba
+                        player.points -= (
+                            roundup(pt) + 100 * self.honba * ignore)
+                        tmp_pt += (
+                            roundup(pt) + 100 * self.honba * ignore)
+                print(tmp_pt)
                 winner.points += tmp_pt
+
         else:  # ron
             for winner in self.winners:
                 if winner == self.oya_player:
@@ -495,9 +504,8 @@ class Kyoku:
                 else:  # 子家
                     winner.points += roundup(pt * 4)
                     loser.points -= roundup(pt * 4)
-            if not ryuukyoku:
-                atamahane_winner.points += 300 * self.honba
-                loser.points -= 300 * self.honba
+            atamahane_winner.points += 300 * self.honba
+            loser.points -= 300 * self.honba
 
         if not ryuukyoku and self.kyotaku > 0:
             atamahane_winner.points += self.kyotaku * 1_000
