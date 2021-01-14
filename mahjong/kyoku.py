@@ -3,6 +3,7 @@ from typing import List, Tuple, Optional
 from .player import Player
 from .components import Stack, Tile, Action, Huro, Naki, Jihai
 from .event_logger import KyokuLogger
+from .helpers import get_atamahane_winner
 from .utils import roundup
 from .naki_and_actions import check_tenpai
 
@@ -30,7 +31,7 @@ class Turn:
         self.first_turn = True
         self.oya_draws = 0  # temporary
         self.atamahane = atamahane
-        self.winner = []
+        self.winners_pos = []
         self.logger = logger
 
     def discard_flow(
@@ -55,8 +56,9 @@ class Turn:
             discard_tile, discard_pos)
 
         if action == Action.NOACT:
-            state, discard_tile, discard_pos = self.draw_flow(
+            state, discard_tile, discard_pos, action = self.draw_flow(
                 self.players[discarder.get_shimocha()])
+
         elif action == Action.NAKI:
             # log Naki here
             self.logger.log(
@@ -67,8 +69,9 @@ class Turn:
             )
 
             discarder.furiten_tiles_idx.add(discard_tile.index)
-            state, discard_tile, discard_pos = self.naki_flow(
+            state, discard_tile, discard_pos, act = self.naki_flow(
                 self.players[player_pos], naki)
+
         elif action == Action.RON:
             # log Ron here
             self.logger.log(
@@ -76,14 +79,13 @@ class Turn:
                 action=action,
                 action_tile=discard_tile,
             )
-            self.winner.append(player_pos)
             state = 1
             discard_tile = None
             discard_pos = None
 
         # TODO: invalid action, raise error
 
-        return state, discard_tile, discard_pos
+        return state, discard_tile, discard_pos, action
 
     def naki_flow(
         self, player: Player, naki: Naki
@@ -108,7 +110,7 @@ class Turn:
         discard_pos = player.seating_position
         if naki == Naki.DAMINKAN:
             if self.check_suukaikan(player.kabe):
-                return -1, None
+                return -1, None, None, None
             state, discard_tile, discard_pos = self.draw_flow(
                 player, from_rinshan=True)
         elif naki in (Naki.CHII, Naki.PON):
@@ -124,7 +126,7 @@ class Turn:
             # TODO: invalid action, raise error
             pass
 
-        return state, discard_tile, discard_pos
+        return state, discard_tile, discard_pos, Action.NOACT
 
     def ensemble_actions(
         self, discard_tile: Tile, discard_pos: int
@@ -151,10 +153,17 @@ class Turn:
             key=sort_action,
             reverse=True)[0]
 
-        if action == Action.RON and not self.atamahane:
+        if action == Action.RON:
             ron_players = [i[0] for i in naki_actions if i[1][0] == Action.RON]
-            if len(ron_players) > 1:
-                self.winner = ron_players
+            if self.atamahane:
+                self.winners_pos = [
+                    get_atamahane_winner(discard_pos, ron_players)]
+            else:
+                if len(ron_players) >= 3:
+                    return -1, (Action.RYUUKYOKU, None)
+                self.winners_pos = ron_players
+        elif action == Action.TSUMO:
+            self.winners_pos = [pos]
 
         return pos, (action, naki)
 
@@ -176,13 +185,15 @@ class Turn:
             p = self.players[p.get_shimocha()]
             act = p.action_with_chakan(kan_tile, kan_type)
             if act == Action.RON:
-                self.winner.append(p.seating_position)
                 self.logger.log(
                     p_pos=p.seating_position,
                     action=act,
                     action_tile=kan_tile,
                 )
-        return 1 if self.winner else 0
+                self.winners_pos.append(p.seating_position)
+        if len(self.winners_pos) > 0:
+            return 1, kan_tile, kan_player.seating_position, act
+        return 0
 
     def draw_flow(
         self, player, from_rinshan: bool = False
@@ -227,6 +238,7 @@ class Turn:
         if action == Action.NAKI:
             if naki in (Naki.ANKAN, Naki.CHAKAN):
                 self.logger.log(
+
                     p_pos=player.seating_position,
                     action=action,
                     action_tile=new_tile,
@@ -239,7 +251,7 @@ class Turn:
                     return kan_state, action_tile, discard_pos
                 if self.check_suukaikan(player.kabe):
                     return -1, action_tile, discard_pos
-            state, action_tile, discard_pos = self.draw_flow(
+            state, action_tile, discard_pos, act = self.draw_flow(
                 player, from_rinshan=True)
 
         elif action == Action.RYUUKYOKU:
@@ -247,16 +259,15 @@ class Turn:
                 p_pos=player.seating_position,
                 action=action,
             )
-            return -1, action_tile, discard_pos
+            return -1, action_tile, discard_pos, action
+
         elif action == Action.TSUMO:
             self.logger.log(
                 p_pos=player.seating_position,
                 action=action,
                 action_tile=new_tile,
             )
-            self.winner.append(player)
-            return 1, action_tile, discard_pos
-        # TODO: invalid action, raise error
+            return 1, action_tile, discard_pos, action
 
         # Discard the action tile
         if state == 0:
@@ -268,7 +279,7 @@ class Turn:
             player.add_kawa(action_tile)
             discard_pos = player.seating_position
 
-        return state, action_tile, discard_pos
+        return state, action_tile, discard_pos, action
 
     def check_suukaikan(self, kabe: List[Huro]) -> bool:
         if len(self.stack.doras) >= 4:  # 場上已經有三或四個槓子
@@ -294,14 +305,14 @@ class Kyoku:
         kyotaku: int,
         atamahane: Optional[bool] = True,
     ):
-        self.winner = []
-        self.players = players
-        self.oya_player = self.get_oya_player()
-        self.honba = honba
-        self.kyotaku = kyotaku  # 供託
-        self.bakaze = bakaze
-        self.tile_stack = Stack()
-        self.logger = KyokuLogger()
+        self.winners: List[Player] = []
+        self.players: List[Player] = players
+        self.oya_player: Player = self.get_oya_player()
+        self.honba: int = honba
+        self.kyotaku: int = kyotaku  # 供託
+        self.bakaze: Jihai = bakaze
+        self.tile_stack: Stack = Stack()
+        self.logger: KyokuLogger = KyokuLogger()
 
         # Atamahane 「頭跳ね」 is more known as the "head bump" rule.
         # http://arcturus.su/wiki/Atamahane
@@ -351,37 +362,38 @@ class Kyoku:
 
         # 莊家 oya draw flow
         turn = Turn(self.players, self.tile_stack, self.logger)
-        state, discard_tile, discard_pos = turn.draw_flow(self.oya_player)
+        state, discard_tile, discard_pos, act = turn.draw_flow(self.oya_player)
         # Tenhoo
         while state == 0:
             state, discard_tile, discard_pos = turn.discard_flow(
                 discard_tile, discard_pos)
 
         if state == -1:
-            renchen = self.ryuukyoku()
+            renchen = self.handle_ryuukyoku()
             if renchen:
                 return True, self.kyotaku, self.honba + 1
             else:
                 return False, self.kyotaku, 0
 
         else:
-            # TODO: 三家和流局: if len(sef.winner) == 3
-            # TODO: Check Yaku and calculate the amount.
-            tsumo = False  # placeholder, 不然玉米片一直吐錯誤
+            tsumo = act == Action.TSUMO
             loser = None
+            if discard_pos:
+                loser = self.players[discard_pos]
+            self.winners = [self.players[pos] for pos in turn.winners]
             han, fu = self.calculate_yaku()
             self.apply_points(han, fu, tsumo, loser)
-            if self.oya_player in self.winner:
+            if self.oya_player in self.winners:
                 # return next oya, kyotaku, honba
                 return True, 0, self.honba + 1
             return False, 0, 0
 
-    def ryuukyoku(self):  # 流局
+    def handle_ryuukyoku(self):  # 流局
         tenpai_players = []
         if nagashi_player := self.check_nagashi_mangan():
-            # 這裡採用流局滿貫不算和牌的規則
-            self.winner = nagashi_player
-            self.apply_points(5, 20, True, None)
+            # 這裡採用流局滿貫不算和牌的規則，差別在本場和供託
+            self.winners = [nagashi_player]
+            self.apply_points(5, 20, True, None, True)
             tenpai_players = [nagashi_player]
         else:
             # 檢查流局是否聽牌
@@ -450,31 +462,50 @@ class Kyoku:
                      han: int,
                      fu: int,
                      tsumo: bool,
-                     loser: Optional[Player] = None):
+                     loser: Optional[Player] = None,
+                     ryuukyoku: bool = False) -> None:
         pt = self.calculate_base_points(han, fu)
-        # TODO: only handle atamahane for now
-        if self.winner == self.oya_player:
-            if tsumo:
-                self.winner.points += roundup(pt * 2) * 3 + 300 * self.honba
-                for i in range(1, 4):  # TODO: should be 0 ~ 3
-                    self.players[i].points -= roundup(pt * 2) + \
-                        100 * self.honba
-            else:
-                self.winner.points += roundup(pt * 6) + 300 * self.honba
-                loser.points -= roundup(pt * 6) + 300 * self.honba
-        else:  # 子家
-            if tsumo:
-                self.oya_player.points -= roundup(pt * 2) + 100 * self.honba
-                tmp_pt = roundup(pt * 2) + 100 * self.honba
-                for i in range(1, 4):  # TODO: should be 0 ~ 3
-                    if self.players[i] != self.winner:
-                        self.players[i].points -= roundup(pt) + \
-                            100 * self.honba
-                        tmp_pt += roundup(pt) + 100 * self.honba
-                self.winner.points += tmp_pt
-            else:
-                self.winner.points += roundup(pt * 4) + 300 * self.honba
-                loser.points -= roundup(pt * 4) + 300 * self.honba
-        if self.kyotaku > 0:
-            self.winner.points += self.kyotaku * 1_000
+        discard_pos = loser.seating_position if loser else None
+        winners_pos = [p.seating_position for p in self.winners]
+        atamahane_winner_pos = get_atamahane_winner(discard_pos, winners_pos)
+        atamahane_winner = self.players[atamahane_winner_pos]
+
+        if tsumo:
+            winner = self.winners[0]
+            ignore = 0 if ryuukyoku else 1
+            if winner == self.oya_player:
+                winner.points += (
+                    roundup(pt * 2) * 3 + 300 * self.honba * ignore)
+                for i in range(4):
+                    if self.players[i] != self.oya_player:
+                        self.players[i].points -= (
+                            roundup(pt * 2) + 100 * self.honba * ignore)
+            else:  # 子家
+                tmp_pt = 0
+                for player in self.players:
+                    if player == self.oya_player:
+                        player.points -= (
+                            roundup(pt * 2) + 100 * self.honba * ignore)
+                        tmp_pt += (
+                            roundup(pt * 2) + 100 * self.honba * ignore)
+                    elif player != winner:
+                        player.points -= (
+                            roundup(pt) + 100 * self.honba * ignore)
+                        tmp_pt += (
+                            roundup(pt) + 100 * self.honba * ignore)
+                winner.points += tmp_pt
+
+        else:  # ron
+            for winner in self.winners:
+                if winner == self.oya_player:
+                    winner.points += roundup(pt * 6)
+                    loser.points -= roundup(pt * 6)
+                else:  # 子家
+                    winner.points += roundup(pt * 4)
+                    loser.points -= roundup(pt * 4)
+            atamahane_winner.points += 300 * self.honba
+            loser.points -= 300 * self.honba
+
+        if not ryuukyoku and self.kyotaku > 0:
+            atamahane_winner.points += self.kyotaku * 1_000
         return
