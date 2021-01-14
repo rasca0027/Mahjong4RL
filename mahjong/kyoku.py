@@ -474,12 +474,12 @@ class Kyoku:
             winner = self.winners[0]
             ignore = 0 if ryuukyoku else 1
             if winner == self.oya_player:
-                winner.points += roundup(pt * 2) * 3
-                + 300 * self.honba * ignore
+                winner.points += (
+                    roundup(pt * 2) * 3 + 300 * self.honba * ignore)
                 for i in range(4):
                     if self.players[i] != self.oya_player:
-                        self.players[i].points -= roundup(pt * 2)
-                        + 100 * self.honba * ignore
+                        self.players[i].points -= (
+                            roundup(pt * 2) + 100 * self.honba * ignore)
             else:  # 子家
                 tmp_pt = 0
                 for player in self.players:
@@ -493,7 +493,6 @@ class Kyoku:
                             roundup(pt) + 100 * self.honba * ignore)
                         tmp_pt += (
                             roundup(pt) + 100 * self.honba * ignore)
-                print(tmp_pt)
                 winner.points += tmp_pt
 
         else:  # ron
