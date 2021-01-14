@@ -155,7 +155,7 @@ def get_atamahane_winner(houjuu_pos: int, winners: List[int]) -> int:
     """
     if not houjuu_pos:
         return winners[0]
-    
+
     # TODO: use get_shimocha()
     seats = [x + 4 if x < houjuu_pos else x for x in winners]
     winner_pos = min(seats)
