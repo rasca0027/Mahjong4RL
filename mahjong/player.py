@@ -119,7 +119,7 @@ class Player:
         return action_list
 
     def action_with_discard_tile(
-        self, tile: Tile, pos: int
+        self, tile: Tile, pos: int, is_haiteihai: bool = False
     ) -> Tuple[Action, Naki]:
         """"Player has to select an action reacting to
           the discarded tile.
@@ -130,7 +130,8 @@ class Player:
           action: CHI/PON/DAMINKAN/RON
         """
         self.tmp_huro = None
-        action_list = self.get_action_list(False, self.hand, self.kabe, tile)
+        action_list = self.get_action_list(
+            False, self.hand, self.kabe, tile, is_haiteihai)
         if action_list == [(Action.NOACT, Naki.NONE, [])]:
             action = Action.NOACT
             naki = Naki.NONE
@@ -149,7 +150,7 @@ class Player:
         return action, naki
 
     def action_with_new_tile(
-        self, tile: Tile, first_turn: bool
+        self, tile: Tile, first_turn: bool, is_haiteihai: bool = False
     ) -> Tuple[Tuple[Action, Naki], Tile]:
         """"Player has to select an action reacting to the new drawn tile.
         Args:
@@ -158,7 +159,8 @@ class Player:
           (action, naki): TSUMO/ANKAN/CHAKAN
           discard_tile: Tile
         """
-        action_list = self.get_action_list(True, self.hand, self.kabe, tile)
+        action_list = self.get_action_list(
+            True, self.hand, self.kabe, tile, is_haiteihai)
         if first_turn and nine_yaochuus(self.hand, tile):
             action_list.append((Action.RYUUKYOKU, Naki.NONE, []))
         if check_tsumo(self.hand, self.kabe, tile):

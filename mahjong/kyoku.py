@@ -29,6 +29,7 @@ class Turn:
         self.players = players
         self.stack = stack
         self.first_turn = True
+        self.is_haiteihai = False
         self.oya_draws = 0  # temporary
         self.atamahane = atamahane
         self.winners_pos = []
@@ -52,10 +53,16 @@ class Turn:
         """
         state = 0
         discarder = self.players[discard_pos]
-        player_pos, (action, naki) = self.ensemble_actions(
-            discard_tile, discard_pos)
 
-        if action == Action.NOACT:
+        # TODO: find a better place to check playling_wall, same as line 225
+        if len(self.stack.playling_wall) == 0:
+            self.is_haiteihai = True
+
+        player_pos, (action, naki) = self.ensemble_actions(
+            discard_tile, discard_pos, self.is_haiteihai)
+
+        # TODO: check this is_haiteihai logic
+        if (action == Action.NOACT) & (not self.is_haiteihai):
             state, discard_tile, discard_pos, action = self.draw_flow(
                 self.players[discarder.get_shimocha()])
 
@@ -129,7 +136,7 @@ class Turn:
         return state, discard_tile, discard_pos, Action.NOACT
 
     def ensemble_actions(
-        self, discard_tile: Tile, discard_pos: int
+        self, discard_tile: Tile, discard_pos: int, is_haiteihai: bool = False
     ) -> Tuple[bool, int, Action]:
         """This function ensembles the action from each player and return
         the highest priority action.
@@ -140,7 +147,7 @@ class Turn:
         """
         naki_actions = [
             (i, self.players[i].action_with_discard_tile(
-                discard_tile, discard_pos))
+                discard_tile, discard_pos, is_haiteihai))
             for i in range(0, 4) if i != discard_pos
         ]
 
@@ -216,6 +223,9 @@ class Turn:
         if self.oya_draws >= 2:
             self.first_turn = False
 
+        if len(self.stack.playling_wall) == 0:
+            self.is_haiteihai = True
+
         new_tile = self.stack.draw(from_rinshan)
         # Log Draw
         if from_rinshan:
@@ -231,7 +241,7 @@ class Turn:
         new_tile.owner = player.seating_position
         player.tmp_furiten = False
         (action, naki), action_tile = player.action_with_new_tile(
-            new_tile, self.first_turn
+            new_tile, self.first_turn, self.is_haiteihai
         )
         state = 0
         discard_pos = None
