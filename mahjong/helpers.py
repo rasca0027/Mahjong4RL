@@ -1,7 +1,8 @@
 import copy
 from typing import DefaultDict, List, Tuple
+from itertools import groupby
 
-from .components import Tile, Suit
+from .components import Tile, Suit, Jihai
 from .naki_and_actions import check_remains_are_sets
 
 
@@ -162,3 +163,17 @@ def get_atamahane_winner(houjuu_pos: int, winners: List[int]) -> int:
     if winner_pos >= 4:
         winner_pos -= 4
     return winner_pos
+
+
+def get_wind_tiles() -> List[Tile]:
+    """return a list of four wind tiles
+    """
+    return [Tile(Suit.JIHAI.value, Jihai.TON.value),
+            Tile(Suit.JIHAI.value, Jihai.NAN.value),
+            Tile(Suit.JIHAI.value, Jihai.SHAA.value),
+            Tile(Suit.JIHAI.value, Jihai.PEI.value)]
+
+
+def check_all_equal(input_list: List) -> bool:
+    g = groupby(input_list)
+    return next(g, True) and not next(g, False)
