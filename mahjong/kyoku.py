@@ -59,7 +59,7 @@ class Turn:
             self.is_haiteihai = True
 
         player_pos, (action, naki) = self.ensemble_actions(
-            discard_tile, discard_pos, self.is_haiteihai)
+            discard_tile, discard_pos)
 
         # TODO: check this is_haiteihai logic
         if (action == Action.NOACT) & (not self.is_haiteihai):
@@ -136,7 +136,7 @@ class Turn:
         return state, discard_tile, discard_pos, Action.NOACT
 
     def ensemble_actions(
-        self, discard_tile: Tile, discard_pos: int, is_haiteihai: bool = False
+        self, discard_tile: Tile, discard_pos: int
     ) -> Tuple[bool, int, Action]:
         """This function ensembles the action from each player and return
         the highest priority action.
@@ -147,7 +147,7 @@ class Turn:
         """
         naki_actions = [
             (i, self.players[i].action_with_discard_tile(
-                discard_tile, discard_pos, is_haiteihai))
+                discard_tile, discard_pos, self.is_haiteihai))
             for i in range(0, 4) if i != discard_pos
         ]
 
