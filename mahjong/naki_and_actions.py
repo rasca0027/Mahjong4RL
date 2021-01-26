@@ -29,7 +29,7 @@ def check_ron(player: 'Player', discarded_tile: Tile):
     return False
 
 
-def check_tsumo(player: 'Player', new_tile: Tile):
+def check_tsumo(hand: DefaultDict[int, int], kabe: List[Huro], new_tile: Tile):
     """Helper function to check if new tile can form a winning hand
     The hand must have a valid yaku
 
@@ -40,8 +40,8 @@ def check_tsumo(player: 'Player', new_tile: Tile):
     Returns:
         bool: True for Ron, False otherwise.
     """
-    if new_tile in check_tenpai(player.hand, player.kabe):
-        return check_yaku(player.hand)
+    if new_tile in check_tenpai(hand, kabe):
+        return check_yaku(hand)
     else:
         return False
 

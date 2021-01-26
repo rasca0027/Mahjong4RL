@@ -87,6 +87,37 @@ class Player:
     def get_shimocha(self) -> int:
         return (self.seating_position + 1) % 4
 
+    def get_action_list(is_oya, hand, kabe, tile, haiteihai=False):
+        """Check player's eligible action to a tile.
+        Args:
+          is_oya: bool, if the player drew the tile or other player
+                  discarded it.
+          hand: player's hand
+          kabe: player's huro
+          tile: the tile to check against the hand
+          haiteihai: bool, if the tile is the last availble tile
+        Returns:
+          action_list (list of tuples): Naki type and possible nakis
+        """
+        action_list = [(Action.NOACT, Naki.NONE, [])]
+
+        if haiteihai:
+            return action_list
+        elif is_oya:
+            if possible_kans := check_ankan(hand, tile):
+                action_list.append((Action.NAKI, Naki.ANKAN, possible_kans))
+            if possible_kans := check_chakan(hand, kabe, tile):
+                action_list.append((Action.NAKI, Naki.CHAKAN, possible_kans))
+        else:
+            if possible_kans := check_daminkan(hand, tile):
+                action_list.append((Action.NAKI, Naki.DAMINKAN, possible_kans))
+            if possible_pons := check_pon(hand, tile):
+                action_list.append((Action.NAKI, Naki.PON, possible_pons))
+            if possible_chiis := check_chii(hand, tile):
+                action_list.append((Action.NAKI, Naki.CHII, possible_chiis))
+
+        return action_list
+
     def action_with_discard_tile(
         self, tile: Tile, pos: int
     ) -> Tuple[Action, Naki]:
@@ -100,14 +131,7 @@ class Player:
         """
         self.tmp_huro = None
 
-        action_list = [(Action.NOACT, Naki.NONE, [])]
-        if possible_kans := check_daminkan(self.hand, tile):
-            action_list.append((Action.NAKI, Naki.DAMINKAN, possible_kans))
-        if possible_pons := check_pon(self.hand, tile):
-            action_list.append((Action.NAKI, Naki.PON, possible_pons))
-        if possible_chiis := check_chii(self.hand, tile):
-            action_list.append((Action.NAKI, Naki.CHII, possible_chiis))
-
+        action_list = self.get_action_list(False, self.hand, self.kabe, tile)
         if action_list == [(Action.NOACT, Naki.NONE, [])]:
             action = Action.NOACT
             naki = Naki.NONE
@@ -135,15 +159,11 @@ class Player:
           (action, naki): TSUMO/ANKAN/CHAKAN
           discard_tile: Tile
         """
-        action_list = [(Action.NOACT, Naki.NONE, [])]
+        action_list = self.get_action_list(True, self.hand, self.kabe, tile)
         if first_turn and nine_yaochuus(self.hand, tile):
             action_list.append((Action.RYUUKYOKU, Naki.NONE, []))
-        if check_tsumo(self, tile):
+        if check_tsumo(self.hand, self.kabe, tile):
             action_list.append((Action.TSUMO, Naki.NONE, []))
-        if possible_kans := check_ankan(self.hand, tile):
-            action_list.append((Action.NAKI, Naki.ANKAN, possible_kans))
-        if possible_kans := check_chakan(self.hand, self.kabe, tile):
-            action_list.append((Action.NAKI, Naki.CHAKAN, possible_kans))
 
         if action_list == [(Action.NOACT, Naki.NONE, [])]:
             action = Action.NOACT
