@@ -54,7 +54,7 @@ class TestPon(unittest.TestCase):
         self.current_kyoku.players[3].hand[Tile(2, 8).index] += 1
         self.current_kyoku.players[3].hand[Tile(2, 9).index] += 1
 
-        pyinput.inputNum = MagicMock(side_effect=[0, 0, 0])
+        pyinput.inputNum = MagicMock(side_effect=[1, 0, 0])
         pyinput.inputChoice = MagicMock(return_value=2)
 
         turn = Turn(
@@ -80,9 +80,8 @@ class TestPon(unittest.TestCase):
         self.assertEqual(state, 0)
         self.assertEqual(discard_tile, to_discard_tile)
         self.assertEqual(discard_pos, self.players[1].seating_position)
-        print(self.players[1].kabe)
-        # self.assertEqual(
-        #     pon_in_kabe.naki_type, self.players[1].kabe[0].naki_type)
-        # self.assertEqual(
-        #     pon_in_kabe.naki_tile, self.players[1].kabe[0].naki_tile)
-        # self.assertEqual(pon_in_kabe.tiles, self.players[1].kabe[0].tiles)
+        self.assertEqual(
+            pon_in_kabe.naki_type, self.players[1].kabe[0].naki_type)
+        self.assertEqual(
+            pon_in_kabe.naki_tile, self.players[1].kabe[0].naki_tile)
+        self.assertEqual(pon_in_kabe.tiles, self.players[1].kabe[0].tiles)

@@ -87,7 +87,7 @@ class Player:
     def get_shimocha(self) -> int:
         return (self.seating_position + 1) % 4
 
-    def get_action_list(is_oya, hand, kabe, tile, haiteihai=False):
+    def get_action_list(self, is_oya, hand, kabe, tile, haiteihai=False):
         """Check player's eligible action to a tile.
         Args:
           is_oya: bool, if the player drew the tile or other player
@@ -130,7 +130,6 @@ class Player:
           action: CHI/PON/DAMINKAN/RON
         """
         self.tmp_huro = None
-
         action_list = self.get_action_list(False, self.hand, self.kabe, tile)
         if action_list == [(Action.NOACT, Naki.NONE, [])]:
             action = Action.NOACT
