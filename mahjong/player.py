@@ -87,10 +87,10 @@ class Player:
     def get_shimocha(self) -> int:
         return (self.seating_position + 1) % 4
 
-    def get_action_list(self, is_oya, hand, kabe, tile, haiteihai=False):
+    def get_action_list(self, is_drawer, hand, kabe, tile, haiteihai=False):
         """Check player's eligible action to a tile.
         Args:
-          is_oya: bool, if the player drew the tile or other player
+          is_drawer: bool, if the player drew the tile or other player
                   discarded it.
           hand: player's hand
           kabe: player's huro
@@ -103,7 +103,7 @@ class Player:
 
         if haiteihai:
             return action_list
-        elif is_oya:
+        elif is_drawer:
             if possible_kans := check_ankan(hand, tile):
                 action_list.append((Action.NAKI, Naki.ANKAN, possible_kans))
             if possible_kans := check_chakan(hand, kabe, tile):

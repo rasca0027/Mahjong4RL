@@ -97,20 +97,20 @@ class TestPon(unittest.TestCase):
         self.current_kyoku.players[0].hand[pon_tile.index] = 1
         self.current_kyoku.players[0].hand[Tile(2, 1).index] += 1
         self.current_kyoku.players[0].hand[Tile(2, 2).index] += 1
-        self.current_kyoku.players[0].hand[Tile(2, 3).index] += 1
+        self.current_kyoku.players[0].hand[Tile(2, 3).index] += 2
         self.current_kyoku.players[1].hand = defaultdict(int)
         self.current_kyoku.players[1].hand[pon_tile.index] = 2
         self.current_kyoku.players[1].hand[Tile(2, 2).index] += 1
         self.current_kyoku.players[1].hand[Tile(2, 3).index] += 1
-        self.current_kyoku.players[1].hand[Tile(2, 4).index] += 1
+        self.current_kyoku.players[1].hand[Tile(2, 4).index] += 2
         self.current_kyoku.players[2].hand = defaultdict(int)
         self.current_kyoku.players[2].hand[Tile(2, 5).index] += 1
         self.current_kyoku.players[2].hand[Tile(2, 6).index] += 1
-        self.current_kyoku.players[2].hand[Tile(2, 7).index] += 1
+        self.current_kyoku.players[2].hand[Tile(2, 7).index] += 2
         self.current_kyoku.players[3].hand = defaultdict(int)
         self.current_kyoku.players[3].hand[Tile(2, 7).index] += 1
         self.current_kyoku.players[3].hand[Tile(2, 8).index] += 1
-        self.current_kyoku.players[3].hand[Tile(2, 9).index] += 1
+        self.current_kyoku.players[3].hand[Tile(2, 9).index] += 2
 
         # pyinput.inputNum = MagicMock(side_effect=[1, 0, 0])
         # pyinput.inputChoice = MagicMock(return_value=2)
