@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import Mock, MagicMock, PropertyMock
 
 from mahjong.player import Player
-from mahjong.components import Stack, Tile, Action, Suit, Naki, Huro
+from mahjong.components import Stack, Tile, Action, Suit, Jihai, Naki, Huro
 from mahjong.kyoku import Turn
 from mahjong.event_logger import KyokuLogger
 
@@ -273,6 +273,15 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.assertEqual(state, 1)
         self.assertEqual(discard_tile, None)
         self.assertEqual(discard_pos, None)
+
+    def test_suufon_renda(self):
+        tile_ton = Tile(Suit.JIHAI.value, Jihai.TON.value)
+        self.player_1.add_kawa(tile_ton)
+        self.player_2.add_kawa(tile_ton)
+        self.player_3.add_kawa(tile_ton)
+        self.player_4.add_kawa(tile_ton)
+
+        self.assertEqual(self.turn.check_suufon_renda(), True)
 
 
 class TestTurnEnsembleActions(unittest.TestCase):

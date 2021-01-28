@@ -3,7 +3,7 @@ from typing import List, Tuple, Optional
 from .player import Player
 from .components import Stack, Tile, Action, Huro, Naki, Jihai
 from .event_logger import KyokuLogger
-from .helpers import get_atamahane_winner
+from .helpers import get_atamahane_winner, get_wind_tiles, check_all_equal
 from .utils import roundup
 from .naki_and_actions import check_tenpai
 
@@ -28,7 +28,7 @@ class Turn:
         # TODO: make sure players are sorted by seating position
         self.players = players
         self.stack = stack
-        self.first_turn = True
+        self.first_turn = True  # 開局連打四張內算第一輪，四張後或有人鳴牌則非第一輪
         self.is_haiteihai = False
         self.oya_draws = 0  # temporary
         self.atamahane = atamahane
@@ -289,6 +289,10 @@ class Turn:
             player.add_kawa(action_tile)
             discard_pos = player.seating_position
 
+            if self.first_turn and player.jikaze == Jihai.PEI:
+                if self.check_suufon_renda():
+                    state = -1
+
         return state, action_tile, discard_pos, action
 
     def check_suukaikan(self, kabe: List[Huro]) -> bool:
@@ -299,6 +303,17 @@ class Turn:
                 # Suukaikan: four KAN are called by different player
                 return True  # 流局
         self.stack.add_dora_indicator()
+        return False
+
+    def check_suufon_renda(self) -> bool:
+        wind_tiles = get_wind_tiles()
+        first_discraded_tiles = []
+        for p in self.players:
+            first_discraded_tiles.append(p.kawa[0])
+        all_equal = check_all_equal(first_discraded_tiles)
+
+        if (first_discraded_tiles[0] in wind_tiles) and all_equal:
+            return True
         return False
 
 
