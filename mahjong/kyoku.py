@@ -28,7 +28,7 @@ class Turn:
         # TODO: make sure players are sorted by seating position
         self.players = players
         self.stack = stack
-        self.first_turn = True
+        self.first_turn = True  # 開局連打四張內算第一輪，四張後或有人鳴牌則非第一輪
         self.oya_draws = 0  # temporary
         self.atamahane = atamahane
         self.winners_pos = []
