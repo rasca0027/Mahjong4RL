@@ -62,13 +62,22 @@ class TestTsumo(unittest.TestCase):
     def test_tsumo(self):
         discard_1 = Tile(Suit.MANZU.value, 3)
         discard_2 = Tile(Suit.SOUZU.value, 5)
+        check_tsumo_1 = check_tsumo(self.player.hand,
+                                    self.player.kabe,
+                                    discard_1)
+        check_tsumo_2 = check_tsumo(self.player.hand,
+                                    self.player.kabe,
+                                    discard_2)
 
-        self.assertEqual(check_tsumo(self.player, discard_1), True)
-        self.assertEqual(check_tsumo(self.player, discard_2), True)
+        self.assertEqual(check_tsumo_1, True)
+        self.assertEqual(check_tsumo_2, True)
 
     def test_no_tsumo(self):
         discard_1 = Tile(Suit.MANZU.value, 4)
-        self.assertEqual(check_tsumo(self.player, discard_1), False)
+        check_no_tsumo = check_tsumo(self.player.hand,
+                                     self.player.kabe,
+                                     discard_1)
+        self.assertEqual(check_no_tsumo, False)
 
 
 class TestYaku(unittest.TestCase):

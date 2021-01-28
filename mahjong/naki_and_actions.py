@@ -29,19 +29,20 @@ def check_ron(player: 'Player', discarded_tile: Tile):
     return False
 
 
-def check_tsumo(player: 'Player', new_tile: Tile):
+def check_tsumo(hand: DefaultDict[int, int], kabe: List[Huro], new_tile: Tile):
     """Helper function to check if new tile can form a winning hand
     The hand must have a valid yaku
 
     Args:
-        player (Player): Current player, 手牌 副露 棄牌
+        hand (DefaultDict): Player's hand
+        kabe (List[Huro]): Player's kabe
         new_tile (Tile object): The potential winning hand
 
     Returns:
         bool: True for Ron, False otherwise.
     """
-    if new_tile in check_tenpai(player.hand, player.kabe):
-        return check_yaku(player.hand)
+    if new_tile in check_tenpai(hand, kabe):
+        return check_yaku(hand)
     else:
         return False
 
@@ -49,16 +50,20 @@ def check_tsumo(player: 'Player', new_tile: Tile):
 def check_yaku(hand: DefaultDict[int, int]):
     """Helper function to check if a winning hand had more than 1 yaku
     Args:
-        player (Player): Current player, 手牌 副露 棄牌
-
+        hand (DefaultDict): Player's hand
     Returns:
         bool: True for Yaku >= 1, False otherwise.
     """
+    # TODO
     return True
 
 
 def check_furiten(player: 'Player') -> bool:
     """Check if the player is in any of the three kinds of furiten
+    Args:
+        player (Player): Current player, 手牌 副露 棄牌
+    Returns:
+        bool: True furiten
     """
     # TODO: add test when finish tmp_furiten and permanent_furiten
     return (check_own_discard_furiten(player)
@@ -88,7 +93,7 @@ def check_ankan(hand: DefaultDict[int, int], new_tile: Tile) -> List[Tile]:
       with current hand / 暗槓
 
     Args:
-      player (Player): Current player, 手牌 副露 棄牌
+      hand (DefaultDict): Player's hand
       new_tile (Tile): The potential Kan tile
 
     Returns:
@@ -141,7 +146,7 @@ def check_daminkan(
 
     Args:
         hand (DefaultDict): Player's hand
-        new_tile (Tile object): The potential Kan tile
+        discarded_tile (Tile): The potential Kan tile
 
     Returns:
         List of possible daminkan tiles for consistency
@@ -164,7 +169,7 @@ def check_pon(
 
     Args:
         hand (DefaultDict): Player's hand
-        new_tile (Tile object): The potential Pon tile
+        discarded_tile (Tile): The potential Pon tile
 
     Returns:
         list of pon tiles for consistency
