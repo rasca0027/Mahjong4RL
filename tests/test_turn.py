@@ -488,8 +488,9 @@ class TestTurnNakiFlow(unittest.TestCase):
 
     def test_daminkan(self):
         self.player_1.action_with_naki = MagicMock(return_value=None)
-        self.turn.draw_flow = MagicMock(
-                                return_value=(0, Tile(0, 1), 0, Action.NAKI))
+        self.turn.draw_flow = MagicMock(return_value=(0, Tile(0, 1),
+                                        0,
+                                        Action.NAKI))
         state, discard_tile, discard_pos, act = self.turn.naki_flow(
             self.player_1, Naki.DAMINKAN)
         self.assertEqual(state, 0)
@@ -536,8 +537,9 @@ class TestTurnNakiFlow(unittest.TestCase):
         self.player_1.kabe.append(kan_3)
         self.player_1.action_with_naki = MagicMock(
             self.player_1.kabe.append(kan_4))
-        self.turn.draw_flow = MagicMock(
-                                return_value=(0, Tile(0, 1), 0, Action.NAKI))
+        self.turn.draw_flow = MagicMock(return_value=(0, Tile(0, 1),
+                                        0,
+                                        Action.NAKI))
         state, discard_tile, discard_pos, act = self.turn.naki_flow(
             self.player_1, Naki.DAMINKAN)
         self.assertEqual(state, 0)
