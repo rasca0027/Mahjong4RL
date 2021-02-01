@@ -37,7 +37,7 @@ class Turn:
 
     def discard_flow(
         self, discard_tile: Tile, discard_pos: int
-    ) -> Tuple[int, Tile, int]:
+    ) -> Tuple[int, Tile, int, Action]:
         """ An event flow starting with a discard tile. It contains two flows,
         Naki and Draw.
         Args:
@@ -50,6 +50,7 @@ class Turn:
           discard_tile: the discarded tile in this turn
                 if Ron/Tsumo/流局 -> None
           discard_pos: the discarder's index
+          action: the player's action with discard tile in this turn
         """
         state = 0
         discarder = self.players[discard_pos]
@@ -118,7 +119,7 @@ class Turn:
         if naki == Naki.DAMINKAN:
             if self.check_suukaikan(player.kabe):
                 return -1, None, None, None
-            state, discard_tile, discard_pos = self.draw_flow(
+            state, discard_tile, discard_pos, _ = self.draw_flow(
                 player, from_rinshan=True)
         elif naki in (Naki.CHII, Naki.PON):
             # TODO: add test when finish discard_after_naki()
@@ -204,7 +205,7 @@ class Turn:
 
     def draw_flow(
         self, player, from_rinshan: bool = False
-    ) -> Tuple[int, Tile, int]:
+    ) -> Tuple[int, Tile, int, Action]:
         """ An event flow that triggers a player to draw a tile and ends with
         that player discarding a tile.
         Args:
@@ -217,6 +218,7 @@ class Turn:
           discard_tile: the discarded tile in this turn
                 if Ron/Tsumo/流局 -> None
           discard_pos: the discarder's index
+          action: the discarder's action in this turn
         """
         if player.jikaze == Jihai.TON:
             self.oya_draws += 1
@@ -390,7 +392,7 @@ class Kyoku:
         state, discard_tile, discard_pos, act = turn.draw_flow(self.oya_player)
         # Tenhoo
         while state == 0:
-            state, discard_tile, discard_pos = turn.discard_flow(
+            state, discard_tile, discard_pos, _ = turn.discard_flow(
                 discard_tile, discard_pos)
 
         if state == -1:

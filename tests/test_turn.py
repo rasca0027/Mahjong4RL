@@ -283,6 +283,16 @@ class TestTurnDrawFlow(unittest.TestCase):
 
         self.assertEqual(self.turn.check_suufon_renda(), True)
 
+    def test_suufon_renda_counter_example(self):
+        tile_ton = Tile(Suit.JIHAI.value, Jihai.TON.value)
+        tile_nan = Tile(Suit.JIHAI.value, Jihai.NAN.value)
+        self.player_1.add_kawa(tile_nan)
+        self.player_2.add_kawa(tile_ton)
+        self.player_3.add_kawa(tile_ton)
+        self.player_4.add_kawa(tile_ton)
+
+        self.assertEqual(self.turn.check_suufon_renda(), False)
+
 
 class TestTurnEnsembleActions(unittest.TestCase):
 
@@ -478,7 +488,8 @@ class TestTurnNakiFlow(unittest.TestCase):
 
     def test_daminkan(self):
         self.player_1.action_with_naki = MagicMock(return_value=None)
-        self.turn.draw_flow = MagicMock(return_value=(0, Tile(0, 1), 0))
+        self.turn.draw_flow = MagicMock(
+                                return_value=(0, Tile(0, 1), 0, Action.NAKI))
         state, discard_tile, discard_pos, act = self.turn.naki_flow(
             self.player_1, Naki.DAMINKAN)
         self.assertEqual(state, 0)
@@ -525,7 +536,8 @@ class TestTurnNakiFlow(unittest.TestCase):
         self.player_1.kabe.append(kan_3)
         self.player_1.action_with_naki = MagicMock(
             self.player_1.kabe.append(kan_4))
-        self.turn.draw_flow = MagicMock(return_value=(0, Tile(0, 1), 0))
+        self.turn.draw_flow = MagicMock(
+                                return_value=(0, Tile(0, 1), 0, Action.NAKI))
         state, discard_tile, discard_pos, act = self.turn.naki_flow(
             self.player_1, Naki.DAMINKAN)
         self.assertEqual(state, 0)
