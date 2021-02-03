@@ -413,24 +413,39 @@ class Kyoku:
                 return True, 0, self.honba + 1
             return False, 0, 0
 
-    def handle_ryuukyoku(self):  # 流局
-        tenpai_players = []
-        if nagashi_player := self.check_nagashi_mangan():
-            # 這裡採用流局滿貫不算和牌的規則，差別在本場和供託
-            self.winners = [nagashi_player]
-            self.apply_points(5, 20, True, None, True)
-            tenpai_players = [nagashi_player]
-        else:
-            # 檢查流局是否聽牌
-            noten_players = []
-            for player in self.players:
-                if check_tenpai(player.hand, player.kabe):
-                    tenpai_players.append(player)
-                else:
-                    noten_players.append(player)
-            self.apply_noten_points(tenpai_players, noten_players)
+    def handle_ryuukyoku(self, turn: Turn):
+        """
+        區別海底流局和中途流局
+        海底流局：若無流局滿貫，則檢查廳牌，莊家聽牌則連莊，否則下莊，本場數皆+1
+        中途流局：包含九種九牌、四風連打、四開槓、四立直、三家和，皆強制連莊，本場數+1
 
-        return self.oya_player in tenpai_players
+        Return:
+            renchan: bool, if the oya is same player or not
+        """
+        renchen = False
+        if len(turn.stack.playling_wall) == 0:  # 海底流局
+            tenpai_players = []
+            if nagashi_player := self.check_nagashi_mangan():
+                # 這裡採用流局滿貫不算和牌的規則，差別在本場和供託
+                self.winners = [nagashi_player]
+                self.apply_points(5, 20, True, None, True)
+                tenpai_players = [nagashi_player]
+            else:
+                # 檢查流局是否聽牌
+                noten_players = []
+                for player in self.players:
+                    if check_tenpai(player.hand, player.kabe):
+                        tenpai_players.append(player)
+                    else:
+                        noten_players.append(player)
+                self.apply_noten_points(tenpai_players, noten_players)
+            if self.oya_player in tenpai_players:
+                renchen = True
+        else:  # 中途流局
+            renchen = True
+
+        return renchen
+
 
     def check_nagashi_mangan(self):  # 流し満貫
         """All the discards are terminals and/or honors.
