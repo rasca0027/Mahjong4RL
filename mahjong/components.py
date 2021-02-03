@@ -188,6 +188,7 @@ class Stack:
 
     def draw(self, from_rinshan: bool = False) -> Tile:
         if from_rinshan:
+            self.playling_wall.pop(-1)
             return self.rinshanpai.pop(0)
         return self.playling_wall.pop(0)
 
