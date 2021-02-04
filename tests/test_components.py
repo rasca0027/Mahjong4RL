@@ -173,7 +173,7 @@ class TestStack(unittest.TestCase):
 
     def test_draw_from_rinshan(self):
         self.test_stack.draw(from_rinshan=True)
-        self.assertEqual(len(self.test_stack.playling_wall), 121)
+        self.assertEqual(len(self.test_stack.playing_wall), 121)
 
 
 class TestHuro(unittest.TestCase):
