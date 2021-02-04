@@ -620,3 +620,13 @@ class TestTurnDiscardFlow(unittest.TestCase):
         self.assertEqual(state, 1)
         self.assertEqual(discard_tile, None)
         self.assertEqual(discard_pos, None)
+
+    def test_normal_ryuukyoku(self):
+        self.tile_stack.playing_wall = self.tile_stack.playing_wall[-1:]
+        self.player_1.action_with_new_tile = MagicMock(
+            return_value=((Action.NOACT, Naki.NONE), Tile(0, 1)))
+        _, action_tile, discard_pos, _ = self.turn.draw_flow(self.player_1)
+        self.assertEqual(
+            self.turn.discard_flow(action_tile, discard_pos),
+            (-1, action_tile, discard_pos, Action.NOACT)
+        )
