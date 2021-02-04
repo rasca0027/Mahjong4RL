@@ -131,7 +131,7 @@ class TestPon(unittest.TestCase):
         state, discard_tile, discard_pos, act = turn.discard_flow(
             discard_tile, discard_pos)
 
-        self.assertEqual(state, 0)
+        self.assertEqual(state, -1)
         self.assertEqual(discard_tile, pon_tile)
         self.assertEqual(discard_pos, self.players[0].seating_position)
         self.assertEqual(act, Action.NOACT)

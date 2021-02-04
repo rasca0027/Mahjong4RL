@@ -62,9 +62,18 @@ class Turn:
             discard_tile, discard_pos)
 
         # TODO: check this is_haiteihai logic
-        if (action == Action.NOACT) & (not self.is_haiteihai):
-            state, discard_tile, discard_pos, action = self.draw_flow(
-                self.players[discarder.get_shimocha()])
+        if action == Action.NOACT:
+            if self.is_haiteihai:
+                # TODO: new column in logger for ryuukyoku
+                self.logger.log(
+                    p_pos=player_pos,
+                    action=action,
+                    action_tile=discard_tile,
+                )
+                state = -1
+            else:
+                state, discard_tile, discard_pos, action = self.draw_flow(
+                    self.players[discarder.get_shimocha()])
 
         elif action == Action.NAKI:
             # log Naki here
