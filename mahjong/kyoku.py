@@ -55,8 +55,8 @@ class Turn:
         state = 0
         discarder = self.players[discard_pos]
 
-        # TODO: find a better place to check playling_wall, same as line 225
-        if len(self.stack.playling_wall) == 0:
+        # TODO: find a better place to check playing_wall, same as line 225
+        if len(self.stack.playing_wall) == 0:
             self.is_haiteihai = True
 
         player_pos, (action, naki) = self.ensemble_actions(
@@ -225,7 +225,7 @@ class Turn:
         if self.oya_draws >= 2:
             self.first_turn = False
 
-        if len(self.stack.playling_wall) == 0:
+        if len(self.stack.playing_wall) == 0:
             self.is_haiteihai = True
 
         new_tile = self.stack.draw(from_rinshan)

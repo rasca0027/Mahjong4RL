@@ -126,7 +126,7 @@ class TestPon(unittest.TestCase):
         state, discard_tile, discard_pos = mock_draw_flow(
             self.current_kyoku.oya_player)
 
-        turn.stack.playling_wall = []
+        turn.stack.playing_wall = []
 
         state, discard_tile, discard_pos, act = turn.discard_flow(
             discard_tile, discard_pos)

@@ -219,7 +219,7 @@ class JouKyouYaku(YakuTypes):
         1 han
         http://arcturus.su/wiki/Haitei_raoyue_and_houtei_raoyui
         """
-        if self.is_ron and len(self.stack.playling_wall) == 0:
+        if self.is_ron and len(self.stack.playing_wall) == 0:
             self.total_yaku = 'houtei_raoyui'
             self.total_han = 1
             return True
@@ -250,7 +250,7 @@ class JouKyouYaku(YakuTypes):
         1 han
         http://arcturus.su/wiki/Haitei_raoyue_and_houtei_raoyui
         """
-        if not self.is_ron and len(self.stack.playling_wall) == 0:
+        if not self.is_ron and len(self.stack.playing_wall) == 0:
             self.total_yaku = 'haitei_raoyue'
             self.total_han = 1
             return True

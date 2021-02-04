@@ -230,12 +230,12 @@ def check_riichi(player: 'Player', machi: List[Tile], stack: Stack) -> bool:
     1. menzenchin (可以暗槓，但如果所暗杠的牌可以重组成顺子（包括听的牌）则不能暗杠。)
     2. machi
     3. at least 1,000 points
-    4. at least 4 tiles left to draw in playling wall
+    4. at least 4 tiles left to draw in playing wall
 
     Args:
         player (Player): Current player, 手牌 副露 棄牌
         machi (List of Tile): Every possible tile that could complete the hand
-        stack (Stack): to count remaining tiles in playling wall
+        stack (Stack): to count remaining tiles in playing wall
 
     Returns:
         bool: True for opportunity to declare riichi, False otherwise.
@@ -244,7 +244,7 @@ def check_riichi(player: 'Player', machi: List[Tile], stack: Stack) -> bool:
         player.menzenchin
         and machi
         and player.points >= 1_000
-        and len(stack.playling_wall) >= 4
+        and len(stack.playing_wall) >= 4
     ):
         return True
 
