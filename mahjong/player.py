@@ -261,4 +261,7 @@ class Player:
         """Add in the newly drawn tile and discard a tile
         """
         user_input = UserInput()
-        return user_input.discard(self.hand, new_tile, kuikae_tiles)
+        tile_to_discard = user_input.discard(
+            self.hand, new_tile, kuikae_tiles)
+
+        return tile_to_discard

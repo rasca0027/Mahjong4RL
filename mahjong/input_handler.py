@@ -9,12 +9,24 @@ from .components import Tile, Action, Naki
 class UserInput:
 
     def actions(self, hand, new_tile, action_list, discard):
-        user_raw_input = UserRawInput()
-        return user_raw_input.actions(hand, new_tile, action_list, discard)
+        action = Action.NOACT
+        naki = Naki.NONE
+        huro = []
+        if True:
+            user_raw_input = UserRawInput()
+            action, naki, huro = user_raw_input.actions(
+                hand, new_tile, action_list, discard)
+
+        return action, naki, huro
 
     def discard(self, hand, new_tile, kuikae_tiles):
-        user_raw_input = UserRawInput()
-        return user_raw_input.discard(hand, new_tile, kuikae_tiles)
+        tile_to_discard = None
+        if True:
+            user_raw_input = UserRawInput()
+            tile_to_discard = user_raw_input.discard(
+                hand, new_tile, kuikae_tiles)
+
+        return tile_to_discard
 
 
 class UserRawInput:
