@@ -1,15 +1,14 @@
 from typing import Tuple, List, Set, DefaultDict
 from collections import defaultdict
 
-import pyinputplus as pyinput
-
 from .utils import get_name
-from .helpers import nine_yaochuus, convert_hand
+from .helpers import nine_yaochuus
 from .components import Huro, Tile, Action, Jihai, Naki
 from .naki_and_actions import (
     check_tenpai, check_tsumo, check_ankan, check_chakan,
     check_daminkan, check_pon, check_chii
 )
+from .input_handler import user_input
 
 
 class Player:
@@ -244,62 +243,14 @@ class Player:
     ) -> Tuple[Action, Naki]:
         """Gets user input to choose action and sets tmp_huro
         """
-        hand_tiles = convert_hand(self.hand)
-        if discard:
-            print(f"The discarded tile is: | {new_tile} |")
-        else:
-            print(f"Drawn tile is: | {new_tile} |")
-            hand_tiles.append(new_tile)
-        hand_representation = self.show_tiles(hand_tiles, discard)
-        print(hand_representation)
+        action, naki, huro = user_input.actions(self.hand,
+                                                new_tile,
+                                                action_list,
+                                                discard)
+        if action == Action.NAKI:
+            self.tmp_huro = Huro(naki, new_tile, huro)
 
-        options_str = ""
-        naki_options_str = ""
-        naki_huros = {}
-        naki_choices = []
-        for act, naki, possible_huros in action_list:
-            options_str += f"{act.value}: {act}\n"
-            if act == Action.NAKI:
-                naki_options_str += f"{naki.value}: {naki}\n"
-                naki_huros[naki.value] = possible_huros
-                naki_choices.append(str(naki.value))
-
-        selected_action = pyinput.inputNum(
-            "Please select action using number:\n" + options_str,
-            min=0,
-            max=len(action_list) - 1
-        )
-
-        if selected_action == 1:  # NAKI
-            selected_naki = int(pyinput.inputChoice(
-                naki_choices,
-                prompt=f"""Please select naki type using number:
-{naki_options_str}""",
-                blank=True
-            ))
-            possible_huro_opt = naki_huros[selected_naki]
-            possible_huro_str = ""
-            for i, huro in enumerate(possible_huro_opt):
-                huro_str = ", ".join([str(h) for h in huro])
-                possible_huro_str += f"{i}: {huro_str}\n"
-
-            selected_huro = pyinput.inputNum(
-                f"""Please select huro set using number:
-{possible_huro_str}""",
-                min=0,
-                max=len(possible_huro_opt) - 1
-            )
-
-            self.tmp_huro = Huro(
-                Naki(selected_naki),
-                new_tile,
-                possible_huro_opt[selected_huro]
-            )
-        else:
-            selected_naki = None
-
-        naki = Naki(selected_naki) if selected_naki else None
-        return Action(selected_action), naki
+        return action, naki
 
     def get_discard(
         self,
@@ -308,38 +259,4 @@ class Player:
     ) -> Tile:
         """Add in the newly drawn tile and discard a tile
         """
-        hand_tiles = convert_hand(self.hand)
-        if new_tile:
-            hand_tiles.append(new_tile)
-        if kuikae_tiles:
-            # not allowed to choose from this list
-            # TODO: now just hide from hand_representation,
-            # need to change to something else if UI changes
-            hand_tiles = [tile for tile in hand_tiles
-                          if tile not in kuikae_tiles]
-        hand_representation = self.show_tiles(hand_tiles, False)
-
-        print("Please selected the tile you want to discard:")
-        print(hand_representation)
-        discard = pyinput.inputNum(
-            "Discard tile No.: ",
-            min=0,
-            max=len(hand_tiles) - 1
-        )
-        return hand_tiles[discard]
-
-    def show_tiles(self, hand_tiles: List[Tile], discard: bool) -> str:
-        """Convert hand into string representation
-        """
-        hand_representation = f"----- {self.name}'s hand -----\n"
-        for i in range(len(hand_tiles)):
-            hand_representation += f"  {i}  |"
-        hand_representation += "\n"
-
-        for i, tile in enumerate(hand_tiles):
-            if not discard and i == len(hand_tiles) - 1:
-                hand_representation += f"| {tile} ||"
-            else:
-                hand_representation += f" {tile} |"
-        hand_representation += "\n"
-        return hand_representation
+        return user_input.discard(self.hand, new_tile, kuikae_tiles)
