@@ -29,7 +29,6 @@ class Turn:
         self.players = players
         self.stack = stack
         self.first_turn = True  # 開局連打四張內算第一輪，四張後或有人鳴牌則非第一輪
-        self.is_haiteihai = False
         self.oya_draws = 0  # temporary
         self.atamahane = atamahane
         self.winners_pos = []
@@ -37,7 +36,7 @@ class Turn:
 
     def discard_flow(
         self, discard_tile: Tile, discard_pos: int
-    ) -> Tuple[int, Tile, int, Action]:
+    ) -> Tuple[int, Tile, Action]:
         """ An event flow starting with a discard tile. It contains two flows,
         Naki and Draw.
         Args:
@@ -55,16 +54,11 @@ class Turn:
         state = 0
         discarder = self.players[discard_pos]
 
-        # TODO: find a better place to check playing_wall, same as line 225
-        if len(self.stack.playing_wall) == 0:
-            self.is_haiteihai = True
-
         player_pos, (action, naki) = self.ensemble_actions(
             discard_tile, discard_pos)
 
-        # TODO: check this is_haiteihai logic
         if action == Action.NOACT:
-            if self.is_haiteihai:
+            if self.stack.is_haitei:
                 # TODO: new column in logger for ryuukyoku
                 self.logger.log(
                     p_pos=player_pos,
@@ -157,7 +151,7 @@ class Turn:
         """
         naki_actions = [
             (i, self.players[i].action_with_discard_tile(
-                discard_tile, discard_pos, self.is_haiteihai))
+                discard_tile, discard_pos, self.stack.is_haitei))
             for i in range(0, 4) if i != discard_pos
         ]
 
@@ -214,7 +208,7 @@ class Turn:
 
     def draw_flow(
         self, player, from_rinshan: bool = False
-    ) -> Tuple[int, Tile, int, Action]:
+    ) -> Tuple[int, Tile, Action]:
         """ An event flow that triggers a player to draw a tile and ends with
         that player discarding a tile.
         Args:
@@ -234,9 +228,6 @@ class Turn:
         if self.oya_draws >= 2:
             self.first_turn = False
 
-        if len(self.stack.playing_wall) == 0:
-            self.is_haiteihai = True
-
         new_tile = self.stack.draw(from_rinshan)
         # Log Draw
         if from_rinshan:
@@ -252,7 +243,7 @@ class Turn:
         new_tile.owner = player.seating_position
         player.tmp_furiten = False
         (action, naki), action_tile = player.action_with_new_tile(
-            new_tile, self.first_turn, self.is_haiteihai
+            new_tile, self.first_turn, self.stack.is_haitei
         )
         state = 0
         discard_pos = None
@@ -405,11 +396,8 @@ class Kyoku:
                 discard_tile, discard_pos)
 
         if state == -1:
-            renchen = self.handle_ryuukyoku()
-            if renchen:
-                return True, self.kyotaku, self.honba + 1
-            else:
-                return False, self.kyotaku, 0
+            renchen = self.handle_ryuukyoku(turn.stack.is_haitei)
+            return renchen, self.kyotaku, self.honba + 1
 
         else:
             tsumo = act == Action.TSUMO
@@ -424,7 +412,7 @@ class Kyoku:
                 return True, 0, self.honba + 1
             return False, 0, 0
 
-    def handle_ryuukyoku(self, turn: Turn):
+    def handle_ryuukyoku(self, is_haitei: bool):
         """
         區別海底流局和中途流局
         海底流局：若無流局滿貫，則檢查廳牌，莊家聽牌則連莊，否則下莊，本場數皆+1
@@ -434,7 +422,7 @@ class Kyoku:
             renchan: bool, if the oya is same player or not
         """
         renchen = False
-        if len(turn.stack.playling_wall) == 0:  # 海底流局
+        if is_haitei:  # 海底流局
             tenpai_players = []
             if nagashi_player := self.check_nagashi_mangan():
                 # 這裡採用流局滿貫不算和牌的規則，差別在本場和供託
@@ -456,7 +444,6 @@ class Kyoku:
             renchen = True
 
         return renchen
-
 
     def check_nagashi_mangan(self):  # 流し満貫
         """All the discards are terminals and/or honors.
