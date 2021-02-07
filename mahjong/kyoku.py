@@ -441,6 +441,12 @@ class Kyoku:
             if self.oya_player in tenpai_players:
                 renchen = True
         else:  # 中途流局
+            # 目前不區分中途流局
+            # 九種九牌: check in Player action_with_new_tile()
+            # 四風連打: check in Turn draw_flow()
+            # 四開槓: check in Turn naki_flow() and draw_flow()
+            # 四立直: TODO
+            # 三家和: check in Turn ensemble_actions()
             renchen = True
 
         return renchen

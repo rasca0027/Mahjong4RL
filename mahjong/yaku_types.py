@@ -254,7 +254,6 @@ class JouKyouYaku(YakuTypes):
             self.total_yaku = 'haitei_raoyue'
             self.total_han = 1
             return True
-
         return False
 
     def rinshan_kaihou(self):  # 嶺上開花
