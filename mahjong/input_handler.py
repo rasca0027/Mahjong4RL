@@ -6,21 +6,25 @@ from .helpers import convert_hand
 from .components import Tile, Action, Naki
 
 
-class user_input:
+class UserInput:
 
     def actions(self, hand, new_tile, action_list, discard):
+        user_raw_input = UserRawInput()
         return user_raw_input.actions(hand, new_tile, action_list, discard)
 
     def discard(self, hand, new_tile, kuikae_tiles):
+        user_raw_input = UserRawInput()
         return user_raw_input.discard(hand, new_tile, kuikae_tiles)
 
 
-class user_raw_input:
+class UserRawInput:
 
-    def show_tiles(self, hand_tiles: List[Tile], discard: bool) -> str:
+    def show_tiles(self,
+                   hand_tiles: List[Tile],
+                   discard: bool) -> str:
         """Convert hand into string representation
         """
-        hand_representation = f"----- {self.name}'s hand -----\n"
+        hand_representation = "----- Tiles in hand -----\n"
         for i in range(len(hand_tiles)):
             hand_representation += f"  {i}  |"
         hand_representation += "\n"
