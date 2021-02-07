@@ -171,6 +171,10 @@ class TestStack(unittest.TestCase):
         self.assertEqual(Stack.compute_dora(dora_indicator5), dora5)
         self.assertEqual(Stack.compute_dora(dora_indicator6), dora6)
 
+    def test_draw_from_rinshan(self):
+        self.test_stack.draw(from_rinshan=True)
+        self.assertEqual(len(self.test_stack.playing_wall), 121)
+
 
 class TestHuro(unittest.TestCase):
 

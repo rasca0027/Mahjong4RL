@@ -173,7 +173,7 @@ class Stack:
         self.uradoras = []
 
         self.initiate()
-        self.playling_wall = self.stack[:122].copy()
+        self.playing_wall = self.stack[:122].copy()
         self.rinshanpai = self.stack[-4:][::-1].copy()  # 王牌是最後七墩，嶺上牌是槓可以抽的最後四張
 
     def initiate(self):
@@ -188,8 +188,9 @@ class Stack:
 
     def draw(self, from_rinshan: bool = False) -> Tile:
         if from_rinshan:
+            self.playing_wall.pop(-1)
             return self.rinshanpai.pop(0)
-        return self.playling_wall.pop(0)
+        return self.playing_wall.pop(0)
 
     def add_dora_indicator(self):
         if len(self.doras) < 5:
