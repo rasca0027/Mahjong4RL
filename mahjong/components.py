@@ -193,7 +193,7 @@ class Stack:
         return self.playing_wall.pop(0)
 
     def add_dora_indicator(self):
-        if len(self.doras) < 5:
+        if len(self.doras) <= 5:
             next_dora_ind = self.stack[self.dora_index]
             self.dora_indicators.append(next_dora_ind)
 

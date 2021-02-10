@@ -7,7 +7,7 @@ from .utils import get_name
 from .helpers import nine_yaochuus, convert_hand
 from .components import Huro, Tile, Action, Jihai, Naki
 from .naki_and_actions import (
-    check_tenpai, check_tsumo, check_ankan, check_chakan,
+    check_tenpai, check_ron, check_tsumo, check_ankan, check_chakan,
     check_daminkan, check_pon, check_chii
 )
 
@@ -119,7 +119,11 @@ class Player:
         return action_list
 
     def action_with_discard_tile(
-        self, tile: Tile, pos: int, is_haiteihai: bool = False
+        self,
+        tile: Tile,
+        pos: int,
+        is_haiteihai: bool = False,
+        suukaikan: bool = False
     ) -> Tuple[Action, Naki]:
         """"Player has to select an action reacting to
           the discarded tile.
@@ -130,8 +134,13 @@ class Player:
           action: CHI/PON/DAMINKAN/RON
         """
         self.tmp_huro = None
-        action_list = self.get_action_list(
-            False, self.hand, self.kabe, tile, is_haiteihai)
+        if suukaikan:
+            action_list = [(Action.NOACT, Naki.NONE, []), ]
+            if check_ron(self, tile):
+                action_list.append((Action.RON, Naki.NONE, []))
+        else:
+            action_list = self.get_action_list(
+                False, self.hand, self.kabe, tile, is_haiteihai)
         if action_list == [(Action.NOACT, Naki.NONE, [])]:
             action = Action.NOACT
             naki = Naki.NONE
@@ -150,7 +159,11 @@ class Player:
         return action, naki
 
     def action_with_new_tile(
-        self, tile: Tile, first_turn: bool, is_haiteihai: bool = False
+        self,
+        tile: Tile,
+        first_turn: bool,
+        is_haiteihai: bool = False,
+        suukaikan: bool = False
     ) -> Tuple[Tuple[Action, Naki], Tile]:
         """"Player has to select an action reacting to the new drawn tile.
         Args:
@@ -159,8 +172,11 @@ class Player:
           (action, naki): TSUMO/ANKAN/CHAKAN
           discard_tile: Tile
         """
-        action_list = self.get_action_list(
-            True, self.hand, self.kabe, tile, is_haiteihai)
+        if suukaikan:
+            action_list = [(Action.NOACT, Naki.NONE, []), ]
+        else:
+            action_list = self.get_action_list(
+                True, self.hand, self.kabe, tile, is_haiteihai)
         if first_turn and nine_yaochuus(self.hand, tile):
             action_list.append((Action.RYUUKYOKU, Naki.NONE, []))
         if check_tsumo(self.hand, self.kabe, tile):
