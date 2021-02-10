@@ -1,6 +1,6 @@
 import copy
 import math
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from collections import defaultdict
 from itertools import combinations
 from abc import ABC, abstractmethod
@@ -12,6 +12,67 @@ from .helpers import (
 from .components import Suit, Jihai, Tile, Naki, Stack
 from .utils import get_name
 from .naki_and_actions import check_tenpai
+
+
+class YakuCalculator():
+    def __init__(self, player, stack, bakaze, is_ron):
+        self.player = player
+        self.evaluations = [
+            JouKyouYaku(player, stack, bakaze, is_ron).menzen_tsumo,
+            # TeYaku(player, stack, bakaze, is_ron).ryuuiisou,
+            # Yakuhai(),
+            # Peikou(),
+            # Chanta(),
+            # Koutsu(),
+            # Sanshoku(),
+            # Somete().chiniisou,
+        ]
+
+    def calculate(self):
+        """Iterate through yaku evaluations and calculate valid yakus.
+
+        Start from the starting node of each type of yaku series, if it matches
+        then stop iterating in that series; if not continue, until there is no
+        `next_eval`. Then filter out the mutually exclusive yakus, finally
+        returning total han and fu to Kyoku.
+
+        :return: int, han and fu
+        """
+        possible_yakus: List[Tuple[str, int]] = []
+        for evaluation in self.evaluations:
+            current_eval = evaluation
+            while True:
+                valid, yaku_name, han = current_eval()
+                if valid:
+                    possible_yakus.append((yaku_name, han))
+                    break
+                elif current_eval.next_eval:
+                    # if any, continue on child nodes
+                    current_eval = current_eval.next_eval
+        # filter contradictory yakus
+        final_yakus = self.filter_yaku(possible_yakus)
+        final_hans = sum(han for yaku_name, han in final_yakus)
+        fu = self.calculate_fu()
+        return final_hans, fu
+
+    def filter_yaku(
+            self, yakus: List[Tuple[str, int]]) -> List[Tuple[str, int]]:
+        """Filter out mutually exclusive yakus."""
+        YAKU_EXCLUDE_TABLE = {
+            'menzen_tsumo': [],
+            'ryanpeikou': ['chiitoitsu'],
+            # TODO: fill in table
+        }
+        yaku_list = [yaku for yaku, han in yakus]
+        for yaku_name in yaku_list:
+            if yaku_name in YAKU_EXCLUDE_TABLE:
+                excluded_yakus = YAKU_EXCLUDE_TABLE[yaku_name]
+                yakus = list(filter(
+                    lambda x: x[0] not in excluded_yakus, yakus))
+        return yakus
+
+    def calculate_fu(self):
+        pass
 
 
 class YakuTypes(ABC):
@@ -200,11 +261,17 @@ class JouKyouYaku(YakuTypes):
         1 han (closed only)
         http://arcturus.su/wiki/Menzenchin_tsumohou
         """
+        # flake8: noqa
+        next_eval = [
+            self.chankan,
+            self.houtei_raoyui,
+            self.riichi,
+            self.ippatsu,
+            # TODO: add all
+        ]
         if self.player.menzenchin and not self.is_ron:
-            self.total_yaku = 'menzen_tsumo'
-            self.total_han = 1
-            return True
-        return False
+            return True, 'menzen_tsumo', 1
+        return False, None, None
 
     def chankan(self):  # 搶槓
         """A player may declare ron while a player calls to upgrade

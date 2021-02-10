@@ -6,6 +6,7 @@ from .event_logger import KyokuLogger
 from .helpers import get_atamahane_winner, get_wind_tiles, check_all_equal
 from .utils import roundup
 from .naki_and_actions import check_tenpai
+from .yaku_types import YakuCalculator
 
 
 class Turn:
@@ -383,8 +384,18 @@ class Kyoku:
             player.hand = [self.tile_stack.draw() for _ in range(13)]
         return
 
-    def calculate_yaku():
-        ...
+    def calculate_yaku(self, tsumo) -> Tuple[int, int]:
+        """Calculate yaku and return han and fu
+        Return:
+            han: int
+            fu: int
+        """
+        # TODO: handle multiple winners
+        winner = self.winners[0]  # temporary
+        yaku_calculator = YakuCalculator(
+            winner, self.stack, self.bakaze, not tsumo)
+        yaku = yaku_calculator.calculate()
+        return yaku.han, yaku.fu
 
     def start(self):
         """
@@ -417,7 +428,8 @@ class Kyoku:
             if discard_pos:
                 loser = self.players[discard_pos]
             self.winners = [self.players[pos] for pos in turn.winners]
-            han, fu = self.calculate_yaku()
+            han, fu = self.calculate_yaku(tsumo)
+            # TODO: 沒有handle不同winner不同翻數......
             self.apply_points(han, fu, tsumo, loser)
             if self.oya_player in self.winners:
                 # return next oya, kyotaku, honba
