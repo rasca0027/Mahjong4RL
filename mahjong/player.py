@@ -7,7 +7,7 @@ from .utils import get_name
 from .helpers import nine_yaochuus, convert_hand
 from .components import Huro, Tile, Action, Jihai, Naki
 from .naki_and_actions import (
-    check_tenpai, check_tsumo, check_ankan, check_chakan,
+    check_tenpai, check_ron, check_tsumo, check_ankan, check_chakan,
     check_daminkan, check_pon, check_chii
 )
 
@@ -87,7 +87,12 @@ class Player:
     def get_shimocha(self) -> int:
         return (self.seating_position + 1) % 4
 
-    def get_action_list(self, is_drawer, hand, kabe, tile, haiteihai=False):
+    def get_naki_action_list(self,
+                             is_drawer,
+                             hand,
+                             kabe,
+                             tile,
+                             haiteihai=False):
         """Check player's eligible action to a tile.
         Args:
           is_drawer: bool, if the player drew the tile or other player
@@ -99,7 +104,7 @@ class Player:
         Returns:
           action_list (list of tuples): Naki type and possible nakis
         """
-        action_list = [(Action.NOACT, Naki.NONE, [])]
+        action_list = [(Action.NOACT, Naki.NONE, []), ]
 
         if haiteihai:
             return action_list
@@ -130,8 +135,12 @@ class Player:
           action: CHI/PON/DAMINKAN/RON
         """
         self.tmp_huro = None
-        action_list = self.get_action_list(
+        action_list = self.get_naki_action_list(
             False, self.hand, self.kabe, tile, is_haiteihai)
+        if check_ron(self, tile):
+            action_list.append((Action.RON, Naki.NONE, []))
+
+        # TODO: skip getting action input, should move this to interface
         if action_list == [(Action.NOACT, Naki.NONE, [])]:
             action = Action.NOACT
             naki = Naki.NONE
@@ -159,13 +168,14 @@ class Player:
           (action, naki): TSUMO/ANKAN/CHAKAN
           discard_tile: Tile
         """
-        action_list = self.get_action_list(
+        action_list = self.get_naki_action_list(
             True, self.hand, self.kabe, tile, is_haiteihai)
         if first_turn and nine_yaochuus(self.hand, tile):
             action_list.append((Action.RYUUKYOKU, Naki.NONE, []))
         if check_tsumo(self.hand, self.kabe, tile):
             action_list.append((Action.TSUMO, Naki.NONE, []))
 
+        # TODO: skip getting action input, should move this to interface
         if action_list == [(Action.NOACT, Naki.NONE, [])]:
             action = Action.NOACT
             naki = Naki.NONE
