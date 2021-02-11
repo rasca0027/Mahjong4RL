@@ -36,7 +36,7 @@ class Turn:
 
     def discard_flow(
         self, discard_tile: Tile, discard_pos: int
-    ) -> Tuple[int, Tile, Action]:
+    ) -> Tuple[int, Tile, int, Action]:
         """ An event flow starting with a discard tile. It contains two flows,
         Naki and Draw.
         Args:
@@ -208,7 +208,7 @@ class Turn:
 
     def draw_flow(
         self, player, from_rinshan: bool = False
-    ) -> Tuple[int, Tile, Action]:
+    ) -> Tuple[int, Tile, int, Action]:
         """ An event flow that triggers a player to draw a tile and ends with
         that player discarding a tile.
         Args:
