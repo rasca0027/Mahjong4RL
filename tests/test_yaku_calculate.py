@@ -2,7 +2,7 @@ import unittest
 
 from mahjong.components import Stack, Jihai, Suit, Tile
 from mahjong.player import Player
-from mahjong.yaku_types import YakuCalculator
+from mahjong.yaku_calculator import YakuCalculator
 
 
 class TestYakuCalculator(unittest.TestCase):

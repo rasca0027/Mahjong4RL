@@ -1,6 +1,6 @@
 import copy
 import math
-from typing import List, Optional, Tuple
+from typing import List, Optional, Callable
 from collections import defaultdict
 from itertools import combinations
 from abc import ABC, abstractmethod
@@ -14,67 +14,6 @@ from .utils import get_name
 from .naki_and_actions import check_tenpai
 
 
-class YakuCalculator():
-    def __init__(self, player, stack, bakaze, is_ron):
-        self.player = player
-        self.evaluations = [
-            JouKyouYaku(player, stack, bakaze, is_ron).menzen_tsumo,
-            # TeYaku(player, stack, bakaze, is_ron).ryuuiisou,
-            # Yakuhai(),
-            # Peikou(),
-            # Chanta(),
-            # Koutsu(),
-            # Sanshoku(),
-            # Somete().chiniisou,
-        ]
-
-    def calculate(self):
-        """Iterate through yaku evaluations and calculate valid yakus.
-
-        Start from the starting node of each type of yaku series, if it matches
-        then stop iterating in that series; if not continue, until there is no
-        `next_eval`. Then filter out the mutually exclusive yakus, finally
-        returning total han and fu to Kyoku.
-
-        :return: int, han and fu
-        """
-        possible_yakus: List[Tuple[str, int]] = []
-        for evaluation in self.evaluations:
-            current_eval = evaluation
-            while True:
-                valid, yaku_name, han = current_eval()
-                if valid:
-                    possible_yakus.append((yaku_name, han))
-                    break
-                elif current_eval.next_eval:
-                    # if any, continue on child nodes
-                    current_eval = current_eval.next_eval
-        # filter contradictory yakus
-        final_yakus = self.filter_yaku(possible_yakus)
-        final_hans = sum(han for yaku_name, han in final_yakus)
-        fu = self.calculate_fu()
-        return final_hans, fu
-
-    def filter_yaku(
-            self, yakus: List[Tuple[str, int]]) -> List[Tuple[str, int]]:
-        """Filter out mutually exclusive yakus."""
-        YAKU_EXCLUDE_TABLE = {
-            'menzen_tsumo': [],
-            'ryanpeikou': ['chiitoitsu'],
-            # TODO: fill in table
-        }
-        yaku_list = [yaku for yaku, han in yakus]
-        for yaku_name in yaku_list:
-            if yaku_name in YAKU_EXCLUDE_TABLE:
-                excluded_yakus = YAKU_EXCLUDE_TABLE[yaku_name]
-                yakus = list(filter(
-                    lambda x: x[0] not in excluded_yakus, yakus))
-        return yakus
-
-    def calculate_fu(self):
-        pass
-
-
 class YakuTypes(ABC):
 
     def __init__(
@@ -82,7 +21,7 @@ class YakuTypes(ABC):
         bakaze: Jihai, ron: bool, first_turn: Optional[bool] = False
     ):
         self._total_yaku = []
-        self._total_han = 0
+        self._total_han = []
         self._yakuman_count = 0
         self.player = player
         self.stack = stack
@@ -96,6 +35,7 @@ class YakuTypes(ABC):
             self.agari_hand[self.player.agari_tile.index] += 1
         self.huro_tiles = [
             tile for huro in self.player.kabe for tile in huro.tiles]
+        self.use_chain = True
 
     @property
     @abstractmethod
@@ -115,6 +55,10 @@ class YakuTypes(ABC):
     @total_han.setter
     @abstractmethod
     def total_han(self, han):
+        return NotImplemented
+
+    @abstractmethod
+    def get_all_evals(self):
         return NotImplemented
 
     def calculate_fu(self):
@@ -240,6 +184,11 @@ class YakuTypes(ABC):
 
 
 class JouKyouYaku(YakuTypes):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.use_chain = False
+
     @property
     def total_yaku(self):
         return self._total_yaku
@@ -254,24 +203,32 @@ class JouKyouYaku(YakuTypes):
 
     @total_han.setter
     def total_han(self, han):
-        self._total_han += han
+        self._total_han.append(han)
+
+    def get_all_evals(self) -> List[Callable]:
+        return [
+            self.menzen_tsumo,
+            self.chankan,
+            self.houtei_raoyui,
+            self.riichi,
+            self.ippatsu,
+            self.haitei_raoyue,
+            self.rinshan_kaihou,
+            self.daburu_riichi,
+            self.tenhou,
+            self.chiihou,
+        ]
 
     def menzen_tsumo(self):  # 門前清自摸和
         """A player with a closed tenpai hand may win with tsumo.
         1 han (closed only)
         http://arcturus.su/wiki/Menzenchin_tsumohou
         """
-        # flake8: noqa
-        next_eval = [
-            self.chankan,
-            self.houtei_raoyui,
-            self.riichi,
-            self.ippatsu,
-            # TODO: add all
-        ]
         if self.player.menzenchin and not self.is_ron:
-            return True, 'menzen_tsumo', 1
-        return False, None, None
+            self.total_yaku = 'menzen_tsumo'
+            self.total_han = 1
+            return True
+        return False
 
     def chankan(self):  # 搶槓
         """A player may declare ron while a player calls to upgrade
@@ -279,7 +236,7 @@ class JouKyouYaku(YakuTypes):
         1 han
         http://arcturus.su/wiki/Chankan
         """
-        return NotImplemented
+        return False
 
     def houtei_raoyui(self):  # 河底撈魚
         """Win by last discard.
@@ -290,7 +247,6 @@ class JouKyouYaku(YakuTypes):
             self.total_yaku = 'houtei_raoyui'
             self.total_han = 1
             return True
-
         return False
 
     def riichi(self):  # 立直
@@ -309,7 +265,7 @@ class JouKyouYaku(YakuTypes):
         1 han
         http://arcturus.su/wiki/Ippatsu
         """
-        return NotImplemented
+        return False
 
     def haitei_raoyue(self):  # 海底撈月
         """A player wins with the tsumo on the haiteihai, the last
@@ -329,7 +285,7 @@ class JouKyouYaku(YakuTypes):
         1 han
         http://arcturus.su/wiki/Rinshan_kaihou
         """
-        return NotImplemented
+        return False
 
     def daburu_riichi(self):  # 両立直
         """This is a special case for riichi. In this case, the player's start
@@ -338,7 +294,7 @@ class JouKyouYaku(YakuTypes):
         2 han
         http://arcturus.su/wiki/Daburu_riichi
         """
-        return NotImplemented
+        return False
 
     def tenhou(self):  # 天和
         """The dealer hand is a winning hand even before discarding a tile.
@@ -367,6 +323,11 @@ class JouKyouYaku(YakuTypes):
 
 
 class TeYaku(YakuTypes):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.use_chain = False
+
     @property
     def total_yaku(self):
         return self._total_yaku
@@ -381,7 +342,19 @@ class TeYaku(YakuTypes):
 
     @total_han.setter
     def total_han(self, han):
-        self._total_han += han
+        self._total_han.append(han)
+
+    def get_all_evals(self) -> List[Callable]:
+        return [
+            self.ryuuiisou,
+            self.kokushi_musou,
+            self.chuuren_poutou,
+            self.toitoihou,
+            self.chiitoitsu,
+            self.ikkitsuukan,
+            self.pinfu,
+            self.tanyao,
+        ]
 
     def ryuuiisou(self):  # 緑一色
         """A hand composed entirely of green tiles: 2, 3, 4, 6 and 8 Sou and/or Hatsu.
@@ -610,6 +583,21 @@ class TeYaku(YakuTypes):
 
 
 class Yakuhai(TeYaku):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.use_chain = False
+
+    def get_all_evals(self) -> List[Callable]:
+        return [
+            self.daisangen,
+            self.tsuuiisou,
+            self.daisuushii,
+            self.shousuushii,
+            self.shousangen,
+            self.yakuhai,
+        ]
+
     def daisangen(self):  # 大三元
         """This hand possesses three groups (triplets or quads) of all the dragons.
         yakuman
@@ -746,6 +734,16 @@ class Yakuhai(TeYaku):
 
 
 class Peikou(TeYaku):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def get_all_evals(self) -> List[Callable]:
+        return [
+            self.ryanpeikou,
+            self.iipeikou,
+        ]
+
     def ryanpeikou(self):  # 二盃口
         """A hand consisting of two "iipeikou"
         3 han (closed only)
@@ -788,6 +786,18 @@ class Peikou(TeYaku):
 
 
 class Chanta(TeYaku):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def get_all_evals(self) -> List[Callable]:
+        return [
+            self.chinroutou,
+            self.honroutou,
+            self.junchantaiyaochuu,
+            self.chanta,
+        ]
+
     def chinroutou(self):  # 清老頭
         """Every group of tiles are composed of terminal tiles.
         yakuman
@@ -916,6 +926,18 @@ class Chanta(TeYaku):
 
 
 class Koutsu(TeYaku):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def get_all_evals(self) -> List[Callable]:
+        return [
+            self.suuankou,
+            self.suukantsu,
+            self.sanankou,
+            self.sankantsu,
+        ]
+
     def suuankou(self):  # 四暗刻 or 四暗刻単騎
         """This hand is composed of four groups of closed triplets.
         When this hand has a shanpon pattern and the win is via ron,
@@ -990,6 +1012,16 @@ class Koutsu(TeYaku):
 
 
 class Sanshoku(TeYaku):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def get_all_evals(self) -> List[Callable]:
+        return [
+            self.sanshoku_doukou,
+            self.sanshoku_doujun,
+        ]
+
     def sanshoku_doukou(self):  # 三色同刻
         """A hand contain three koutsu of the same numbered tiles across
         the three main suits.
@@ -1051,6 +1083,16 @@ class Sanshoku(TeYaku):
 
 
 class Somete(TeYaku):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def get_all_evals(self) -> List[Callable]:
+        return [
+            self.chiniisou,
+            self.honiisou,
+        ]
+
     def chiniisou(self):  # 清一色
         """A hand is composed of tiles in one suit only.
         6 han
