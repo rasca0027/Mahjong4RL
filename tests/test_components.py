@@ -128,9 +128,6 @@ class TestStack(unittest.TestCase):
         self.assertEqual(len(self.test_stack.uradoras), 2)
 
     def test_add_dora_value_error(self):
-        # 開局寶牌
-        self.test_stack.add_dora_indicator()
-        # 最多槓四次
         self.test_stack.add_dora_indicator()
         self.test_stack.add_dora_indicator()
         self.test_stack.add_dora_indicator()

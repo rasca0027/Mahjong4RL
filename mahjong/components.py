@@ -193,7 +193,7 @@ class Stack:
         return self.playing_wall.pop(0)
 
     def add_dora_indicator(self):
-        if len(self.doras) <= 5:
+        if len(self.doras) < 5:
             next_dora_ind = self.stack[self.dora_index]
             self.dora_indicators.append(next_dora_ind)
 
@@ -205,7 +205,7 @@ class Stack:
             self.dora_index -= 2
         else:
             raise ValueError(
-                "Number of doras could only be less than 5"
+                "Number of doras could only be less than or equal to 5"
             )
         return
 
