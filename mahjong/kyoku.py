@@ -6,7 +6,7 @@ from .event_logger import KyokuLogger
 from .helpers import get_atamahane_winner, get_wind_tiles, check_all_equal
 from .utils import roundup
 from .naki_and_actions import check_tenpai
-from .yaku_types import YakuCalculator
+from .yaku_calculator import YakuCalculator
 
 
 class Turn:
