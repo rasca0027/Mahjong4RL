@@ -186,6 +186,10 @@ class Stack:
         random.shuffle(self.stack)
         self.add_dora_indicator()
 
+    @property
+    def is_haitei(self):
+        return len(self.playing_wall) == 0
+
     def draw(self, from_rinshan: bool = False) -> Tile:
         if from_rinshan:
             self.playing_wall.pop(-1)
@@ -267,9 +271,9 @@ class Huro:
             return self.naki_type == Naki.PON
         elif naki_str == "KAN":
             return (
-                self.naki_type == Naki.DAMINKAN or
-                self.naki_type == Naki.CHAKAN or
-                self.naki_type == Naki.ANKAN
+                self.naki_type == Naki.DAMINKAN
+                or self.naki_type == Naki.CHAKAN
+                or self.naki_type == Naki.ANKAN
             )
         elif naki_str == "DAMINKAN":
             return self.naki_type == Naki.DAMINKAN
