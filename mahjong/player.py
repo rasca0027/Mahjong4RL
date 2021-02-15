@@ -1,4 +1,4 @@
-from typing import Tuple, List, Set, DefaultDict
+from typing import Tuple, List, Set, DefaultDict, Optional
 from collections import defaultdict
 
 from .utils import get_name
@@ -8,13 +8,19 @@ from .naki_and_actions import (
     check_tenpai, check_tsumo, check_ankan, check_chakan,
     check_daminkan, check_pon, check_chii
 )
-from .input_handler import UserInput
+from .input_handler import UserRawInput
 
 
 class Player:
-    def __init__(self, name, seating_position):
+    def __init__(
+        self,
+        name,
+        seating_position,
+        input_method: Optional[str] = 'raw_input'
+    ):
         self.name: str = name
         self._seating_position = seating_position  # 固定座位順序 (0~3)
+        self.input_method = input_method
         # jikaze 自風, dealer seat (東風) rotates among players
         self.jikaze: Jihai = Jihai[get_name(Jihai, seating_position + 4)]
         self.points: int = 25_000
@@ -131,11 +137,8 @@ class Player:
         self.tmp_huro = None
         action_list = self.get_action_list(
             False, self.hand, self.kabe, tile, is_haiteihai)
-        if action_list == [(Action.NOACT, Naki.NONE, [])]:
-            action = Action.NOACT
-            naki = Naki.NONE
-        else:
-            action, naki = self.get_input(tile, action_list, True)
+
+        action, naki = self.get_input(tile, action_list, True)
 
         # set temporary and permanent furiten
         if action == Action.NOACT:
@@ -165,11 +168,7 @@ class Player:
         if check_tsumo(self.hand, self.kabe, tile):
             action_list.append((Action.TSUMO, Naki.NONE, []))
 
-        if action_list == [(Action.NOACT, Naki.NONE, [])]:
-            action = Action.NOACT
-            naki = Naki.NONE
-        else:
-            action, naki = self.get_input(tile, action_list, False)
+        action, naki = self.get_input(tile, action_list, False)
 
         if action == Action.TSUMO:
             self.agari_tile = tile
@@ -243,7 +242,8 @@ class Player:
     ) -> Tuple[Action, Naki]:
         """Gets user input to choose action and sets tmp_huro
         """
-        user_input = UserInput()
+        if self.input_method == 'raw_input':
+            user_input = UserRawInput()
         action, naki, huro = user_input.actions(self.hand,
                                                 new_tile,
                                                 action_list,
@@ -260,7 +260,8 @@ class Player:
     ) -> Tile:
         """Add in the newly drawn tile and discard a tile
         """
-        user_input = UserInput()
+        if self.input_method == 'raw_input':
+            user_input = UserRawInput()
         tile_to_discard = user_input.discard(
             self.hand, new_tile, kuikae_tiles)
 

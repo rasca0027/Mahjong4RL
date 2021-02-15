@@ -1,4 +1,5 @@
 from typing import List
+from abc import ABC, abstractmethod
 
 import pyinputplus as pyinput
 
@@ -6,30 +7,21 @@ from .helpers import convert_hand
 from .components import Tile, Action, Naki
 
 
-class UserInput:
+class UserInput(ABC):
 
+    def __init__(self):
+        ...
+
+    @abstractmethod
     def actions(self, hand, new_tile, action_list, discard):
-        action = Action.NOACT
-        naki = Naki.NONE
-        huro = []
-        if True:
-            user_raw_input = UserRawInput()
-            action, naki, huro = user_raw_input.actions(
-                hand, new_tile, action_list, discard)
+        return NotImplemented
 
-        return action, naki, huro
-
+    @abstractmethod
     def discard(self, hand, new_tile, kuikae_tiles):
-        tile_to_discard = None
-        if True:
-            user_raw_input = UserRawInput()
-            tile_to_discard = user_raw_input.discard(
-                hand, new_tile, kuikae_tiles)
-
-        return tile_to_discard
+        return NotImplemented
 
 
-class UserRawInput:
+class UserRawInput(UserInput):
 
     def show_tiles(self,
                    hand_tiles: List[Tile],
@@ -122,7 +114,10 @@ class UserRawInput:
         hand_representation = self.show_tiles(hand_tiles, discard)
         print(hand_representation)
 
-        return self.actions_with_new_tile(action_list)
+        if action_list == [(Action.NOACT, Naki.NONE, [])]:
+            return Action.NOACT, Naki.NONE, []
+        else:
+            return self.actions_with_new_tile(action_list)
 
     def discard(self, hand, new_tile, kuikae_tiles):
         hand_tiles = convert_hand(hand)

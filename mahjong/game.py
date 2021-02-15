@@ -1,3 +1,6 @@
+import json
+import os
+import sys
 from typing import List
 
 from .player import Player
@@ -9,13 +12,25 @@ class Game:
     def __init__(self, player_names: List[str]):
         self.bakaze = Jihai.TON
         self.kyoku_num = 1  # e.g.東1局
-        self.players = self.get_init_players(player_names)
-        self.current_kyoku = Kyoku(self.players, 0, self.bakaze, 0)
+        game_config, custom_rules = self.load_config()
+        self.players = self.get_init_players(player_names,
+                                             game_config['input'])
+        self.current_kyoku = Kyoku(self.players,
+                                   0,
+                                   self.bakaze,
+                                   0,
+                                   custom_rules['atamahane'])
 
-    def get_init_players(self, player_names):
+    def load_config(self):
+        with open(os.path.join(sys.path[0], 'mahjong/config.json')) as f:
+            config = json.load(f)
+
+        return config['Game Config'], config['Custom Rules']
+
+    def get_init_players(self, player_names, input_method):
         players = []
         for i, name in enumerate(player_names):
-            players.append(Player(name, i))
+            players.append(Player(name, i, input_method))
         return players
 
     def start_game(self):
