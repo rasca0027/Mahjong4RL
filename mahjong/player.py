@@ -144,7 +144,7 @@ class Player:
             False, self.hand, self.kabe, tile, is_haiteihai)
         if check_ron(self, tile):
             action_list.append((Action.RON, Naki.NONE, []))
-        
+
         action, naki = self.get_input(tile, action_list, True)
 
         # set temporary and permanent furiten
