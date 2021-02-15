@@ -151,7 +151,8 @@ class Turn:
         """
         naki_actions = [
             (i, self.players[i].action_with_discard_tile(
-                discard_tile, discard_pos, self.stack.is_haitei, self.suukaikan))
+                discard_tile, discard_pos,
+                self.stack.is_haitei, self.suukaikan))
             for i in range(0, 4) if i != discard_pos
         ]
 
