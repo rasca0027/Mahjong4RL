@@ -8,7 +8,7 @@ from .naki_and_actions import (
     check_tenpai, check_ron, check_tsumo, check_ankan, check_chakan,
     check_daminkan, check_pon, check_chii
 )
-from .input_handler import UserRawInput
+from .input_handler import input_switch
 
 
 class Player:
@@ -249,8 +249,7 @@ class Player:
     ) -> Tuple[Action, Naki]:
         """Gets user input to choose action and sets tmp_huro
         """
-        if self.input_method == 'raw_input':
-            user_input = UserRawInput()
+        user_input = input_switch(self.input_method)
         action, naki, huro = user_input.actions(self.hand,
                                                 new_tile,
                                                 action_list,
@@ -267,8 +266,7 @@ class Player:
     ) -> Tile:
         """Add in the newly drawn tile and discard a tile
         """
-        if self.input_method == 'raw_input':
-            user_input = UserRawInput()
+        user_input = input_switch(self.input_method)
         tile_to_discard = user_input.discard(
             self.hand, new_tile, kuikae_tiles)
 

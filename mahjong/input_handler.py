@@ -139,3 +139,10 @@ class UserRawInput(UserInput):
             max=len(hand_tiles) - 1
         )
         return hand_tiles[discard]
+
+
+def input_switch(input_method):
+    if input_method == 'raw_input':
+        return UserRawInput()
+    else:
+        raise ValueError('input method should be: raw_input')
