@@ -29,6 +29,7 @@ class Turn:
         self.players = players
         self.stack = stack
         self.first_turn = True  # 開局連打四張內算第一輪，四張後或有人鳴牌則非第一輪
+        self.suukaikan = False
         self.oya_draws = 0  # temporary
         self.atamahane = atamahane
         self.winners_pos = []
@@ -120,8 +121,7 @@ class Turn:
         kuikae_tiles = player.action_with_naki(naki)
         discard_pos = player.seating_position
         if naki == Naki.DAMINKAN:
-            if self.check_suukaikan(player.kabe):
-                return -1, None, None, None
+            self.check_suukaikan(player.kabe)
             state, discard_tile, discard_pos, _ = self.draw_flow(
                 player, from_rinshan=True)
         elif naki in (Naki.CHII, Naki.PON):
@@ -151,7 +151,8 @@ class Turn:
         """
         naki_actions = [
             (i, self.players[i].action_with_discard_tile(
-                discard_tile, discard_pos, self.stack.is_haitei))
+                discard_tile, discard_pos,
+                self.stack.is_haitei, self.suukaikan))
             for i in range(0, 4) if i != discard_pos
         ]
 
@@ -243,7 +244,7 @@ class Turn:
         new_tile.owner = player.seating_position
         player.tmp_furiten = False
         (action, naki), action_tile = player.action_with_new_tile(
-            new_tile, self.first_turn, self.stack.is_haitei
+            new_tile, self.first_turn, self.stack.is_haitei, self.suukaikan
         )
         state = 0
         discard_pos = None
@@ -261,8 +262,7 @@ class Turn:
 
                 if kan_state := self.kan_flow(player, new_tile, naki):
                     return kan_state, action_tile, discard_pos
-                if self.check_suukaikan(player.kabe):
-                    return -1, action_tile, discard_pos
+                self.check_suukaikan(player.kabe)
             state, action_tile, discard_pos, act = self.draw_flow(
                 player, from_rinshan=True)
 
@@ -303,9 +303,8 @@ class Turn:
             if len([huro for huro in kabe
                     if huro.naki_type in kan_types]) != 4:
                 # Suukaikan: four KAN are called by different player
-                return True  # 流局
+                self.suukaikan = True  # 若無放銃則流局
         self.stack.add_dora_indicator()
-        return False
 
     def check_suufon_renda(self) -> bool:
         wind_tiles = get_wind_tiles()
