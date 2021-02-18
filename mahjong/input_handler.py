@@ -109,7 +109,7 @@ class UserRawInput(UserInput):
         return selected_naki, possible_huro_opt[selected_huro]
 
     def actions_with_new_tile(self, action_list):
-        options_str, min_act ,max_act = self.parse_options(action_list)
+        options_str, min_act, max_act = self.parse_options(action_list)
         selected_action = pyinput.inputNum(
             "Please select action using number:\n" + options_str,
             min=min_act,
