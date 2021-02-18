@@ -1,6 +1,5 @@
 import unittest
 
-from mahjong.components import Jihai
 from mahjong.kyoku import Kyoku
 from mahjong.player import Player
 
@@ -14,7 +13,7 @@ class TestPoints(unittest.TestCase):
         self.player_3 = Player('player 3', 2)
         self.player_4 = Player('player 4', 3)
         players = [self.player_1, self.player_2, self.player_3, self.player_4]
-        self.kyoku = Kyoku(players, 0, Jihai.TON, 0)
+        self.kyoku = Kyoku(players)
 
     def test_oya_tsumo(self):
         self.kyoku.winners = [self.player_1]

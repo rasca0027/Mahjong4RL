@@ -327,10 +327,10 @@ class Kyoku:
     def __init__(
         self,
         players: List[Player],
-        honba: int,
-        bakaze: Jihai,
-        kyotaku: int,
-        atamahane: Optional[bool] = True,
+        bakaze: Optional[Jihai] = Jihai.TON,
+        honba: Optional[int] = 0,
+        kyotaku: Optional[int] = 0,
+        custom_rules: Optional[dict] = {},
     ):
         self.winners: List[Player] = []
         self.players: List[Player] = players
@@ -343,7 +343,10 @@ class Kyoku:
 
         # Atamahane 「頭跳ね」 is more known as the "head bump" rule.
         # http://arcturus.su/wiki/Atamahane
-        self.atamahane = atamahane
+        if 'atamahane' in custom_rules:
+            self.atamahane = custom_rules['atamahane']
+        else:
+            self.atamahane = True
 
         # deal tiles to each player to produce their starting hands
 

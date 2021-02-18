@@ -12,14 +12,11 @@ class Game:
     def __init__(self, player_names: List[str]):
         self.bakaze = Jihai.TON
         self.kyoku_num = 1  # e.g.東1局
-        game_config, custom_rules = self.load_config()
+        self.game_config, self.custom_rules = self.load_config()
         self.players = self.get_init_players(player_names,
-                                             game_config['input'])
+                                             self.game_config['input'])
         self.current_kyoku = Kyoku(self.players,
-                                   0,
-                                   self.bakaze,
-                                   0,
-                                   custom_rules['atamahane'])
+                                   custom_rules=self.custom_rules)
 
     def load_config(self):
         with open(os.path.join(sys.path[0], 'mahjong/config.json')) as f:
@@ -50,8 +47,11 @@ class Game:
                 # advance player jikaze
                 for player in self.players:
                     player.jikaze = Jihai((player.jikaze.value - 3) % 4 + 4)
-            self.current_kyoku = Kyoku(self.players, honba,
-                                       self.bakaze, kyotaku)
+            self.current_kyoku = Kyoku(self.players,
+                                       bakaze=self.bakaze,
+                                       honba=honba,
+                                       kyotaku=kyotaku,
+                                       custom_rules=self.custom_rules)
         # 遊戲結束
         self.end_game()
 
