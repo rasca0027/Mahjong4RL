@@ -209,7 +209,7 @@ class Stack:
             self.dora_index -= 2
         else:
             raise ValueError(
-                "Number of doras could only be less than 5"
+                "Number of doras could only be less than or equal to 5"
             )
         return
 

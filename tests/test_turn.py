@@ -147,11 +147,13 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.player_1.action_with_naki = MagicMock(
             self.player_1.kabe.append(kan)
         )
-        state, discard_tile, discard_pos = self.turn.draw_flow(self.player_1)
-        self.assertEqual(state, -1)
-        self.assertEqual(discard_tile, None)
-        self.assertEqual(discard_pos, None)
-        self.assertEqual(len(self.tile_stack.doras), 4)
+        state, discard_tile, discard_pos, _ = self.turn.draw_flow(
+            self.player_1)
+        self.assertEqual(state, 0)
+        self.assertEqual(discard_tile, Tile(0, 1))
+        self.assertEqual(discard_pos, self.player_1.seating_position)
+        self.assertEqual(len(self.tile_stack.doras), 5)
+        self.assertEqual(self.turn.suukaikan, True)
 
     def test_draw_flow_suukantsu(self):
         for _ in range(3):
@@ -196,7 +198,7 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.assertEqual(len(self.tile_stack.doras), 5)
 
     def test_suukantsu_other_player(self):
-        for _ in range(4):
+        for _ in range(3):
             self.tile_stack.add_dora_indicator()
         naki_tile = Tile(Suit.SOUZU.value, 5)
         naki_tile.owner = self.player_1.seating_position
@@ -204,8 +206,9 @@ class TestTurnDrawFlow(unittest.TestCase):
                    naki_tile,
                    [Tile(Suit.SOUZU.value, 5) for i in range(4)])
         kabe = [kan]
+        self.turn.check_suukaikan(kabe)
         self.assertEqual(len(self.tile_stack.doras), 5)
-        self.assertEqual(self.turn.check_suukaikan(kabe), True)
+        self.assertEqual(self.turn.suukaikan, True)
 
     def test_suukaikan(self):
         for _ in range(3):
@@ -216,8 +219,9 @@ class TestTurnDrawFlow(unittest.TestCase):
                    naki_tile,
                    [Tile(Suit.SOUZU.value, 5) for i in range(4)])
         kabe = [kan]
-        self.assertEqual(len(self.tile_stack.doras), 4)
-        self.assertEqual(self.turn.check_suukaikan(kabe), True)
+        self.turn.check_suukaikan(kabe)
+        self.assertEqual(len(self.tile_stack.doras), 5)
+        self.assertEqual(self.turn.suukaikan, True)
 
     def test_suukantsu(self):
         for _ in range(3):
@@ -243,8 +247,9 @@ class TestTurnDrawFlow(unittest.TestCase):
                      naki_tile_4,
                      [Tile(Suit.SOUZU.value, 8) for i in range(4)])
         kabe = [kan_1, kan_2, kan_3, kan_4]
-        self.assertEqual(len(self.tile_stack.doras), 4)
-        self.assertEqual(self.turn.check_suukaikan(kabe), False)
+        self.turn.check_suukaikan(kabe)
+        self.assertEqual(len(self.tile_stack.doras), 5)
+        self.assertEqual(self.turn.suukaikan, False)
 
     def test_no_suukaikan(self):
         self.tile_stack.add_dora_indicator()
@@ -254,7 +259,8 @@ class TestTurnDrawFlow(unittest.TestCase):
                    naki_tile,
                    [Tile(Suit.SOUZU.value, 5) for i in range(4)])
         kabe = [kan]
-        self.assertEqual(self.turn.check_suukaikan(kabe), False)
+        self.turn.check_suukaikan(kabe)
+        self.assertEqual(self.turn.suukaikan, False)
 
     def test_rinshan_kaihou(self):
         naki_tile = Tile(Suit.SOUZU.value, 5)
@@ -502,12 +508,15 @@ class TestTurnNakiFlow(unittest.TestCase):
         for _ in range(3):
             self.tile_stack.add_dora_indicator()
         self.player_1.action_with_naki = MagicMock(return_value=None)
+        self.turn.draw_flow = MagicMock(
+            return_value=(0, Tile(0, 1), 0, Action.NOACT))
         state, discard_tile, pos, act = self.turn.naki_flow(
             self.player_1, Naki.DAMINKAN)
 
-        self.assertEqual(state, -1)
-        self.assertEqual(discard_tile, None)
-        self.assertEqual(len(self.tile_stack.doras), 4)
+        self.assertEqual(state, 0)
+        self.assertEqual(discard_tile, Tile(0, 1))
+        self.assertEqual(self.turn.suukaikan, True)
+        self.assertEqual(len(self.tile_stack.doras), 5)
 
     def test_suukantsu(self):
         for _ in range(3):
