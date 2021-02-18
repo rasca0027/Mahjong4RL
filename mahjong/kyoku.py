@@ -4,7 +4,7 @@ from .player import Player
 from .components import Stack, Tile, Action, Huro, Naki, Jihai
 from .event_logger import KyokuLogger
 from .helpers import get_atamahane_winner, get_wind_tiles, check_all_equal
-from .utils import roundup, unicode_block
+from .utils import roundup
 from .naki_and_actions import check_tenpai
 from .yaku_calculator import YakuCalculator
 
@@ -385,9 +385,9 @@ class Kyoku:
         # TODO: handle multiple winners
         winner = self.winners[0]  # temporary
         yaku_calculator = YakuCalculator(
-            winner, self.stack, self.bakaze, not tsumo)
-        yaku = yaku_calculator.calculate()
-        return yaku.han, yaku.fu
+            winner, self.tile_stack, self.bakaze, not tsumo)
+        final_hans, fu = yaku_calculator.calculate()
+        return final_hans, fu
 
     def start(self):
         """
@@ -416,7 +416,7 @@ class Kyoku:
             loser = None
             if discard_pos:
                 loser = self.players[discard_pos]
-            self.winners = [self.players[pos] for pos in turn.winners]
+            self.winners = [self.players[pos] for pos in turn.winners_pos]
             han, fu = self.calculate_yaku(tsumo)
             # TODO: 沒有handle不同winner不同翻數......
             self.apply_points(han, fu, tsumo, loser)

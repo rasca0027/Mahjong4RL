@@ -1,4 +1,5 @@
 import unittest
+from collections import defaultdict
 from unittest.mock import Mock, MagicMock, PropertyMock
 
 from mahjong.player import Player
@@ -112,6 +113,7 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.player_1 = Mock()
         self.player_1.seating_position = 0
         self.player_1.get_shimocha = lambda: 1 % 4
+        self.player_1.hand = defaultdict(int)
         self.player_1.kawa = []
         self.player_1.add_kawa = lambda tile: self.player_1.kawa.append(tile)
         p = PropertyMock(side_effect=[kan_1, kan_2])

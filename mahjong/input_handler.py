@@ -58,10 +58,17 @@ class UserRawInput(UserInput):
 
     def parse_options(self, action_list):
         options_str = ""
+        act_values = []
+        # TODO: fix duplication like the following
+        # Please select action using number:
+        # 0: Action.NOACT
+        # 1: Action.NAKI
+        # 1: Action.NAKI
         for act, naki, possible_huros in action_list:
             options_str += f"{act.value}: {act}\n"
+            act_values.append(act.value)
 
-        return options_str
+        return options_str, min(act_values), max(act_values)
 
     def parse_naki_options(self, action_list):
         naki_options_str = ""
@@ -102,18 +109,23 @@ class UserRawInput(UserInput):
         return selected_naki, possible_huro_opt[selected_huro]
 
     def actions_with_new_tile(self, action_list):
-        options_str = self.parse_options(action_list)
+        options_str, min_act ,max_act = self.parse_options(action_list)
         selected_action = pyinput.inputNum(
             "Please select action using number:\n" + options_str,
-            min=0,
-            max=len(action_list) - 1
+            min=min_act,
+            max=max_act
         )
 
-        if selected_action == 1:  # NAKI
+        selected_naki = None
+        selected_huro = None
+        if selected_action == Action.NAKI.value:
             selected_naki, selected_huro = self.get_naki(action_list)
+        elif selected_action == Action.RON.value:
+            print("Player RON!")
+        elif selected_action == Action.TSUMO.value:
+            print("Player TSUMO!")
         else:
-            selected_naki = None
-            selected_huro = None
+            ...
 
         naki = Naki(selected_naki) if selected_naki else None
 
@@ -125,15 +137,16 @@ class UserRawInput(UserInput):
         else:
             hand_tiles = convert_hand(player.hand)
             tile_unicode = unicode_block[new_tile.index]
-            print(f"------ \nPlayer: {player.name}, Jikaze: {player.jikaze}")
+            print(f"------ \nPlayer: {player.name}")
+            print(f"Jikaze: {player.jikaze.name}")
             if discard:
-                print(f"The discarded tile is: |{tile_unicode}|")
+                print(f"The discarded tile is: {tile_unicode}")
                 hand_representation = self.show_tiles(hand_tiles,
                                                       player.kabe,
                                                       discard)
                 print(hand_representation)
             else:
-                print(f"Drawn tile is: |{tile_unicode}|")
+                print(f"Drawn tile is: {tile_unicode}")
 
             if action_list == [(Action.NOACT, Naki.NONE, [])]:
                 return Action.NOACT, Naki.NONE, []

@@ -150,9 +150,11 @@ class Player:
         else:
             action_list = self.get_naki_action_list(
                 False, self.hand, self.kabe, tile, is_haiteihai)
-        if pos == self.get_kamicha:
+        if pos == self.get_kamicha():
             if possible_chiis := check_chii(self.hand, tile):
                 action_list.append((Action.NAKI, Naki.CHII, possible_chiis))
+        if check_ron(self, tile):
+            action_list.append((Action.RON, Naki.NONE, []))
 
         action, naki = self.get_input(tile, action_list, True)
 
