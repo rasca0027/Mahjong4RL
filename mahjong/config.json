@@ -1,0 +1,8 @@
+{
+    "Game Config": {
+        "input": "raw_input"
+    },
+    "Custom Rules": {
+        "atamahane": true
+    }
+}
