@@ -71,9 +71,9 @@ class TestPlayer(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.player.jikaze = 1
 
-    def test_get_komicha(self):
-        self.assertEqual(self.player.get_komicha(), 3)
-        self.assertEqual(self.player_2.get_komicha(), 0)
+    def test_get_kamicha(self):
+        self.assertEqual(self.player.get_kamicha(), 3)
+        self.assertEqual(self.player_2.get_kamicha(), 0)
 
     def test_get_toimen(self):
         self.assertEqual(self.player.get_toimen(), 2)

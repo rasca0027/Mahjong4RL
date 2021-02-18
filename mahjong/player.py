@@ -43,6 +43,7 @@ class Player:
 
     def add_kawa(self, tile: Tile) -> None:
         if tile:
+            self.hand[tile.index] -= 1
             self.kawa.append(tile)
             self.furiten_tiles_idx.add(tile.index)
         return
@@ -83,7 +84,7 @@ class Player:
             raise ValueError(f"Jikaze should be in: {jikaze_value}")
         self._jikaze = value
 
-    def get_komicha(self) -> int:
+    def get_kamicha(self) -> int:
         return (self.seating_position - 1) % 4
 
     def get_toimen(self) -> int:
@@ -123,8 +124,6 @@ class Player:
                 action_list.append((Action.NAKI, Naki.DAMINKAN, possible_kans))
             if possible_pons := check_pon(hand, tile):
                 action_list.append((Action.NAKI, Naki.PON, possible_pons))
-            if possible_chiis := check_chii(hand, tile):
-                action_list.append((Action.NAKI, Naki.CHII, possible_chiis))
 
         return action_list
 
@@ -151,6 +150,9 @@ class Player:
         else:
             action_list = self.get_naki_action_list(
                 False, self.hand, self.kabe, tile, is_haiteihai)
+        if pos == self.get_kamicha:
+            if possible_chiis := check_chii(self.hand, tile):
+                action_list.append((Action.NAKI, Naki.CHII, possible_chiis))
 
         action, naki = self.get_input(tile, action_list, True)
 
@@ -264,7 +266,7 @@ class Player:
         """Gets user input to choose action and sets tmp_huro
         """
         user_input = input_switch(self.input_method)
-        action, naki, huro = user_input.actions(self.hand,
+        action, naki, huro = user_input.actions(self,
                                                 new_tile,
                                                 action_list,
                                                 discard)
@@ -281,7 +283,6 @@ class Player:
         """Add in the newly drawn tile and discard a tile
         """
         user_input = input_switch(self.input_method)
-        tile_to_discard = user_input.discard(
-            self.hand, new_tile, kuikae_tiles)
+        tile_to_discard = user_input.discard(self, new_tile, kuikae_tiles)
 
         return tile_to_discard

@@ -4,7 +4,7 @@ from .player import Player
 from .components import Stack, Tile, Action, Huro, Naki, Jihai
 from .event_logger import KyokuLogger
 from .helpers import get_atamahane_winner, get_wind_tiles, check_all_equal
-from .utils import roundup
+from .utils import roundup, unicode_block
 from .naki_and_actions import check_tenpai
 from .yaku_calculator import YakuCalculator
 
@@ -137,6 +137,7 @@ class Turn:
         else:
             # TODO: invalid action, raise error
             pass
+        player.add_kawa(discard_tile)
 
         return state, discard_tile, discard_pos, Action.NOACT
 
@@ -289,6 +290,7 @@ class Turn:
                 action=Action.DISCARD,
                 action_tile=action_tile,
             )
+            player.hand[new_tile.index] += 1
             player.add_kawa(action_tile)
             discard_pos = player.seating_position
 

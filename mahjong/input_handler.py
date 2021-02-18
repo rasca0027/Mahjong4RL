@@ -1,10 +1,11 @@
-from typing import List
+from typing import List, Optional
 from abc import ABC, abstractmethod
 
 import pyinputplus as pyinput
 
 from .helpers import convert_hand
-from .components import Tile, Action, Naki
+from .utils import unicode_block
+from .components import Tile, Action, Naki, Huro
 
 
 class UserInput(ABC):
@@ -25,20 +26,34 @@ class UserRawInput(UserInput):
 
     def show_tiles(self,
                    hand_tiles: List[Tile],
-                   discard: bool) -> str:
+                   kabe: List[Huro],
+                   discard: Optional[bool] = False) -> str:
         """Convert hand into string representation
         """
         hand_representation = "----- Tiles in hand -----\n"
         for i in range(len(hand_tiles)):
-            hand_representation += f"  {i}  |"
+            if not discard and i == len(hand_tiles) - 1:
+                hand_representation += f"|{i}||"
+            else:
+                hand_representation += f"{i}|"
         hand_representation += "\n"
 
         for i, tile in enumerate(hand_tiles):
+            tile_unicode = unicode_block[tile.index]
             if not discard and i == len(hand_tiles) - 1:
-                hand_representation += f"| {tile} ||"
+                hand_representation += f"| {tile_unicode}||"
             else:
-                hand_representation += f" {tile} |"
+                if i < 10:
+                    hand_representation += f"{tile_unicode}|"
+                else:
+                    hand_representation += f" {tile_unicode}|"
         hand_representation += "\n"
+        if kabe:
+            hand_representation += "----- Kabe -----\n"
+            for huro in kabe:
+                for tile in huro.tiles:
+                    tile_unicode = unicode_block[tile.index]
+                    hand_representation += f"{tile_unicode}|"
         return hand_representation
 
     def parse_options(self, action_list):
@@ -75,7 +90,7 @@ class UserRawInput(UserInput):
         possible_huro_opt = naki_huros[selected_naki]
         possible_huro_str = ""
         for i, huro in enumerate(possible_huro_opt):
-            huro_str = ", ".join([str(h) for h in huro])
+            huro_str = "|".join([unicode_block[h.index] for h in huro])
             possible_huro_str += f"{i}: {huro_str}\n"
 
         selected_huro = pyinput.inputNum(
@@ -104,23 +119,29 @@ class UserRawInput(UserInput):
 
         return Action(selected_action), naki, selected_huro
 
-    def actions(self, hand, new_tile, action_list, discard):
-        hand_tiles = convert_hand(hand)
-        if discard:
-            print(f"The discarded tile is: | {new_tile} |")
-        else:
-            print(f"Drawn tile is: | {new_tile} |")
-            hand_tiles.append(new_tile)
-        hand_representation = self.show_tiles(hand_tiles, discard)
-        print(hand_representation)
-
-        if action_list == [(Action.NOACT, Naki.NONE, [])]:
+    def actions(self, player, new_tile, action_list, discard):
+        if (action_list == [(Action.NOACT, Naki.NONE, [])]) and discard:
             return Action.NOACT, Naki.NONE, []
         else:
-            return self.actions_with_new_tile(action_list)
+            hand_tiles = convert_hand(player.hand)
+            tile_unicode = unicode_block[new_tile.index]
+            print(f"------ \nPlayer: {player.name}, Jikaze: {player.jikaze}")
+            if discard:
+                print(f"The discarded tile is: |{tile_unicode}|")
+                hand_representation = self.show_tiles(hand_tiles,
+                                                      player.kabe,
+                                                      discard)
+                print(hand_representation)
+            else:
+                print(f"Drawn tile is: |{tile_unicode}|")
 
-    def discard(self, hand, new_tile, kuikae_tiles):
-        hand_tiles = convert_hand(hand)
+            if action_list == [(Action.NOACT, Naki.NONE, [])]:
+                return Action.NOACT, Naki.NONE, []
+            else:
+                return self.actions_with_new_tile(action_list)
+
+    def discard(self, player, new_tile, kuikae_tiles):
+        hand_tiles = convert_hand(player.hand)
         if new_tile:
             hand_tiles.append(new_tile)
         if kuikae_tiles:
@@ -129,7 +150,7 @@ class UserRawInput(UserInput):
             # need to change to something else if UI changes
             hand_tiles = [tile for tile in hand_tiles
                           if tile not in kuikae_tiles]
-        hand_representation = self.show_tiles(hand_tiles, False)
+        hand_representation = self.show_tiles(hand_tiles, player.kabe)
         print("Please selected the tile you want to discard:")
         print(hand_representation)
 
@@ -138,6 +159,9 @@ class UserRawInput(UserInput):
             min=0,
             max=len(hand_tiles) - 1
         )
+        discard_tile = hand_tiles[discard]
+        print(f"Tile to discard: \n{unicode_block[discard_tile.index]}")
+
         return hand_tiles[discard]
 
 
