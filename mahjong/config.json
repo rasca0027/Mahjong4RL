@@ -1,5 +1,6 @@
 {
     "Game Config": {
+        "debug mode": true,
         "input": "raw_input"
     },
     "Custom Rules": {

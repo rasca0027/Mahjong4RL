@@ -13,6 +13,7 @@ class Game:
         self.bakaze = Jihai.TON
         self.kyoku_num = 1  # e.g.東1局
         game_config, custom_rules = self.load_config()
+        self.debug_mode = game_config['debug mode']
         self.players = self.get_init_players(player_names,
                                              game_config['input'])
         self.current_kyoku = Kyoku(self.players,
@@ -20,6 +21,14 @@ class Game:
                                    self.bakaze,
                                    0,
                                    custom_rules['atamahane'])
+        if self.debug_mode:
+            print(f'Debug mode: {self.debug_mode}')
+            print('\nPlayers in game:')
+            for player in self.players:
+                print(f'{player.seating_position}-{player.name}')
+            print('\nRules in this game:')
+            for k, v in custom_rules.items():
+                print(f'rule {k}: {v}')
 
     def load_config(self):
         with open(os.path.join(sys.path[0], 'mahjong/config.json')) as f:
