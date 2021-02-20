@@ -409,6 +409,8 @@ class Kyoku:
             print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
             for player in self.players:
                 show_tiles(player)
+            input("Press enter to continue...")
+            print(chr(27) + "[2J")
             print('\n----------------------------------')
             print('Star game: oya draw flow')
         turn = Turn(self.players, self.tile_stack, self.logger)
@@ -423,6 +425,8 @@ class Kyoku:
                 print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
                 for player in self.players:
                     show_tiles(player)
+                input("\nPress enter to continue...")
+                print(chr(27) + "[2J")
                 print('\n----------------------------------')
                 print('Enter next turn')
             state, discard_tile, discard_pos, _ = turn.discard_flow(

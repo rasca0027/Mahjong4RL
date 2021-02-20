@@ -3,6 +3,8 @@ import os
 import sys
 from typing import List
 
+from pyfiglet import Figlet
+
 from .player import Player
 from .components import Jihai
 from .kyoku import Kyoku
@@ -22,6 +24,8 @@ class Game:
                                    0,
                                    custom_rules['atamahane'],
                                    self.debug_mode)
+        figlet = Figlet(font='slant')
+        print(figlet.renderText('Mahjong 4 RL'))
         if self.debug_mode:
             print('\n----------------------------------')
             print('Initiating a game...')
@@ -32,6 +36,8 @@ class Game:
             print('Rules in this game:')
             for k, v in custom_rules.items():
                 print(f'    {k}: {v}')
+            input("\nPress enter to continue...")
+            print(chr(27) + "[2J")
 
     def load_config(self):
         with open(os.path.join(sys.path[0], 'mahjong/config.json')) as f:

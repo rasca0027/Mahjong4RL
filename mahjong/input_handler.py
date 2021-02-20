@@ -141,9 +141,11 @@ class UserRawInput(UserInput):
         naki_choices = []
         for act, naki, possible_huros in action_list:
             if act == Action.NAKI:
-                naki_options_str += f"{naki.value}: {naki}\n"
+                naki_options_str += f"{naki.value}: {naki.name}\n"
                 naki_huros[naki.value] = possible_huros
                 naki_choices.append(str(naki.value))
+        naki_options_str += "6: Cancel\n"
+        naki_choices.append("6")
 
         return naki_options_str, naki_huros, naki_choices
 
@@ -155,21 +157,28 @@ class UserRawInput(UserInput):
         selected_naki = int(pyinput.inputChoice(
             naki_choices,
             prompt=f"""Please select naki type using number:
-                       {naki_options_str}""",
+{naki_options_str}""",
             blank=True
         ))
+
+        if selected_naki == 6:
+            return Naki.NONE, None
 
         possible_huro_opt = naki_huros[selected_naki]
         possible_huro_str = ""
         for i, huro in enumerate(possible_huro_opt):
             huro_str = " ".join([unicode_block[h.index] for h in huro])
             possible_huro_str += f"{i}: {huro_str}\n"
+        possible_huro_str += "6: Cancel\n"
 
         selected_huro = pyinput.inputNum(
-            f"""Please select huro set using number: {possible_huro_str}""",
+            f"""Please select huro set using number:
+{possible_huro_str}""",
             min=0,
-            max=len(possible_huro_opt) - 1
+            max=6
         )
+        if selected_huro == 6:
+            return Naki.NONE, None
 
         return selected_naki, possible_huro_opt[selected_huro]
 
@@ -185,6 +194,8 @@ class UserRawInput(UserInput):
         selected_huro = None
         if selected_action == Action.NAKI.value:
             selected_naki, selected_huro = self.get_naki(action_list)
+            if selected_naki == Naki.NONE:
+                selected_action = Action.NOACT.value
         elif selected_action == Action.RON.value:
             print("Player RON!")
         elif selected_action == Action.TSUMO.value:

@@ -1,3 +1,4 @@
 PyInputPlus==0.2.12
 PySimpleValidate==0.2.12
 stdiomask==0.0.6
+pyfiglet

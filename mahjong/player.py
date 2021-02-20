@@ -165,10 +165,7 @@ class Player:
                 if self.is_riichi:
                     self.permanent_furiten = True
         elif action == Action.RON:
-            print('action_with_discard_tile = RON')
-            print(f'adding agari_tile: {tile}')
             self.agari_tile = tile
-            print(f'{self.agari_tile}')
 
         return action, naki
 
