@@ -20,15 +20,18 @@ class Game:
                                    0,
                                    self.bakaze,
                                    0,
-                                   custom_rules['atamahane'])
+                                   custom_rules['atamahane'],
+                                   self.debug_mode)
         if self.debug_mode:
+            print('\n----------------------------------')
+            print('Initiating a game...')
             print(f'Debug mode: {self.debug_mode}')
-            print('\nPlayers in game:')
+            print('Players in game:')
             for player in self.players:
-                print(f'{player.seating_position}-{player.name}')
-            print('\nRules in this game:')
+                print(f'    {player.seating_position}-{player.name}')
+            print('Rules in this game:')
             for k, v in custom_rules.items():
-                print(f'rule {k}: {v}')
+                print(f'    rule {k}: {v}')
 
     def load_config(self):
         with open(os.path.join(sys.path[0], 'mahjong/config.json')) as f:

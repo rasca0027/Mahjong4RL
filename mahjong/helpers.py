@@ -2,6 +2,7 @@ import copy
 from typing import DefaultDict, List, Tuple
 from itertools import groupby
 
+from .utils import unicode_block
 from .components import Tile, Suit, Jihai
 from .naki_and_actions import check_remains_are_sets
 
@@ -177,3 +178,35 @@ def get_wind_tiles() -> List[Tile]:
 def check_all_equal(input_list: List) -> bool:
     g = groupby(input_list)
     return next(g, True) and not next(g, False)
+
+
+def show_tiles(player):
+    hand_tiles = convert_hand(player.hand)
+    print(f"----------------------------------\nPlayer: {player.name}")
+    print(f"Jikaze: {player.jikaze.name}")
+    hand_representation = "----- Tiles in hand -----\n"
+    for i, tile in enumerate(hand_tiles):
+        tile_unicode = unicode_block[tile.index]
+        if tile.index == 1:
+            hand_representation += f"{tile_unicode}"
+        else:
+            hand_representation += f"{tile_unicode} "
+    if player.kawa:
+        hand_representation += "\n----- Tiles in kawa -----\n"
+        for tile in player.kawa:
+            tile_unicode = unicode_block[tile.index]
+            if tile.index == 1:
+                hand_representation += f"{tile_unicode}"
+            else:
+                hand_representation += f"{tile_unicode} "
+        hand_representation += "\n"
+    if player.kabe:
+        hand_representation += "----- Kabe -----\n"
+        for huro in player.kabe:
+            for tile in huro.tiles:
+                tile_unicode = unicode_block[tile.index]
+                if tile.index == 1:
+                    hand_representation += f"{tile_unicode}"
+                else:
+                    hand_representation += f"{tile_unicode} "
+    print(hand_representation)
