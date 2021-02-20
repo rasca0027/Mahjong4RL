@@ -62,7 +62,6 @@ class UserRawInput(UserInput):
                    discard: Optional[bool] = False) -> str:
         """Convert hand into string representation
         """
-        print(f'discard {discard}')
         hand_representation = "----- Tiles in hand -----\n"
         for i in range(len(hand_tiles)):
             if not discard:
@@ -163,7 +162,7 @@ class UserRawInput(UserInput):
         possible_huro_opt = naki_huros[selected_naki]
         possible_huro_str = ""
         for i, huro in enumerate(possible_huro_opt):
-            huro_str = "|".join([unicode_block[h.index] for h in huro])
+            huro_str = " ".join([unicode_block[h.index] for h in huro])
             possible_huro_str += f"{i}: {huro_str}\n"
 
         selected_huro = pyinput.inputNum(

@@ -437,8 +437,9 @@ class Kyoku:
                 print(f'Winner: {self.players[turn.winners_pos[0]]}')
                 for player in self.players:
                     show_tiles(player)
-                    print('\n----------------------------------')
-                    print(f'Agari tile: {player.agari_tile}')
+                    if player.agari_tile:
+                        print('----- Agari tile -----')
+                        print(f'{unicode_block[player.agari_tile.index]}')
                 print('\n----------------------------------')
 
         if state == -1:
