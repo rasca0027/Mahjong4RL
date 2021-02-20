@@ -31,7 +31,7 @@ class Game:
                 print(f'    {player.seating_position}-{player.name}')
             print('Rules in this game:')
             for k, v in custom_rules.items():
-                print(f'    rule {k}: {v}')
+                print(f'    {k}: {v}')
 
     def load_config(self):
         with open(os.path.join(sys.path[0], 'mahjong/config.json')) as f:

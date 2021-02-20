@@ -5,7 +5,7 @@ from .components import Stack, Tile, Action, Huro, Naki, Jihai
 from .event_logger import KyokuLogger
 from .helpers import (
     get_atamahane_winner, get_wind_tiles, check_all_equal, show_tiles)
-from .utils import roundup
+from .utils import roundup, unicode_block
 from .naki_and_actions import check_tenpai
 from .yaku_calculator import YakuCalculator
 
@@ -406,6 +406,7 @@ class Kyoku:
         if self.debug_mode:
             print('\n----------------------------------')
             print('Initial state')
+            print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
             for player in self.players:
                 show_tiles(player)
             print('\n----------------------------------')
@@ -417,6 +418,9 @@ class Kyoku:
             if self.debug_mode:
                 print('\n----------------------------------')
                 print('Current state')
+                playing_wall_len = len(self.tile_stack.playing_wall)
+                print(f'Remaining tiles in playing wall: {playing_wall_len}')
+                print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
                 for player in self.players:
                     show_tiles(player)
                 print('\n----------------------------------')
@@ -428,11 +432,14 @@ class Kyoku:
             print('\n----------------------------------')
             print(f'Exit trun loop with state: {state}')
             print('\n----------------------------------')
-            print('Current state')
-            for player in self.players:
+            if state == 1:
+                print('Current state')
+                print(f'Winner: {self.players[turn.winners_pos[0]]}')
+                for player in self.players:
                     show_tiles(player)
-            print('\n----------------------------------')
-            print(f'winner: {turn.winners_pos}')
+                    print('\n----------------------------------')
+                    print(f'Agari tile: {player.agari_tile}')
+                print('\n----------------------------------')
 
         if state == -1:
             renchen = self.handle_ryuukyoku(turn.stack.is_haitei)

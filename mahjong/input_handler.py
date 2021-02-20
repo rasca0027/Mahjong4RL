@@ -62,28 +62,44 @@ class UserRawInput(UserInput):
                    discard: Optional[bool] = False) -> str:
         """Convert hand into string representation
         """
+        print(f'discard {discard}')
         hand_representation = "----- Tiles in hand -----\n"
         for i in range(len(hand_tiles)):
-            if not discard and i == len(hand_tiles) - 1:
-                hand_representation += f"|{i}||"
-            else:
+            if not discard:
                 hand_representation += f"{i}|"
+            else:
+                if i == len(hand_tiles) - 1:
+                    hand_representation += f"|{i}||"
+                else:
+                    hand_representation += f"{i}|"
         hand_representation += "\n"
 
         for i, tile in enumerate(hand_tiles):
             tile_unicode = unicode_block[tile.index]
-            if not discard and i == len(hand_tiles) - 1:
-                hand_representation += f"| {tile_unicode}||"
-            else:
+            if not discard:
                 if i < 10:
                     if tile.index == 1:
                         hand_representation += f"{tile_unicode}"
                     else:
                         hand_representation += f"{tile_unicode} "
-                elif i == len(hand_tiles) - 2 :
-                    hand_representation += f" {tile_unicode}|"
                 else:
                     hand_representation += f" {tile_unicode} "
+            else:
+                if (i == len(hand_tiles) - 1):
+                    if i > 9:
+                        hand_representation += f"| {tile_unicode}||"
+                    else:
+                        hand_representation += f"|{tile_unicode}||"
+                else:
+                    if i < 10:
+                        if tile.index == 1:
+                            hand_representation += f"{tile_unicode}"
+                        else:
+                            hand_representation += f"{tile_unicode} "
+                    elif i == len(hand_tiles) - 2 :
+                        hand_representation += f" {tile_unicode}|"
+                    else:
+                        hand_representation += f" {tile_unicode} "
 
         hand_representation += "\n"
         if kawa:
@@ -194,7 +210,7 @@ class UserRawInput(UserInput):
             else:
                 print(f"Drawn tile is: {tile_unicode}")
 
-            self.show_tiles(hand_tiles, player.kawa, player.kabe, discard)
+            self.show_tiles(hand_tiles, player.kawa, player.kabe)
 
             if action_list == [(Action.NOACT, Naki.NONE, [])]:
                 return Action.NOACT, Naki.NONE, []
@@ -213,7 +229,7 @@ class UserRawInput(UserInput):
             hand_tiles = [tile for tile in hand_tiles
                           if tile not in kuikae_tiles]
         print("Please selected the tile you want to discard:")
-        self.show_tiles(hand_tiles)
+        self.show_tiles(hand_tiles, discard=True)
 
         discard = pyinput.inputNum(
             "Discard tile No.: ",
