@@ -1,9 +1,9 @@
 import math
 from enum import Enum
 
-unicode_block = {1: '\U0001f004',
+unicode_block = {1: '\U0001f006',
                  2: '\U0001f005',
-                 3: '\U0001f006',
+                 3: '\U0001f004',
                  4: '\U0001f000',
                  5: '\U0001f001',
                  6: '\U0001f002',

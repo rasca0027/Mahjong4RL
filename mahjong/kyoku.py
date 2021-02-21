@@ -260,7 +260,7 @@ class Turn:
                     naki_type=naki,
                     huro=player.tmp_huro,
                 )
-                player.action_with_naki(action)
+                player.action_with_naki(naki)
 
                 if kan_state := self.kan_flow(player, new_tile, naki):
                     return kan_state, action_tile, discard_pos

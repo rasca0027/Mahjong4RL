@@ -59,14 +59,11 @@ class UserRawInput(UserInput):
     def parse_options(self, action_list):
         options_str = ""
         act_values = []
-        # TODO: fix duplication like the following
-        # Please select action using number:
-        # 0: Action.NOACT
-        # 1: Action.NAKI
-        # 1: Action.NAKI
         for act, naki, possible_huros in action_list:
-            options_str += f"{act.value}: {act}\n"
             act_values.append(act.value)
+
+        for act_value in act_values:
+            options_str += f"{act_value}: {Action(act_value).name}\n"
 
         return options_str, min(act_values), max(act_values)
 
@@ -76,7 +73,7 @@ class UserRawInput(UserInput):
         naki_choices = []
         for act, naki, possible_huros in action_list:
             if act == Action.NAKI:
-                naki_options_str += f"{naki.value}: {naki}\n"
+                naki_options_str += f"{naki.value}: {naki.name}\n"
                 naki_huros[naki.value] = possible_huros
                 naki_choices.append(str(naki.value))
 
