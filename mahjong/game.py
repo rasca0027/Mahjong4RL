@@ -1,7 +1,7 @@
 import json
 import os
 import sys
-from typing import List
+from typing import List, Optional
 
 from pyfiglet import Figlet
 
@@ -11,9 +11,14 @@ from .kyoku import Kyoku
 
 
 class Game:
-    def __init__(self, player_names: List[str]):
+    def __init__(
+        self,
+        player_names: List[str],
+        config_file: Optional[str] = 'mahjong/config.json'
+    ):
         self.bakaze = Jihai.TON
         self.kyoku_num = 1  # e.g.東1局
+        self.config_file = config_file
         game_config, custom_rules = self.load_config()
         self.debug_mode = game_config['debug mode']
         self.players = self.get_init_players(player_names,
@@ -40,7 +45,7 @@ class Game:
             print(chr(27) + "[2J")
 
     def load_config(self):
-        with open(os.path.join(sys.path[0], 'mahjong/config.json')) as f:
+        with open(os.path.join(sys.path[0], self.config_file)) as f:
             config = json.load(f)
 
         return config['Game Config'], config['Custom Rules']

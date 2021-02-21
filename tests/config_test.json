@@ -1,7 +1,7 @@
 {
     "Game Config": {
-        "debug mode": true,
-        "input": "inquirer"
+        "debug mode": false,
+        "input": "raw_input"
     },
     "Custom Rules": {
         "atamahane": true

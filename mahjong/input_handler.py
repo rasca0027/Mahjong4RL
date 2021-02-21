@@ -2,6 +2,7 @@ from typing import List, Optional, Tuple, TYPE_CHECKING
 from abc import ABC, abstractmethod
 
 import pyinputplus as pyinput
+import inquirer
 
 from .helpers import convert_hand
 from .utils import unicode_block
@@ -53,7 +54,7 @@ class UserInput(ABC):
         return NotImplemented
 
 
-class UserRawInput(UserInput):
+class CliInput(UserInput):
 
     def show_tiles(self,
                    hand_tiles: List[Tile],
@@ -120,6 +121,9 @@ class UserRawInput(UserInput):
                     else:
                         hand_representation += f"{tile_unicode} "
         print(hand_representation)
+
+
+class UserRawInput(CliInput):
 
     def parse_options(self, action_list):
         options_str = ""
@@ -225,7 +229,6 @@ class UserRawInput(UserInput):
             if action_list == [(Action.NOACT, Naki.NONE, [])]:
                 return Action.NOACT, Naki.NONE, []
             else:
-
                 return self.actions_with_new_tile(action_list)
 
     def discard(self, player, new_tile, kuikae_tiles):
@@ -252,8 +255,141 @@ class UserRawInput(UserInput):
         return hand_tiles[discard]
 
 
+class UserInquirerInput(CliInput):
+
+    def parse_options(self, action_list):
+        action_options = set()
+        for act, naki, possible_huros in action_list:
+            action_options.add(act.name)
+
+        return list(action_options)
+
+    def parse_naki_options(self, action_list):
+        naki_choices = set()
+        naki_huros = {}
+        for act, naki, possible_huros in action_list:
+            if act == Action.NAKI:
+                naki_choices.add(str(naki.name))
+                naki_huros[naki] = possible_huros
+        naki_choices.add("Cancel")
+
+        return list(naki_choices), naki_huros
+
+    def get_naki(self, action_list):
+        naki_choices, naki_huros = self.parse_naki_options(action_list)
+        questions = [
+            inquirer.List('naki',
+                          message="Please select naki type:",
+                          choices=naki_choices),
+        ]
+        selected_naki = inquirer.prompt(questions)['naki']
+
+        if selected_naki == "Cancel":
+            return Naki.NONE, None
+
+        selected_naki = Naki[selected_naki]
+
+        possible_huro_opt = []
+        possible_huro_dict = {}
+        for huro in naki_huros[selected_naki]:
+            huro_str = " ".join([unicode_block[h.index] for h in huro])
+            possible_huro_opt.append(huro_str)
+            possible_huro_dict[huro_str] = huro
+        possible_huro_opt.append("Cancel")
+
+        questions = [
+            inquirer.List('huro',
+                          message="Please select huro set:",
+                          choices=possible_huro_opt),
+        ]
+        selected_huro = inquirer.prompt(questions)['huro']
+
+        if selected_huro == "Cancel":
+            return Naki.NONE, None
+
+        return selected_naki, possible_huro_dict[selected_huro]
+
+    def actions_with_new_tile(self, action_list):
+        action_options = self.parse_options(action_list)
+        questions = [
+            inquirer.List('action',
+                          message="Please select action:",
+                          choices=action_options,),
+        ]
+        selected_action = Action[inquirer.prompt(questions)['action']]
+
+        selected_naki = None
+        selected_huro = None
+        if selected_action == Action.NAKI:
+            selected_naki, selected_huro = self.get_naki(action_list)
+            if selected_naki == Naki.NONE:
+                selected_action = Action.NOACT
+        elif selected_action == Action.RON:
+            print("Player RON!")
+        elif selected_action == Action.TSUMO:
+            print("Player TSUMO!")
+        else:
+            ...
+
+        naki = Naki(selected_naki) if selected_naki else None
+
+        return selected_action, naki, selected_huro
+
+    def actions(self, player, new_tile, action_list, discard):
+        if (action_list == [(Action.NOACT, Naki.NONE, [])]) and discard:
+            return Action.NOACT, Naki.NONE, []
+        else:
+            hand_tiles = convert_hand(player.hand)
+            tile_unicode = unicode_block[new_tile.index]
+            print(f"----------------------------------\nPlayer: {player.name}")
+            print(f"Jikaze: {player.jikaze.name}")
+            if discard:
+                print(f"The discarded tile is: {tile_unicode}")
+            else:
+                print(f"Drawn tile is: {tile_unicode}")
+
+            if action_list == [(Action.NOACT, Naki.NONE, [])]:
+                return Action.NOACT, Naki.NONE, []
+            else:
+                self.show_tiles(hand_tiles, player.kawa, player.kabe)
+                return self.actions_with_new_tile(action_list)
+
+    def discard(self, player, new_tile, kuikae_tiles):
+        hand_tiles = convert_hand(player.hand)
+        if new_tile:
+            hand_tiles.append(new_tile)
+        if kuikae_tiles:
+            # not allowed to choose from this list
+            # TODO: now just hide from hand_representation,
+            # need to change to something else if UI changes
+            hand_tiles = [tile for tile in hand_tiles
+                          if tile not in kuikae_tiles]
+
+        self.show_tiles(hand_tiles, discard=True)
+        tiles_dict = {}
+        tiles_opt = set()
+        for tile in hand_tiles:
+            tiles_dict[unicode_block[tile.index]] = tile
+            tiles_opt.add(unicode_block[tile.index])
+        questions = [
+            inquirer.List(
+                'tile_to_discard',
+                message="Please selected the tile you want to discard:",
+                choices=sorted(list(tiles_opt)),
+                carousel=True),
+        ]
+        tile = inquirer.prompt(questions)['tile_to_discard']
+        discard_tile = tiles_dict[tile]
+
+        print(f"Tile to discard: \n{unicode_block[discard_tile.index]}")
+
+        return discard_tile
+
+
 def input_switch(input_method):
     if input_method == 'raw_input':
         return UserRawInput()
+    elif input_method == 'inquirer':
+        return UserInquirerInput()
     else:
-        raise ValueError('input method should be: raw_input')
+        raise ValueError('input method should be raw_input or inquirer')
