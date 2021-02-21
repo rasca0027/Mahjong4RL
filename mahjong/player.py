@@ -250,8 +250,11 @@ class Player:
             if naki_type == Naki.PON:
                 self.hand[tile.index] -= 2
                 break
-            elif naki_type in (Naki.DAMINKAN, Naki.ANKAN):
+            elif naki_type == Naki.DAMINKAN:
                 self.hand[tile.index] -= 3
+                break
+            elif naki_type == Naki.ANKAN:
+                self.hand[tile.index] -= 4
                 break
             elif naki_type == Naki.CHAKAN:
                 self.hand[tile.index] -= 1

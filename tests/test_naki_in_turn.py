@@ -371,3 +371,71 @@ class TestKan(unittest.TestCase):
             kan_in_kabe.naki_tile, self.players[1].kabe[0].naki_tile)
         self.assertEqual(self.players[1].hand[pon_tile.index], 0)
         self.assertEqual(kan_in_kabe.tiles, self.players[1].kabe[0].tiles)
+
+    def test_ankan(self):
+        self.current_kyoku.deal()
+
+        kan_tile = Tile(Suit.JIHAI.value, Jihai.CHUN.value)
+        to_discard_tile = Tile(Suit.JIHAI.value, Jihai.HAKU.value)
+
+        self.current_kyoku.players[0].hand = defaultdict(int)
+        self.current_kyoku.players[0].hand[Tile(2, 1).index] += 2
+        self.current_kyoku.players[0].hand[Tile(2, 2).index] += 1
+        self.current_kyoku.players[0].hand[Tile(2, 3).index] += 1
+        self.current_kyoku.players[1].hand = defaultdict(int)
+        self.current_kyoku.players[1].hand[kan_tile.index] = 3
+        self.current_kyoku.players[1].hand[to_discard_tile.index] = 1
+        self.current_kyoku.players[1].hand[Tile(2, 2).index] += 2
+        self.current_kyoku.players[1].hand[Tile(2, 3).index] += 1
+        self.current_kyoku.players[1].hand[Tile(2, 4).index] += 1
+        self.current_kyoku.players[2].hand = defaultdict(int)
+        self.current_kyoku.players[2].hand[Tile(2, 5).index] += 2
+        self.current_kyoku.players[2].hand[Tile(2, 6).index] += 1
+        self.current_kyoku.players[2].hand[Tile(2, 7).index] += 1
+        self.current_kyoku.players[3].hand = defaultdict(int)
+        self.current_kyoku.players[3].hand[Tile(2, 7).index] += 2
+        self.current_kyoku.players[3].hand[Tile(2, 8).index] += 1
+        self.current_kyoku.players[3].hand[Tile(2, 9).index] += 1
+
+        pyinput.inputNum = MagicMock(side_effect=[1, 0, 0])
+        pyinput.inputChoice = MagicMock(return_value=5)
+
+        turn = Turn(
+            self.current_kyoku.players,
+            self.current_kyoku.tile_stack,
+            self.logger,
+        )
+
+        mock_draw_flow = MagicMock(
+            return_value=(0,
+                          Tile(Suit.JIHAI.value, Jihai.TON.value),
+                          self.players[0].seating_position))
+        state, discard_tile, discard_pos = mock_draw_flow(
+            self.current_kyoku.oya_player)
+
+        ankan_tile = kan_tile
+        with patch('mahjong.components.Stack.draw') as mock_func:
+            def f(from_rinshan):
+                if from_rinshan:
+                    return Tile(Suit.SOUZU.value, 9)
+                else:
+                    return ankan_tile
+            mock_func.side_effect = f
+            state, discard_tile, discard_pos, act = turn.discard_flow(
+                discard_tile, discard_pos)
+
+        kan_in_kabe = Huro(
+            Naki.ANKAN,
+            ankan_tile,
+            [kan_tile, kan_tile, kan_tile, kan_tile]
+        )
+
+        self.assertEqual(state, 0)
+        self.assertEqual(discard_tile, to_discard_tile)
+        self.assertEqual(discard_pos, self.players[1].seating_position)
+        self.assertEqual(
+            kan_in_kabe.naki_type, self.players[1].kabe[0].naki_type)
+        self.assertEqual(
+            kan_in_kabe.naki_tile, self.players[1].kabe[0].naki_tile)
+        self.assertEqual(self.players[1].hand[ankan_tile.index], 0)
+        self.assertEqual(kan_in_kabe.tiles, self.players[1].kabe[0].tiles)
