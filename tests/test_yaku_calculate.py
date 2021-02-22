@@ -36,4 +36,4 @@ class TestYakuCalculator(unittest.TestCase):
         yaku_calc = YakuCalculator(self.player, self.stack, self.bakaze, False)
         total_han, fu = yaku_calc.calculate()
         self.assertEqual(total_han, 1)
-        # self.assertEqual(fu, 30)
+        self.assertEqual(fu, 40)
