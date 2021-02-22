@@ -348,6 +348,8 @@ class TeYaku(YakuTypes):
             self.ryuuiisou,
             self.kokushi_musou,
             self.chuuren_poutou,
+            self.tsuuiisou,
+            self.yakuhai,
             self.toitoihou,
             self.chiitoitsu,
             self.ikkitsuukan,
@@ -435,6 +437,49 @@ class TeYaku(YakuTypes):
             return True
 
         return False
+
+    def tsuuiisou(self):  # 字一色
+        """Every group of tiles are composed of honor tiles.
+        yakuman
+        http://arcturus.su/wiki/Tsuuiisou
+        """
+        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
+        suit_in_huro = set([tile.suit for tile in self.huro_tiles])
+        suit = suit_in_hand | suit_in_huro
+
+        if len(suit) == 1 and list(suit)[0] == 0:
+            self.total_yaku = 'tsuuiisou'
+            self.yakuman_count = 1
+            return True
+        return False
+
+    def yakuhai(self):  # 役牌
+        """A group of 1 han yaku scored for completing a group of certain
+        honour tiles:
+        1. sangenpai (三元牌)
+        2. bakaze (場風)
+        3. jikaze (自風)
+        1 han per counted triplet
+        http://arcturus.su/wiki/Yakuhai
+        """
+        yakuhai = {'sangenpai': [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN],
+                   'bakaze': [self.bakaze],
+                   'jikaze': [self.player.jikaze]}
+
+        agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            agari_hand_and_kabe[tile.index] += 1
+
+        found_yakuhai = False
+        for tile_type, tile_list in yakuhai.items():
+            for tile in tile_list:
+                tile_index = Tile(Suit.JIHAI.value, tile.value).index
+                if agari_hand_and_kabe[tile_index] >= 3:
+                    self.total_yaku = f"{tile_type}_{get_name(Jihai, tile)}"
+                    self.total_han = 1
+                    found_yakuhai = True
+
+        return found_yakuhai
 
     def toitoihou(self):  # 対々和
         """All triplets.
@@ -585,16 +630,13 @@ class Yakuhai(TeYaku):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.use_chain = False
 
     def get_all_evals(self) -> List[Callable]:
         return [
             self.daisangen,
-            self.tsuuiisou,
             self.daisuushii,
             self.shousuushii,
             self.shousangen,
-            self.yakuhai,
         ]
 
     def daisangen(self):  # 大三元
@@ -614,21 +656,6 @@ class Yakuhai(TeYaku):
         self.total_yaku = "daisangen"
         self.yakuman_count = 1
         return True
-
-    def tsuuiisou(self):  # 字一色
-        """Every group of tiles are composed of honor tiles.
-        yakuman
-        http://arcturus.su/wiki/Tsuuiisou
-        """
-        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
-        suit_in_huro = set([tile.suit for tile in self.huro_tiles])
-        suit = suit_in_hand | suit_in_huro
-
-        if len(suit) == 1 and list(suit)[0] == 0:
-            self.total_yaku = 'tsuuiisou'
-            self.yakuman_count = 1
-            return True
-        return False
 
     def daisuushii(self):  # 大四喜
         """This hand has four groups (triplets or quads) of
@@ -702,34 +729,6 @@ class Yakuhai(TeYaku):
         self.total_yaku = "shousangen"
         self.total_han = 2
         return True
-
-    def yakuhai(self):  # 役牌
-        """A group of 1 han yaku scored for completing a group of certain
-        honour tiles:
-        1. sangenpai (三元牌)
-        2. bakaze (場風)
-        3. jikaze (自風)
-        1 han per counted triplet
-        http://arcturus.su/wiki/Yakuhai
-        """
-        yakuhai = {'sangenpai': [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN],
-                   'bakaze': [self.bakaze],
-                   'jikaze': [self.player.jikaze]}
-
-        agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
-        for tile in self.huro_tiles:
-            agari_hand_and_kabe[tile.index] += 1
-
-        found_yakuhai = False
-        for tile_type, tile_list in yakuhai.items():
-            for tile in tile_list:
-                tile_index = Tile(Suit.JIHAI.value, tile.value).index
-                if agari_hand_and_kabe[tile_index] >= 3:
-                    self.total_yaku = f"{tile_type}_{get_name(Jihai, tile)}"
-                    self.total_han = 1
-                    found_yakuhai = True
-
-        return found_yakuhai
 
 
 class Peikou(TeYaku):
