@@ -3,8 +3,9 @@ from typing import List, Tuple, Optional
 from .player import Player
 from .components import Stack, Tile, Action, Huro, Naki, Jihai
 from .event_logger import KyokuLogger
-from .helpers import get_atamahane_winner, get_wind_tiles, check_all_equal
-from .utils import roundup
+from .helpers import (
+    get_atamahane_winner, get_wind_tiles, check_all_equal, show_tiles)
+from .utils import roundup, unicode_block
 from .naki_and_actions import check_tenpai
 from .yaku_calculator import YakuCalculator
 
@@ -333,6 +334,7 @@ class Kyoku:
         bakaze: Jihai,
         kyotaku: int,
         atamahane: Optional[bool] = True,
+        debug_mode: Optional[bool] = False
     ):
         self.winners: List[Player] = []
         self.players: List[Player] = players
@@ -340,6 +342,7 @@ class Kyoku:
         self.honba: int = honba
         self.kyotaku: int = kyotaku  # 供託
         self.bakaze: Jihai = bakaze
+        self.debug_mode: bool = debug_mode
         self.tile_stack: Stack = Stack()
         self.logger: KyokuLogger = KyokuLogger()
 
@@ -400,12 +403,48 @@ class Kyoku:
         self.deal()
 
         # 莊家 oya draw flow
+        if self.debug_mode:
+            print('\n----------------------------------')
+            print('Initial state')
+            print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
+            for player in self.players:
+                show_tiles(player)
+            input("Press enter to continue...")
+            print(chr(27) + "[2J")
+            print('\n----------------------------------')
+            print('Star game: oya draw flow')
         turn = Turn(self.players, self.tile_stack, self.logger)
         state, discard_tile, discard_pos, act = turn.draw_flow(self.oya_player)
         # Tenhoo
         while state == 0:
+            if self.debug_mode:
+                print('\n----------------------------------')
+                print('Current state')
+                playing_wall_len = len(self.tile_stack.playing_wall)
+                print(f'Remaining tiles in playing wall: {playing_wall_len}')
+                print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
+                for player in self.players:
+                    show_tiles(player)
+                input("\nPress enter to continue...")
+                print(chr(27) + "[2J")
+                print('\n----------------------------------')
+                print('Enter next turn')
             state, discard_tile, discard_pos, _ = turn.discard_flow(
                 discard_tile, discard_pos)
+
+        if self.debug_mode:
+            print('\n----------------------------------')
+            print(f'Exit trun loop with state: {state}')
+            print('\n----------------------------------')
+            if state == 1:
+                print('Current state')
+                print(f'Winner: {self.players[turn.winners_pos[0]]}')
+                for player in self.players:
+                    show_tiles(player)
+                    if player.agari_tile:
+                        print('----- Agari tile -----')
+                        print(f'{unicode_block[player.agari_tile.index]}')
+                print('\n----------------------------------')
 
         if state == -1:
             renchen = self.handle_ryuukyoku(turn.stack.is_haitei)
