@@ -280,7 +280,7 @@ class UserInquirerInput(CliInput):
         questions = [
             inquirer.List('naki',
                           message="Please select naki type:",
-                          choices=naki_choices),
+                          choices=sorted(naki_choices)),
         ]
         selected_naki = inquirer.prompt(questions)['naki']
 
@@ -300,7 +300,7 @@ class UserInquirerInput(CliInput):
         questions = [
             inquirer.List('huro',
                           message="Please select huro set:",
-                          choices=possible_huro_opt),
+                          choices=sorted(possible_huro_opt)),
         ]
         selected_huro = inquirer.prompt(questions)['huro']
 
@@ -314,7 +314,7 @@ class UserInquirerInput(CliInput):
         questions = [
             inquirer.List('action',
                           message="Please select action:",
-                          choices=action_options,),
+                          choices=sorted(action_options),),
         ]
         selected_action = Action[inquirer.prompt(questions)['action']]
 
@@ -324,12 +324,6 @@ class UserInquirerInput(CliInput):
             selected_naki, selected_huro = self.get_naki(action_list)
             if selected_naki == Naki.NONE:
                 selected_action = Action.NOACT
-        elif selected_action == Action.RON:
-            print("Player RON!")
-        elif selected_action == Action.TSUMO:
-            print("Player TSUMO!")
-        else:
-            ...
 
         naki = Naki(selected_naki) if selected_naki else None
 
@@ -386,10 +380,50 @@ class UserInquirerInput(CliInput):
         return discard_tile
 
 
+class DummyInput(CliInput):
+
+    def actions(self, player, new_tile, action_list, discard):
+        return Action.NOACT, Naki.NONE, []
+
+    def discard(self, player, new_tile, kuikae_tiles):
+        hand_tiles = convert_hand(player.hand)
+        if new_tile:
+            hand_tiles.append(new_tile)
+
+        discard_tile = hand_tiles[0]
+        print(f"----------------------------------\nPlayer: {player.name}")
+        print(f"Jikaze: {player.jikaze.name}")
+        print(f"Tile to discard: \n{unicode_block[discard_tile.index]}")
+        hand_representation = ""
+        if player.kawa:
+            hand_representation += "----- Tiles in kawa -----\n"
+            for tile in player.kawa:
+                tile_unicode = unicode_block[tile.index]
+                if tile.index == 1:
+                    hand_representation += f"{tile_unicode}"
+                else:
+                    hand_representation += f"{tile_unicode} "
+            hand_representation += "\n"
+        if player.kabe:
+            hand_representation += "----- Kabe -----\n"
+            for huro in player.kabe:
+                for tile in huro.tiles:
+                    tile_unicode = unicode_block[tile.index]
+                    if tile.index == 1:
+                        hand_representation += f"{tile_unicode}"
+                    else:
+                        hand_representation += f"{tile_unicode} "
+        print(hand_representation)
+
+        return discard_tile
+
+
 def input_switch(input_method):
     if input_method == 'raw_input':
         return UserRawInput()
     elif input_method == 'inquirer':
         return UserInquirerInput()
+    elif input_method == 'dummy':
+        return DummyInput()
     else:
-        raise ValueError('input method should be raw_input or inquirer')
+        raise ValueError('input method should be raw_input, inquirer or dummy')

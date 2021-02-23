@@ -22,7 +22,8 @@ class Game:
         game_config, custom_rules = self.load_config()
         self.debug_mode = game_config['debug mode']
         self.players = self.get_init_players(player_names,
-                                             game_config['input'])
+                                             game_config['input'],
+                                             game_config['A.I. players'])
         self.current_kyoku = Kyoku(self.players,
                                    0,
                                    self.bakaze,
@@ -50,10 +51,13 @@ class Game:
 
         return config['Game Config'], config['Custom Rules']
 
-    def get_init_players(self, player_names, input_method):
+    def get_init_players(self, player_names, input_method, ai_players):
         players = []
         for i, name in enumerate(player_names):
-            players.append(Player(name, i, input_method))
+            if i in ai_players:
+                players.append(Player(name, i, 'dummy'))
+            else:
+                players.append(Player(name, i, input_method))
         return players
 
     def start_game(self):
