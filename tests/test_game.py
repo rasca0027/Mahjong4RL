@@ -9,7 +9,7 @@ class TestGame(unittest.TestCase):
 
     def setUp(self):
         names = ['Kelly', 'Leo', 'Ball', 'Hoa']
-        self.game = Game(names, 'tests/config_test.json')
+        self.game = Game(names, 'config_test.json')
         # self.game.current_kyoku = MagicMock()
 
     def test_init(self):

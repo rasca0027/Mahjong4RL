@@ -14,7 +14,7 @@ class Game:
     def __init__(
         self,
         player_names: List[str],
-        config_file: Optional[str] = 'mahjong/config.json'
+        config_file: Optional[str] = 'config.json'
     ):
         self.bakaze = Jihai.TON
         self.kyoku_num = 1  # e.g.東1局
@@ -46,7 +46,10 @@ class Game:
             print(chr(27) + "[2J")
 
     def load_config(self):
-        with open(os.path.join(sys.path[0], self.config_file)) as f:
+        parent_directory = os.path.split(os.path.dirname(__file__))[0]
+        with open(os.path.join(parent_directory,
+                               'configs',
+                               self.config_file)) as f:
             config = json.load(f)
 
         return config['Game Config'], config['Custom Rules']
