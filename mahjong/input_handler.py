@@ -78,7 +78,7 @@ class CliInput(UserInput):
             tile_unicode = unicode_block[tile.index]
             if not discard:
                 if i < 10:
-                    if tile.index == 1:
+                    if tile.index == 3:
                         hand_representation += f"{tile_unicode}"
                     else:
                         hand_representation += f"{tile_unicode} "
@@ -92,7 +92,7 @@ class CliInput(UserInput):
                         hand_representation += f"|{tile_unicode}||"
                 else:
                     if i < 10:
-                        if tile.index == 1:
+                        if tile.index == 3:
                             hand_representation += f"{tile_unicode}"
                         else:
                             hand_representation += f"{tile_unicode} "
@@ -116,7 +116,7 @@ class CliInput(UserInput):
             for huro in kabe:
                 for tile in huro.tiles:
                     tile_unicode = unicode_block[tile.index]
-                    if tile.index == 1:
+                    if tile.index == 3:
                         hand_representation += f"{tile_unicode}"
                     else:
                         hand_representation += f"{tile_unicode} "
