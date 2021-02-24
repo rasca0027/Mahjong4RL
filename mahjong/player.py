@@ -211,7 +211,16 @@ class Player:
           kuikae_tiles: if any
         """
         # add tmp_huro to kabe
-        self.kabe.append(self.tmp_huro)
+        if naki == Naki.CHAKAN:
+            for huro in self.kabe:
+                if (
+                    (huro.naki_type == Naki.PON)
+                    & (huro.naki_tile == self.tmp_huro.naki_tile)
+                ):
+                    huro.add_kan(self.tmp_huro.naki_tile)
+                    break
+        else:
+            self.kabe.append(self.tmp_huro)
         self.remove_huro_tiles(self.tmp_huro.naki_type)
         if naki != Naki.ANKAN:
             self.menzenchin = False
@@ -241,9 +250,20 @@ class Player:
             if naki_type == Naki.PON:
                 self.hand[tile.index] -= 2
                 break
-            else:
+            elif naki_type == Naki.DAMINKAN:
+                self.hand[tile.index] -= 3
+                break
+            elif naki_type == Naki.ANKAN:
+                self.hand[tile.index] -= 4
+                break
+            elif naki_type == Naki.CHAKAN:
+                self.hand[tile.index] -= 1
+                break
+            elif naki_type == Naki.CHII:
                 if tile != self.tmp_huro.naki_tile:
                     self.hand[tile.index] -= 1
+            else:
+                raise ValueError("invalid naki type")
 
     def discard_after_naki(self, kuikae_tiles: List[Tile]) -> Tile:
         discard = self.get_discard(kuikae_tiles=kuikae_tiles)

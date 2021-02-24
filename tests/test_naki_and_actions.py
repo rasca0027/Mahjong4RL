@@ -140,7 +140,7 @@ class TestAnkan(unittest.TestCase):
 
     def test_ankan_1(self):
         new_tile = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
-        ankan_list = [new_tile]
+        ankan_list = [[new_tile, new_tile, new_tile, new_tile]]
         self.assertEqual(check_ankan(self.player.hand, new_tile), ankan_list)
 
     def test_ankan_2(self):
@@ -148,7 +148,11 @@ class TestAnkan(unittest.TestCase):
         self.player.hand[kan_in_hand.index] += 4
 
         new_tile = Tile(Suit.JIHAI.value, Jihai.SHAA.value)
-        ankan_list = sorted([new_tile, kan_in_hand])
+        ankan_list = sorted(
+            [
+                [kan_in_hand, kan_in_hand, kan_in_hand, kan_in_hand],
+                [new_tile, new_tile, new_tile, new_tile]
+            ])
 
         self.assertEqual(check_ankan(self.player.hand, new_tile), ankan_list)
 
@@ -179,15 +183,20 @@ class TestChakan(unittest.TestCase):
 
     def test_chakan_1(self):
         new_tile = Tile(Suit.PINZU.value, 5)
-        chakan_list = [new_tile]
+        chakan_list = [[new_tile, new_tile, new_tile, new_tile]]
         self.assertEqual(check_chakan(self.player.hand,
                                       self.player.kabe,
                                       new_tile), chakan_list)
 
     def test_chakan_2(self):
-        self.player.hand[Tile(Suit.MANZU.value, 7).index] += 1
+        tile_in_hand = Tile(Suit.MANZU.value, 7)
+        self.player.hand[tile_in_hand.index] += 1
         new_tile = Tile(Suit.PINZU.value, 5)
-        chakan_list = sorted([new_tile, Tile(Suit.MANZU.value, 7)])
+        chakan_list = sorted(
+            [
+                [new_tile, new_tile, new_tile, new_tile],
+                [tile_in_hand, tile_in_hand, tile_in_hand, tile_in_hand]
+            ])
         self.assertEqual(check_chakan(self.player.hand,
                                       self.player.kabe,
                                       new_tile), chakan_list)
