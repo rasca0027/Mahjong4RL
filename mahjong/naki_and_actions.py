@@ -97,15 +97,21 @@ def check_ankan(hand: DefaultDict[int, int], new_tile: Tile) -> List[Tile]:
       new_tile (Tile): The potential Kan tile
 
     Returns:
-      possible_list (List[Tile]):
+      possible_list (List[List[Tile]]):
         every possible tile that could result in an ankan
     """
     possible_list = []
     for index, value in hand.items():
         if value == 4:
-            possible_list.append(Tile.from_index(index))
+            possible_list.append([Tile.from_index(index),
+                                  Tile.from_index(index),
+                                  Tile.from_index(index),
+                                  Tile.from_index(index)])
         elif value == 3 and new_tile.index == index:
-            possible_list.append(Tile.from_index(index))
+            possible_list.append([Tile.from_index(index),
+                                  Tile.from_index(index),
+                                  Tile.from_index(index),
+                                  Tile.from_index(index)])
 
     return sorted(possible_list)
 
@@ -128,10 +134,11 @@ def check_chakan(hand: DefaultDict[int, int], kabe: List[Huro], new_tile: Tile
     ]
     possible_list = []
     for pon_tile in pons:
-        if hand[pon_tile.index] == 1:
-            possible_list.append(pon_tile)
-        elif new_tile == pon_tile:
-            possible_list.append(pon_tile)
+        if (hand[pon_tile.index] == 1) or (new_tile == pon_tile):
+            possible_list.append([pon_tile,
+                                  pon_tile,
+                                  pon_tile,
+                                  pon_tile])
 
     return sorted(possible_list)
 
