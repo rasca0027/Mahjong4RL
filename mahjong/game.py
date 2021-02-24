@@ -19,7 +19,7 @@ class Game:
         self.kyoku_num = 1  # e.g.東1局
         self.config_file = config_file
         self.game_config, self.custom_rules = self.load_config()
-        self.debug_mode = game_config['debug mode']
+        self.debug_mode = self.game_config['debug mode']
         self.players = self.get_init_players(player_names,
                                              self.game_config['input'],
                                              self.game_config['A.I. players'])
@@ -35,7 +35,7 @@ class Game:
             for player in self.players:
                 print(f'    {player.seating_position}-{player.name}')
             print('Rules in this game:')
-            for k, v in custom_rules.items():
+            for k, v in self.custom_rules.items():
                 print(f'    {k}: {v}')
             input("\nPress enter to continue...")
             print(chr(27) + "[2J")

@@ -146,7 +146,7 @@ class TestChii(unittest.TestCase):
         self.bakaze = Jihai.TON
         self.kyoku_num = 1  # e.g.東1局
         self.players = self.get_init_players(player_names)
-        self.current_kyoku = Kyoku(self.players, 0, self.bakaze, 0)
+        self.current_kyoku = Kyoku(self.players)
         self.logger = KyokuLogger()
 
     def get_init_players(self, player_names):
@@ -227,7 +227,7 @@ class TestKan(unittest.TestCase):
         self.bakaze = Jihai.TON
         self.kyoku_num = 1  # e.g.東1局
         self.players = self.get_init_players(player_names)
-        self.current_kyoku = Kyoku(self.players, 0, self.bakaze, 0)
+        self.current_kyoku = Kyoku(self.players)
         self.logger = KyokuLogger()
 
     def get_init_players(self, player_names):
