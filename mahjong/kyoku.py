@@ -404,16 +404,17 @@ class Kyoku:
         self.deal()
 
         # 莊家 oya draw flow
-        if self.debug_mode:
-            print('\n----------------------------------')
-            print('Initial state')
-            print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
-            for player in self.players:
-                show_tiles(player)
-            input("Press enter to continue...")
-            print(chr(27) + "[2J")
-            print('\n----------------------------------')
-            print('Star game: oya draw flow')
+        print('\n----------------------------------')
+        print('Initial state')
+        print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
+        print(f"Current Honba: {self.honba}")
+        print(f"Current Kyotaku: {self.kyotaku}")
+        for player in self.players:
+            show_tiles(player)
+        input("Press enter to continue...")
+        print(chr(27) + "[2J")
+        print('\n----------------------------------')
+        print('Star game: oya draw flow')
         turn = Turn(self.players, self.tile_stack, self.logger)
         state, discard_tile, discard_pos, act = turn.draw_flow(self.oya_player)
         # Tenhoo
