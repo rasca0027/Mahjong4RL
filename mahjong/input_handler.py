@@ -127,9 +127,9 @@ class UserRawInput(CliInput):
 
     def parse_options(self, action_list):
         options_str = ""
-        act_values = []
+        act_values = set()
         for act, naki, possible_huros in action_list:
-            act_values.append(act.value)
+            act_values.add(act.value)
 
         for act_value in act_values:
             options_str += f"{act_value}: {Action(act_value).name}\n"
