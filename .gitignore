@@ -130,3 +130,5 @@ dmypy.json
 
 setup.cfg
 *.ipynb
+notebooks/
+run_game.py

@@ -3,8 +3,9 @@ from typing import Dict, List, Tuple, Optional
 from .player import Player
 from .components import Stack, Tile, Action, Huro, Naki, Jihai
 from .event_logger import KyokuLogger
-from .helpers import get_atamahane_winner, get_wind_tiles, check_all_equal
-from .utils import roundup
+from .helpers import (
+    get_atamahane_winner, get_wind_tiles, check_all_equal, show_tiles)
+from .utils import roundup, unicode_block
 from .naki_and_actions import check_tenpai
 from .yaku_calculator import YakuCalculator
 
@@ -137,6 +138,7 @@ class Turn:
         else:
             # TODO: invalid action, raise error
             pass
+        player.add_kawa(discard_tile)
 
         return state, discard_tile, discard_pos, Action.NOACT
 
@@ -259,7 +261,7 @@ class Turn:
                     naki_type=naki,
                     huro=player.tmp_huro,
                 )
-                player.action_with_naki(action)
+                player.action_with_naki(naki)
 
                 if kan_state := self.kan_flow(player, new_tile, naki):
                     return kan_state, action_tile, discard_pos
@@ -289,6 +291,7 @@ class Turn:
                 action=Action.DISCARD,
                 action_tile=action_tile,
             )
+            player.hand[new_tile.index] += 1
             player.add_kawa(action_tile)
             discard_pos = player.seating_position
 
@@ -327,10 +330,11 @@ class Kyoku:
     def __init__(
         self,
         players: List[Player],
-        honba: int,
-        bakaze: Jihai,
-        kyotaku: int,
-        atamahane: Optional[bool] = True,
+        bakaze: Optional[Jihai] = Jihai.TON,
+        honba: Optional[int] = 0,
+        kyotaku: Optional[int] = 0,
+        custom_rules: Optional[dict] = {},
+        debug_mode: Optional[bool] = False
     ):
         self.winners: List[Player] = []
         self.players: List[Player] = players
@@ -338,12 +342,16 @@ class Kyoku:
         self.honba: int = honba
         self.kyotaku: int = kyotaku  # 供託
         self.bakaze: Jihai = bakaze
+        self.debug_mode: bool = debug_mode
         self.tile_stack: Stack = Stack()
         self.logger: KyokuLogger = KyokuLogger()
 
         # Atamahane 「頭跳ね」 is more known as the "head bump" rule.
         # http://arcturus.su/wiki/Atamahane
-        self.atamahane = atamahane
+        if 'atamahane' in custom_rules:
+            self.atamahane = custom_rules['atamahane']
+        else:
+            self.atamahane = True
 
         # deal tiles to each player to produce their starting hands
 
@@ -381,9 +389,9 @@ class Kyoku:
             fu: int
         """
         yaku_calculator = YakuCalculator(
-            winner, self.stack, self.bakaze, not tsumo)
-        han, fu = yaku_calculator.calculate()
-        return han, fu
+            winner, self.tile_stack, self.bakaze, not tsumo)
+        final_hans, fu = yaku_calculator.calculate()
+        return final_hans, fu
 
     def start(self):
         """
@@ -396,12 +404,48 @@ class Kyoku:
         self.deal()
 
         # 莊家 oya draw flow
+        if self.debug_mode:
+            print('\n----------------------------------')
+            print('Initial state')
+            print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
+            for player in self.players:
+                show_tiles(player)
+            input("Press enter to continue...")
+            print(chr(27) + "[2J")
+            print('\n----------------------------------')
+            print('Star game: oya draw flow')
         turn = Turn(self.players, self.tile_stack, self.logger)
         state, discard_tile, discard_pos, act = turn.draw_flow(self.oya_player)
         # Tenhoo
         while state == 0:
+            if self.debug_mode:
+                print('\n----------------------------------')
+                print('Current state')
+                playing_wall_len = len(self.tile_stack.playing_wall)
+                print(f'Remaining tiles in playing wall: {playing_wall_len}')
+                print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
+                for player in self.players:
+                    show_tiles(player)
+                input("\nPress enter to continue...")
+                print(chr(27) + "[2J")
+                print('\n----------------------------------')
+                print('Enter next turn')
             state, discard_tile, discard_pos, _ = turn.discard_flow(
                 discard_tile, discard_pos)
+
+        if self.debug_mode:
+            print('\n----------------------------------')
+            print(f'Exit trun loop with state: {state}')
+            print('\n----------------------------------')
+            if state == 1:
+                print('Current state')
+                print(f'Winner: {self.players[turn.winners_pos[0]]}')
+                for player in self.players:
+                    show_tiles(player)
+                    if player.agari_tile:
+                        print('----- Agari tile -----')
+                        print(f'{unicode_block[player.agari_tile.index]}')
+                print('\n----------------------------------')
 
         if state == -1:
             renchen = self.handle_ryuukyoku(turn.stack.is_haitei)
@@ -412,7 +456,7 @@ class Kyoku:
             loser = None
             if discard_pos:
                 loser = self.players[discard_pos]
-            self.winners = [self.players[pos] for pos in turn.winners]
+            self.winners = [self.players[pos] for pos in turn.winners_pos]
             winner_data = {}
             for winner in self.winners:
                 han, fu = self.calculate_yaku(tsumo)

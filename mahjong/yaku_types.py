@@ -1,5 +1,4 @@
 import copy
-import math
 from typing import List, Optional, Callable
 from collections import defaultdict
 from itertools import combinations
@@ -60,103 +59,6 @@ class YakuTypes(ABC):
     @abstractmethod
     def get_all_evals(self):
         return NotImplemented
-
-    def calculate_fu(self):
-
-        if self.player.menzenchin and self.is_ron:
-            fu = 30
-        else:
-            fu = 20
-
-        if 'pinfu' in self.total_yaku:
-            if self.total_han == 1:
-                fu = 30  # avoid 1 han 20 fu
-            return fu
-        elif 'chiitoitsu' in self.total_yaku:
-            fu = 25
-            return fu
-
-        honor_tiles, terminal_tiles = Tile.get_yaochuuhai()
-        yaochuuhai = honor_tiles + terminal_tiles
-        for huro in self.player.kabe:
-            if huro.naki_type == Naki.PON:
-                if huro.tiles[0] in yaochuuhai:
-                    fu += 4
-                else:
-                    fu += 2
-            elif huro.naki_type == Naki.ANKAN:
-                if huro.tiles[0] in yaochuuhai:
-                    fu += 32
-                else:
-                    fu += 16
-            elif huro.naki_type in [Naki.DAMINKAN, Naki.CHAKAN]:
-                if huro.tiles[0] in yaochuuhai:
-                    fu += 16
-                else:
-                    fu += 8
-
-        def calc_wait_pattern_fu(ankous: List[Tile],
-                                 shuntsus: List[Tile],
-                                 jantou: Tile) -> int:
-            wait_pattern_fu = 0
-
-            # 暗刻
-            for tile in ankous:
-                if tile in yaochuuhai:
-                    wait_pattern_fu += 8
-                else:
-                    wait_pattern_fu += 4
-
-            # 雀頭
-            if jantou.suit == 0:
-                if jantou.rank == self.bakaze.value:
-                    wait_pattern_fu += 2
-                if jantou.rank == self.player.jikaze.value:
-                    wait_pattern_fu += 2
-
-            # 聽牌形式
-            def tenpai_add_fu() -> bool:
-                if self.player.agari_tile == jantou:  # 單騎聽
-                    return True
-                for shuntsu in shuntsus:
-                    if self.player.agari_tile == shuntsu[1]:  # 坎張聽
-                        return True
-                    elif (
-                        (self.player.agari_tile == shuntsu[0]
-                         and shuntsu[2].rank == 9)
-                        or (self.player.agari_tile == shuntsu[2]
-                            and shuntsu[0].rank == 1)
-                    ):
-                        return True  # 邊張聽
-                return False
-
-            if tenpai_add_fu():
-                wait_pattern_fu += 2
-
-            return wait_pattern_fu
-
-        # separate sets
-        tenpai_tiles = check_tenpai(self.player.hand, self.player.kabe)
-        player_huro_n = len(self.player.kabe)
-        wait_patterns = {}
-        for idx, pot_agari_tile in enumerate(tenpai_tiles):
-            tmp_agari_hand = copy.deepcopy(self.player.hand)
-            tmp_agari_hand[pot_agari_tile.index] += 1
-
-            ankous, shuntsus, jantou = separate_sets(tmp_agari_hand,
-                                                     player_huro_n)
-            wait_patterns[idx] = [ankous, shuntsus, jantou]
-
-        wait_pattern_fus = []
-        for idx in wait_patterns.keys():
-            [ankous, shuntsus, jantou] = wait_patterns[idx]
-            wait_pattern_fus.append(
-                calc_wait_pattern_fu(ankous, shuntsus, jantou))
-
-        wait_pattern_fu = max(wait_pattern_fus)
-        fu += wait_pattern_fu
-        # round up
-        return int(math.ceil(fu / 10.0)) * 10
 
     @property
     def player(self):
@@ -348,6 +250,8 @@ class TeYaku(YakuTypes):
             self.ryuuiisou,
             self.kokushi_musou,
             self.chuuren_poutou,
+            self.tsuuiisou,
+            self.yakuhai,
             self.toitoihou,
             self.chiitoitsu,
             self.ikkitsuukan,
@@ -435,6 +339,49 @@ class TeYaku(YakuTypes):
             return True
 
         return False
+
+    def tsuuiisou(self):  # 字一色
+        """Every group of tiles are composed of honor tiles.
+        yakuman
+        http://arcturus.su/wiki/Tsuuiisou
+        """
+        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
+        suit_in_huro = set([tile.suit for tile in self.huro_tiles])
+        suit = suit_in_hand | suit_in_huro
+
+        if len(suit) == 1 and list(suit)[0] == 0:
+            self.total_yaku = 'tsuuiisou'
+            self.yakuman_count = 1
+            return True
+        return False
+
+    def yakuhai(self):  # 役牌
+        """A group of 1 han yaku scored for completing a group of certain
+        honour tiles:
+        1. sangenpai (三元牌)
+        2. bakaze (場風)
+        3. jikaze (自風)
+        1 han per counted triplet
+        http://arcturus.su/wiki/Yakuhai
+        """
+        yakuhai = {'sangenpai': [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN],
+                   'bakaze': [self.bakaze],
+                   'jikaze': [self.player.jikaze]}
+
+        agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
+        for tile in self.huro_tiles:
+            agari_hand_and_kabe[tile.index] += 1
+
+        found_yakuhai = False
+        for tile_type, tile_list in yakuhai.items():
+            for tile in tile_list:
+                tile_index = Tile(Suit.JIHAI.value, tile.value).index
+                if agari_hand_and_kabe[tile_index] >= 3:
+                    self.total_yaku = f"{tile_type}_{get_name(Jihai, tile)}"
+                    self.total_han = 1
+                    found_yakuhai = True
+
+        return found_yakuhai
 
     def toitoihou(self):  # 対々和
         """All triplets.
@@ -585,16 +532,13 @@ class Yakuhai(TeYaku):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.use_chain = False
 
     def get_all_evals(self) -> List[Callable]:
         return [
             self.daisangen,
-            self.tsuuiisou,
             self.daisuushii,
             self.shousuushii,
             self.shousangen,
-            self.yakuhai,
         ]
 
     def daisangen(self):  # 大三元
@@ -614,21 +558,6 @@ class Yakuhai(TeYaku):
         self.total_yaku = "daisangen"
         self.yakuman_count = 1
         return True
-
-    def tsuuiisou(self):  # 字一色
-        """Every group of tiles are composed of honor tiles.
-        yakuman
-        http://arcturus.su/wiki/Tsuuiisou
-        """
-        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
-        suit_in_huro = set([tile.suit for tile in self.huro_tiles])
-        suit = suit_in_hand | suit_in_huro
-
-        if len(suit) == 1 and list(suit)[0] == 0:
-            self.total_yaku = 'tsuuiisou'
-            self.yakuman_count = 1
-            return True
-        return False
 
     def daisuushii(self):  # 大四喜
         """This hand has four groups (triplets or quads) of
@@ -702,34 +631,6 @@ class Yakuhai(TeYaku):
         self.total_yaku = "shousangen"
         self.total_han = 2
         return True
-
-    def yakuhai(self):  # 役牌
-        """A group of 1 han yaku scored for completing a group of certain
-        honour tiles:
-        1. sangenpai (三元牌)
-        2. bakaze (場風)
-        3. jikaze (自風)
-        1 han per counted triplet
-        http://arcturus.su/wiki/Yakuhai
-        """
-        yakuhai = {'sangenpai': [Jihai.HAKU, Jihai.HATSU, Jihai.CHUN],
-                   'bakaze': [self.bakaze],
-                   'jikaze': [self.player.jikaze]}
-
-        agari_hand_and_kabe = copy.deepcopy(self.agari_hand)
-        for tile in self.huro_tiles:
-            agari_hand_and_kabe[tile.index] += 1
-
-        found_yakuhai = False
-        for tile_type, tile_list in yakuhai.items():
-            for tile in tile_list:
-                tile_index = Tile(Suit.JIHAI.value, tile.value).index
-                if agari_hand_and_kabe[tile_index] >= 3:
-                    self.total_yaku = f"{tile_type}_{get_name(Jihai, tile)}"
-                    self.total_han = 1
-                    found_yakuhai = True
-
-        return found_yakuhai
 
 
 class Peikou(TeYaku):

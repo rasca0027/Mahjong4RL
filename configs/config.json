@@ -1,0 +1,10 @@
+{
+    "Game Config": {
+        "debug mode": true,
+        "input": "inquirer",
+        "A.I. players": []
+    },
+    "Custom Rules": {
+        "atamahane": true
+    }
+}

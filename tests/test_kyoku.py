@@ -15,12 +15,7 @@ class TestTurnDrawFlow(unittest.TestCase):
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
 
-        self.kyoku = Kyoku(
-            players=self.players,
-            honba=0,
-            bakaze=Jihai.TON,
-            kyotaku=0
-        )
+        self.kyoku = Kyoku(players=self.players)
 
     def test_att(self):
         self.assertEqual(self.kyoku.winners, [])
@@ -70,12 +65,7 @@ class TestRyuukyoku(unittest.TestCase):
         self.player_4 = Player('player 4', 3)
         self.players = [self.player_1, self.player_2,
                         self.player_3, self.player_4]
-        self.kyoku = Kyoku(
-            players=self.players,
-            honba=0,
-            bakaze=Jihai.TON,
-            kyotaku=0
-        )
+        self.kyoku = Kyoku(players=self.players)
 
     def test_nagashi_mangan(self):
         self.player_1.furiten_tiles_idx.add(Tile(Suit.MANZU.value, 1).index)
