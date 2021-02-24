@@ -18,17 +18,13 @@ class Game:
         self.bakaze = Jihai.TON
         self.kyoku_num = 1  # e.g.東1局
         self.config_file = config_file
-        game_config, custom_rules = self.load_config()
-        self.debug_mode = game_config['debug mode']
+        self.game_config, self.custom_rules = self.load_config()
+        self.debug_mode = self.game_config['debug mode']
         self.players = self.get_init_players(player_names,
-                                             game_config['input'],
-                                             game_config['A.I. players'])
+                                             self.game_config['input'],
+                                             self.game_config['A.I. players'])
         self.current_kyoku = Kyoku(self.players,
-                                   0,
-                                   self.bakaze,
-                                   0,
-                                   custom_rules['atamahane'],
-                                   self.debug_mode)
+                                   custom_rules=self.custom_rules)
         figlet = Figlet(font='slant')
         print(figlet.renderText('Mahjong 4 RL'))
         if self.debug_mode:
@@ -39,7 +35,7 @@ class Game:
             for player in self.players:
                 print(f'    {player.seating_position}-{player.name}')
             print('Rules in this game:')
-            for k, v in custom_rules.items():
+            for k, v in self.custom_rules.items():
                 print(f'    {k}: {v}')
             input("\nPress enter to continue...")
             print(chr(27) + "[2J")
@@ -79,8 +75,11 @@ class Game:
                 # advance player jikaze
                 for player in self.players:
                     player.jikaze = Jihai((player.jikaze.value - 3) % 4 + 4)
-            self.current_kyoku = Kyoku(self.players, honba,
-                                       self.bakaze, kyotaku)
+            self.current_kyoku = Kyoku(self.players,
+                                       bakaze=self.bakaze,
+                                       honba=honba,
+                                       kyotaku=kyotaku,
+                                       custom_rules=self.custom_rules)
         # 遊戲結束
         self.end_game()
 
