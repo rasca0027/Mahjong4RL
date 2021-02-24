@@ -1,6 +1,8 @@
 {
     "Game Config": {
-        "input": "raw_input"
+        "debug mode": false,
+        "input": "raw_input",
+        "A.I. players": []
     },
     "Custom Rules": {
         "atamahane": true
