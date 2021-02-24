@@ -17,7 +17,7 @@ class TestPoints(unittest.TestCase):
 
     def test_oya_tsumo(self):
         self.kyoku.winners = [self.player_1]
-        self.kyoku.apply_points(1, 30, True)
+        self.kyoku.apply_points(True, {self.player_1: (1, 30)})
         self.assertEqual(self.player_1.points, 26_500)
         self.assertEqual(self.player_2.points, 24_500)
         self.assertEqual(self.player_3.points, 24_500)
@@ -25,7 +25,7 @@ class TestPoints(unittest.TestCase):
 
     def test_oya_ron(self):
         self.kyoku.winners = [self.player_1]
-        self.kyoku.apply_points(3, 70, False, self.player_2)
+        self.kyoku.apply_points(False, {self.player_1: (3, 70)}, self.player_2)
         self.assertEqual(self.player_1.points, 37_000)
         self.assertEqual(self.player_2.points, 13_000)
         self.assertEqual(self.player_3.points, 25_000)
@@ -33,7 +33,7 @@ class TestPoints(unittest.TestCase):
 
     def test_ko_tsumo(self):
         self.kyoku.winners = [self.player_2]
-        self.kyoku.apply_points(3, 30, True)
+        self.kyoku.apply_points(True, {self.player_2: (3, 30)})
         self.assertEqual(self.player_1.points, 23_000)
         self.assertEqual(self.player_2.points, 29_000)
         self.assertEqual(self.player_3.points, 24_000)
@@ -41,7 +41,7 @@ class TestPoints(unittest.TestCase):
 
     def test_ko_ron(self):
         self.kyoku.winners = [self.player_2]
-        self.kyoku.apply_points(3, 30, False, self.player_4)
+        self.kyoku.apply_points(False, {self.player_2: (3, 30)}, self.player_4)
         self.assertEqual(self.player_1.points, 25_000)
         self.assertEqual(self.player_2.points, 28_900)
         self.assertEqual(self.player_3.points, 25_000)
@@ -50,7 +50,7 @@ class TestPoints(unittest.TestCase):
     def test_tsumo_with_honba(self):
         self.kyoku.winners = [self.player_2]
         self.kyoku.honba = 1
-        self.kyoku.apply_points(4, 25, True)
+        self.kyoku.apply_points(True, {self.player_2: (4, 25)})
         self.assertEqual(self.player_1.points, 21_700)
         self.assertEqual(self.player_2.points, 31_700)
         self.assertEqual(self.player_3.points, 23_300)
@@ -61,7 +61,7 @@ class TestPoints(unittest.TestCase):
         self.kyoku.kyotaku = 2
         self.player_1.points = 24_000
         self.player_2.points = 24_000
-        self.kyoku.apply_points(6, 30, True)
+        self.kyoku.apply_points(True, {self.player_1: (6, 30)})
         self.assertEqual(self.player_1.points, 44_000)
         self.assertEqual(self.player_2.points, 18_000)
         self.assertEqual(self.player_3.points, 19_000)

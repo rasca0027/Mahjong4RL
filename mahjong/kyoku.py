@@ -1,4 +1,4 @@
-from typing import List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional
 
 from .player import Player
 from .components import Stack, Tile, Action, Huro, Naki, Jihai
@@ -382,14 +382,12 @@ class Kyoku:
             player.hand = [self.tile_stack.draw() for _ in range(13)]
         return
 
-    def calculate_yaku(self, tsumo) -> Tuple[int, int]:
+    def calculate_yaku(self, winner: Player, tsumo: bool) -> Tuple[int, int]:
         """Calculate yaku and return han and fu
         Return:
             han: int
             fu: int
         """
-        # TODO: handle multiple winners
-        winner = self.winners[0]  # temporary
         yaku_calculator = YakuCalculator(
             winner, self.tile_stack, self.bakaze, not tsumo)
         final_hans, fu = yaku_calculator.calculate()
@@ -459,9 +457,11 @@ class Kyoku:
             if discard_pos:
                 loser = self.players[discard_pos]
             self.winners = [self.players[pos] for pos in turn.winners_pos]
-            han, fu = self.calculate_yaku(tsumo)
-            # TODO: 沒有handle不同winner不同翻數......
-            self.apply_points(han, fu, tsumo, loser)
+            winner_data = {}
+            for winner in self.winners:
+                han, fu = self.calculate_yaku(tsumo)
+                winner_data[winner] = (han, fu)
+            self.apply_points(tsumo, winner_data, loser)
             if self.oya_player in self.winners:
                 # return next oya, kyotaku, honba
                 return True, 0, self.honba + 1
@@ -482,7 +482,7 @@ class Kyoku:
             if nagashi_player := self.check_nagashi_mangan():
                 # 這裡採用流局滿貫不算和牌的規則，差別在本場和供託
                 self.winners = [nagashi_player]
-                self.apply_points(5, 20, True, None, True)
+                self.apply_points(True, {nagashi_player: (5, 20)}, None, True)
                 tenpai_players = [nagashi_player]
             else:
                 # 檢查流局是否聽牌
@@ -558,12 +558,11 @@ class Kyoku:
         return points
 
     def apply_points(self,
-                     han: int,
-                     fu: int,
                      tsumo: bool,
+                     winner_data: Dict[Player, Tuple[int, int]],
                      loser: Optional[Player] = None,
                      ryuukyoku: bool = False) -> None:
-        pt = self.calculate_base_points(han, fu)
+
         discard_pos = loser.seating_position if loser else None
         winners_pos = [p.seating_position for p in self.winners]
         atamahane_winner_pos = get_atamahane_winner(discard_pos, winners_pos)
@@ -571,6 +570,8 @@ class Kyoku:
 
         if tsumo:
             winner = self.winners[0]
+            han, fu = winner_data[winner]
+            pt = self.calculate_base_points(han, fu)
             ignore = 0 if ryuukyoku else 1
             if winner == self.oya_player:
                 winner.points += (
@@ -594,8 +595,10 @@ class Kyoku:
                             roundup(pt) + 100 * self.honba * ignore)
                 winner.points += tmp_pt
 
-        else:  # ron
+        else:  # ron, can have many winners
             for winner in self.winners:
+                han, fu = winner_data[winner]
+                pt = self.calculate_base_points(han, fu)
                 if winner == self.oya_player:
                     winner.points += roundup(pt * 6)
                     loser.points -= roundup(pt * 6)
