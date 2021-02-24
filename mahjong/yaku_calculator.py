@@ -13,6 +13,7 @@ from .yaku_types import (
 class YakuCalculator():
     def __init__(self, player, stack, bakaze, is_ron):
         self.player = player
+        self.bakaze = bakaze
         self.is_ron = is_ron
         self.joukyouyaku_eval = JouKyouYaku(player, stack, bakaze, is_ron)
         self.teyaku_eval = TeYaku(player, stack, bakaze, is_ron)
