@@ -2,10 +2,8 @@ from typing import List, Optional, Tuple, TYPE_CHECKING
 from abc import ABC, abstractmethod
 
 import pyinputplus as pyinput
-# import sys
-# sys.path.insert(1, '/Users/Leo/Documents/Mahjong4RL/python-inquirer')
 
-from python_inquirer import inquirer
+from forked_inquirer import inquirer
 from .helpers import convert_hand
 from .utils import unicode_block
 from .components import Tile, Action, Naki, Huro
