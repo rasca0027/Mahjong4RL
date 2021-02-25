@@ -2,8 +2,10 @@ from typing import List, Optional, Tuple, TYPE_CHECKING
 from abc import ABC, abstractmethod
 
 import pyinputplus as pyinput
-import inquirer
+# import sys
+# sys.path.insert(1, '/Users/Leo/Documents/Mahjong4RL/python-inquirer')
 
+from python_inquirer import inquirer
 from .helpers import convert_hand
 from .utils import unicode_block
 from .components import Tile, Action, Naki, Huro
@@ -276,7 +278,7 @@ class UserInquirerInput(CliInput):
         naki_choices, naki_huros = self.parse_naki_options(action_list)
         questions = [
             inquirer.List('naki',
-                          message="Please select naki type:",
+                          message="Please select naki type",
                           choices=sorted(naki_choices)),
         ]
         selected_naki = inquirer.prompt(questions)['naki']
@@ -296,7 +298,7 @@ class UserInquirerInput(CliInput):
 
         questions = [
             inquirer.List('huro',
-                          message="Please select huro set:",
+                          message="Please select huro set",
                           choices=sorted(possible_huro_opt)),
         ]
         selected_huro = inquirer.prompt(questions)['huro']
@@ -310,7 +312,7 @@ class UserInquirerInput(CliInput):
         action_options = self.parse_options(action_list)
         questions = [
             inquirer.List('action',
-                          message="Please select action:",
+                          message="Please select action",
                           choices=sorted(action_options),),
         ]
         selected_action = Action[inquirer.prompt(questions)['action']]
@@ -363,9 +365,9 @@ class UserInquirerInput(CliInput):
             tiles_dict[unicode_block[tile.index]] = tile
             tiles_opt.add(unicode_block[tile.index])
         questions = [
-            inquirer.List(
+            inquirer.HorizontalList(
                 'tile_to_discard',
-                message="Please selected the tile you want to discard:",
+                message="Please select the tile you want to discard",
                 choices=sorted(list(tiles_opt)),
                 carousel=True),
         ]
