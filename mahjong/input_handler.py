@@ -261,77 +261,31 @@ class UserInquirerInput(CliInput):
 
     def parse_options(self, action_list):
         action_options = set()
-        for act, naki, possible_huros in action_list:
-            action_options.add(act.name)
-
-        return list(action_options)
-
-    def parse_naki_options(self, action_list):
-        naki_choices = set()
-        naki_huros = {}
+        action_options_dict = {}
         for act, naki, possible_huros in action_list:
             if act == Action.NAKI:
-                naki_choices.add(str(naki.name))
-                naki_huros[naki] = possible_huros
-        naki_choices_ls = sorted(list(naki_choices))
-        naki_choices_ls.append("Cancel")
+                for huro in possible_huros:
+                    huro_str = " ".join([unicode_block[h.index] for h in huro])
+                    act_str = f"{naki.name}: {huro_str}"
+                    action_options.add(act_str)
+                    action_options_dict[act_str] = [act, naki, huro]
+            else:
+                act_str = 'Cancel' if act.name == 'NOACT' else act.name
+                action_options.add(act_str)
+                action_options_dict[act_str] = [act, naki, possible_huros]
 
-        return naki_choices_ls, naki_huros
-
-    def get_naki(self, action_list):
-        naki_choices, naki_huros = self.parse_naki_options(action_list)
-        questions = [
-            inquirer.List('naki',
-                          message="Please select naki type",
-                          choices=naki_choices),
-        ]
-        selected_naki = inquirer.prompt(questions)['naki']
-
-        if selected_naki == "Cancel":
-            return Naki.NONE, None
-
-        selected_naki = Naki[selected_naki]
-
-        possible_huro_opt = []
-        possible_huro_dict = {}
-        for huro in naki_huros[selected_naki]:
-            huro_str = " ".join([unicode_block[h.index] for h in huro])
-            possible_huro_opt.append(huro_str)
-            possible_huro_dict[huro_str] = huro
-        possible_huro_opt = sorted(possible_huro_opt)
-        possible_huro_opt.append("Cancel")
-
-        questions = [
-            inquirer.List('huro',
-                          message="Please select huro set",
-                          choices=possible_huro_opt),
-        ]
-        selected_huro = inquirer.prompt(questions)['huro']
-
-        if selected_huro == "Cancel":
-            return Naki.NONE, None
-
-        return selected_naki, possible_huro_dict[selected_huro]
+        return sorted(list(action_options)), action_options_dict
 
     def actions_with_new_tile(self, action_list):
-        action_options = self.parse_options(action_list)
+        action_options, act_dict = self.parse_options(action_list)
         questions = [
             inquirer.List('action',
                           message="Please select action",
-                          choices=sorted(action_options),),
+                          choices=action_options,),
         ]
-        selected_action = Action[inquirer.prompt(questions)['action']]
+        selected_action = inquirer.prompt(questions)['action']
 
-        selected_naki = None
-        selected_huro = None
-        if selected_action == Action.NAKI:
-            selected_naki, selected_huro = self.get_naki(action_list)
-            if selected_naki == Naki.NONE:
-                selected_action = Action.NOACT
-
-        naki = Naki(selected_naki) if selected_naki else None
-
-        return selected_action, naki, selected_huro
+        return act_dict[selected_action]
 
     def select_discard(self, hand_tiles, kuikae_tiles, new_tile):
         tiles_dict = {}
