@@ -121,6 +121,7 @@ class CliInput(UserInput):
                         hand_representation += f"{tile_unicode}"
                     else:
                         hand_representation += f"{tile_unicode} "
+        hand_representation += "\n"
         print(hand_representation)
 
 

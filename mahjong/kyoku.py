@@ -408,12 +408,16 @@ class Kyoku:
         print('\n----------------------------------')
         print('Initial state')
         print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
+        print('\n----------------------------------')
         for player in self.players:
-            print(f"Player {player.name}: {player.points} points")
+            logn_name = f"Player {player.name}:".ljust(15)
+            print(f"{logn_name}{player.points} points")
             if self.debug_mode:
                 show_tiles(player)
-        input("Press enter to continue...")
-        print(chr(27) + "[2J")
+                print('----------------------------------')
+        if self.debug_mode:
+            input("Press enter to continue...")
+            print(chr(27) + "[2J")
         print('\n----------------------------------')
         print('Star game: oya draw flow')
         turn = Turn(self.players, self.tile_stack, self.logger)
@@ -428,8 +432,6 @@ class Kyoku:
             if self.debug_mode:
                 for player in self.players:
                     show_tiles(player)
-                input("\nPress enter to continue...")
-                print(chr(27) + "[2J")
             print('\n----------------------------------')
             print('Enter next turn')
             state, discard_tile, discard_pos, _ = turn.discard_flow(

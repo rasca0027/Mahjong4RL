@@ -24,19 +24,20 @@ class Game:
                                              self.game_config['input'],
                                              self.game_config['A.I. players'])
         self.current_kyoku = Kyoku(self.players,
-                                   custom_rules=self.custom_rules)
+                                   custom_rules=self.custom_rules,
+                                   debug_mode=self.debug_mode)
         figlet = Figlet(font='slant')
         print(figlet.renderText('Mahjong 4 RL'))
+        print('\n----------------------------------')
+        print('Initiating a game...')
+        print(f'Debug mode: {self.debug_mode}')
+        print('Players in game:')
+        for player in self.players:
+            print(f'    {player.seating_position}-{player.name}')
+        print('Rules in this game:')
+        for k, v in self.custom_rules.items():
+            print(f'    {k}: {v}')
         if self.debug_mode:
-            print('\n----------------------------------')
-            print('Initiating a game...')
-            print(f'Debug mode: {self.debug_mode}')
-            print('Players in game:')
-            for player in self.players:
-                print(f'    {player.seating_position}-{player.name}')
-            print('Rules in this game:')
-            for k, v in self.custom_rules.items():
-                print(f'    {k}: {v}')
             input("\nPress enter to continue...")
             print(chr(27) + "[2J")
 
