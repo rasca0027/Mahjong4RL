@@ -205,7 +205,7 @@ def show_tiles(player):
         for huro in player.kabe:
             for tile in huro.tiles:
                 tile_unicode = unicode_block[tile.index]
-                if tile.index == 1:
+                if tile.index == 3:
                     hand_representation += f"{tile_unicode}"
                 else:
                     hand_representation += f"{tile_unicode} "

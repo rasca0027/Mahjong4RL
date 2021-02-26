@@ -107,7 +107,7 @@ class CliInput(UserInput):
             hand_representation += "----- Tiles in kawa -----\n"
             for tile in kawa:
                 tile_unicode = unicode_block[tile.index]
-                if tile.index == 1:
+                if tile.index == 3:
                     hand_representation += f"{tile_unicode}"
                 else:
                     hand_representation += f"{tile_unicode} "
@@ -269,16 +269,17 @@ class UserInquirerInput(CliInput):
             if act == Action.NAKI:
                 naki_choices.add(str(naki.name))
                 naki_huros[naki] = possible_huros
-        naki_choices.add("Cancel")
+        naki_choices_ls = sorted(list(naki_choices))
+        naki_choices_ls.append("Cancel")
 
-        return list(naki_choices), naki_huros
+        return naki_choices_ls, naki_huros
 
     def get_naki(self, action_list):
         naki_choices, naki_huros = self.parse_naki_options(action_list)
         questions = [
             inquirer.List('naki',
                           message="Please select naki type",
-                          choices=sorted(naki_choices)),
+                          choices=naki_choices),
         ]
         selected_naki = inquirer.prompt(questions)['naki']
 
@@ -293,12 +294,13 @@ class UserInquirerInput(CliInput):
             huro_str = " ".join([unicode_block[h.index] for h in huro])
             possible_huro_opt.append(huro_str)
             possible_huro_dict[huro_str] = huro
+        possible_huro_opt = sorted(possible_huro_opt)
         possible_huro_opt.append("Cancel")
 
         questions = [
             inquirer.List('huro',
                           message="Please select huro set",
-                          choices=sorted(possible_huro_opt)),
+                          choices=possible_huro_opt),
         ]
         selected_huro = inquirer.prompt(questions)['huro']
 
@@ -357,17 +359,24 @@ class UserInquirerInput(CliInput):
             hand_tiles = [tile for tile in hand_tiles
                           if tile not in kuikae_tiles]
 
-        self.show_tiles(hand_tiles, discard=True)
+        self.show_tiles(hand_tiles, player.kawa, player.kabe, discard=True)
         tiles_dict = {}
         tiles_opt = set()
         for tile in hand_tiles:
             tiles_dict[unicode_block[tile.index]] = tile
             tiles_opt.add(unicode_block[tile.index])
+        tiles_opt_ls = sorted(list(tiles_opt))
+        # move new tile to the front
+        if new_tile:
+            new_tile_uni = unicode_block[new_tile.index]
+            new_tile_idx = tiles_opt_ls.index(new_tile_uni)
+            tiles_opt_ls.insert(0, tiles_opt_ls.pop(new_tile_idx))
+
         questions = [
             inquirer.HorizontalList(
                 'tile_to_discard',
                 message="Please select the tile you want to discard",
-                choices=sorted(list(tiles_opt)),
+                choices=tiles_opt_ls,
                 carousel=True),
         ]
         tile = inquirer.prompt(questions)['tile_to_discard']
@@ -412,7 +421,7 @@ class DummyInput(CliInput):
             hand_representation += "----- Tiles in kawa -----\n"
             for tile in player.kawa:
                 tile_unicode = unicode_block[tile.index]
-                if tile.index == 1:
+                if tile.index == 3:
                     hand_representation += f"{tile_unicode}"
                 else:
                     hand_representation += f"{tile_unicode} "
@@ -422,7 +431,7 @@ class DummyInput(CliInput):
             for huro in player.kabe:
                 for tile in huro.tiles:
                     tile_unicode = unicode_block[tile.index]
-                    if tile.index == 1:
+                    if tile.index == 3:
                         hand_representation += f"{tile_unicode}"
                     else:
                         hand_representation += f"{tile_unicode} "
