@@ -4,7 +4,7 @@ from random import randrange
 
 import pyinputplus as pyinput
 
-from forked_inquirer import inquirer
+from forked_inquirer.forked_inquirer import inquirer, InquirerList
 from .helpers import convert_hand
 from .utils import unicode_block
 from .components import Tile, Action, Naki, Huro
@@ -279,9 +279,10 @@ class UserInquirerInput(CliInput):
     def actions_with_new_tile(self, action_list):
         action_options, act_dict = self.parse_options(action_list)
         questions = [
-            inquirer.List('action',
-                          message="Please select action",
-                          choices=action_options,),
+            InquirerList(
+                'action',
+                message="Please select action",
+                choices=action_options,),
         ]
         selected_action = inquirer.prompt(questions)['action']
         action, naki, huro = act_dict[selected_action]
@@ -302,11 +303,12 @@ class UserInquirerInput(CliInput):
                 tiles_opt_ls.index(unicode_block[new_tile.index])))
 
         questions = [
-            inquirer.HorizontalList(
+            InquirerList(
                 'tile_to_discard',
                 message="Please select the tile you want to discard",
                 choices=tiles_opt_ls,
-                carousel=True),
+                carousel=True,
+                vertical=False),
         ]
         tile = inquirer.prompt(questions)['tile_to_discard']
         discard_tile = tiles_dict[tile]
