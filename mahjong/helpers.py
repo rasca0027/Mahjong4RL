@@ -31,8 +31,8 @@ def is_yaochuu(suit: int, rank: int) -> bool:
 def nine_yaochuus(hand: DefaultDict[int, int], new_tile: Tile) -> bool:
     yaochuu_found = 0
     for tile_index in hand.keys():
-        suit = tile_index // 10
-        rank = tile_index % 10
+        suit = Tile.suit_from_idx(tile_index)
+        rank = Tile.rank_from_idx(tile_index)
         if is_yaochuu(suit, rank):
             yaochuu_found += 1
     if is_yaochuu(new_tile.suit, new_tile.rank):
