@@ -270,7 +270,7 @@ class UserInquirerInput(CliInput):
                     action_options.add(act_str)
                     action_options_dict[act_str] = [act, naki, huro]
             else:
-                act_str = 'Cancel' if act.name == 'NOACT' else act.name
+                act_str = 'Cancel' if act == Action.NOACT else act.name
                 action_options.add(act_str)
                 action_options_dict[act_str] = [act, naki, possible_huros]
 
@@ -284,8 +284,9 @@ class UserInquirerInput(CliInput):
                           choices=action_options,),
         ]
         selected_action = inquirer.prompt(questions)['action']
+        action, naki, huro = act_dict[selected_action]
 
-        return act_dict[selected_action]
+        return action, naki, huro
 
     def select_discard(self, hand_tiles, kuikae_tiles, new_tile):
         tiles_dict = {}
@@ -297,9 +298,8 @@ class UserInquirerInput(CliInput):
         tiles_opt_ls = sorted(list(tiles_opt))
         # move new tile to the front
         if new_tile:
-            new_tile_uni = unicode_block[new_tile.index]
-            new_tile_idx = tiles_opt_ls.index(new_tile_uni)
-            tiles_opt_ls.insert(0, tiles_opt_ls.pop(new_tile_idx))
+            tiles_opt_ls.insert(0, tiles_opt_ls.pop(
+                tiles_opt_ls.index(unicode_block[new_tile.index])))
 
         questions = [
             inquirer.HorizontalList(
