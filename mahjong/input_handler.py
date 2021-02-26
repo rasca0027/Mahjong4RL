@@ -1,5 +1,6 @@
 from typing import List, Optional, Tuple, TYPE_CHECKING
 from abc import ABC, abstractmethod
+from random import randrange
 
 import pyinputplus as pyinput
 
@@ -380,14 +381,29 @@ class UserInquirerInput(CliInput):
 class DummyInput(CliInput):
 
     def actions(self, player, new_tile, action_list, discard):
-        return Action.NOACT, Naki.NONE, []
+        if (action_list == [(Action.NOACT, Naki.NONE, [])]) and discard:
+            return Action.NOACT, Naki.NONE, []
+        else:
+            if not discard:
+                print("\n----------------------------------")
+                print(f"A.I. player {player.name} draw a tile")
+
+            # pick a random action
+            action, naki, huro_list = action_list[randrange(len(action_list))]
+            if huro_list:
+                # pick a random huro
+                huro = huro_list[randrange(len(huro_list))]
+            else:
+                huro = None
+            return action, naki, huro
 
     def discard(self, player, new_tile, kuikae_tiles):
         hand_tiles = convert_hand(player.hand)
         if new_tile:
             hand_tiles.append(new_tile)
 
-        discard_tile = hand_tiles[0]
+        # pick a random tile to discard
+        discard_tile = hand_tiles[randrange(len(hand_tiles))]
         print(f"----------------------------------\nPlayer: {player.name}")
         print(f"Jikaze: {player.jikaze.name}")
         print(f"Tile to discard: \n{unicode_block[discard_tile.index]}")

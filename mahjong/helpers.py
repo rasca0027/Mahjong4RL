@@ -187,7 +187,7 @@ def show_tiles(player):
     hand_representation = "----- Tiles in hand -----\n"
     for i, tile in enumerate(hand_tiles):
         tile_unicode = unicode_block[tile.index]
-        if tile.index == 1:
+        if tile.index == 3:
             hand_representation += f"{tile_unicode}"
         else:
             hand_representation += f"{tile_unicode} "
@@ -195,7 +195,7 @@ def show_tiles(player):
         hand_representation += "\n----- Tiles in kawa -----\n"
         for tile in player.kawa:
             tile_unicode = unicode_block[tile.index]
-            if tile.index == 1:
+            if tile.index == 3:
                 hand_representation += f"{tile_unicode}"
             else:
                 hand_representation += f"{tile_unicode} "
