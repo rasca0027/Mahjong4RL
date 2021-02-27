@@ -247,7 +247,7 @@ class Turn:
         new_tile.owner = player.seating_position
         player.tmp_furiten = False
         (action, naki), action_tile = player.action_with_new_tile(
-            new_tile, self.first_turn, self.stack.is_haitei, self.suukaikan
+            new_tile, self.first_turn, self.stack, self.suukaikan
         )
         state = 0
         discard_pos = None

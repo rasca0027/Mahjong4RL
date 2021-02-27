@@ -238,6 +238,8 @@ class UserRawInput(CliInput):
             # need to change to something else if UI changes
             hand_tiles = [tile for tile in hand_tiles
                           if tile not in kuikae_tiles]
+        if player.is_riichi and new_tile:
+            hand_tiles = [new_tile]
         print("Please selected the tile you want to discard:")
         self.show_tiles(hand_tiles, discard=True)
 
@@ -362,6 +364,8 @@ class UserInquirerInput(CliInput):
         for tile in hand_tiles:
             tiles_dict[unicode_block[tile.index]] = tile
             tiles_opt.add(unicode_block[tile.index])
+        if player.is_riichi and new_tile:
+            tiles_opt = set(unicode_block[new_tile.index])
         questions = [
             inquirer.List(
                 'tile_to_discard',
