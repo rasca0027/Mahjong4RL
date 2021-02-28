@@ -75,7 +75,7 @@ class Game:
                     self.kyoku_num += 1
                 # advance player jikaze
                 for player in self.players:
-                    player.jikaze = Jihai((player.jikaze.value - 3) % 4 + 4)
+                    player.advance_jikaze()
             self.current_kyoku = Kyoku(self.players,
                                        bakaze=self.bakaze,
                                        honba=honba,
