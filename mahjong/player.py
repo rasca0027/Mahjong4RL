@@ -130,6 +130,8 @@ class Player:
         return action_list
 
     def call_riichi(self, discard_tile, tile, stack):
+        action = Action.NOACT
+        naki = Naki.NONE
         tmp_hand = copy.deepcopy(self.hand)
         tmp_hand[tile.index] += 1
         tmp_hand[discard_tile.index] -= 1
@@ -140,6 +142,8 @@ class Player:
             if action == Action.RIICHI:
                 self.is_riichi = True
                 self.points -= 1_000
+
+        return action, naki
 
     def action_with_discard_tile(
         self,
@@ -217,7 +221,7 @@ class Player:
         else:
             discard_tile = self.get_discard(tile)
             if not self.is_riichi:
-                self.call_riichi(discard_tile, tile, stack)
+                action, naki = self.call_riichi(discard_tile, tile, stack)
 
         return (action, naki), discard_tile
 

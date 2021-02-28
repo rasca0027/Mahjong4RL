@@ -276,6 +276,12 @@ class Turn:
             )
             return -1, action_tile, discard_pos, action
 
+        elif action == Action.RIICHI:
+            self.logger.log(
+                p_pos=player.seating_position,
+                action=action,
+            )
+
         elif action == Action.TSUMO:
             self.logger.log(
                 p_pos=player.seating_position,
@@ -430,8 +436,10 @@ class Kyoku:
                 print(chr(27) + "[2J")
                 print('\n----------------------------------')
                 print('Enter next turn')
-            state, discard_tile, discard_pos, _ = turn.discard_flow(
+            state, discard_tile, discard_pos, act = turn.discard_flow(
                 discard_tile, discard_pos)
+            if act == Action.RIICHI:
+                self.kyotaku += 1
 
         if self.debug_mode:
             print('\n----------------------------------')
