@@ -85,6 +85,12 @@ class Game:
             else:
                 # TODO: 南風4 如果已經是第一名的話，不繼續連莊，直接結束遊戲
                 ...
+
+            input("\nPress enter to enter next kyoku...")
+            print(chr(27) + "[2J")
+            for player in self.players:
+                player.reset_state()
+
             self.current_kyoku = Kyoku(self.players,
                                        bakaze=self.bakaze,
                                        honba=honba,

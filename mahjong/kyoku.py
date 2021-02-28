@@ -95,7 +95,6 @@ class Turn:
             )
             state = 1
             discard_tile = None
-            discard_pos = None
 
         # TODO: invalid action, raise error
 
@@ -288,6 +287,7 @@ class Turn:
                 action=action,
                 action_tile=new_tile,
             )
+            self.winners_pos = [player.seating_position]
             return 1, action_tile, discard_pos, action
 
         # Discard the action tile
@@ -436,7 +436,9 @@ class Kyoku:
             print('Current state')
             playing_wall_len = len(self.tile_stack.playing_wall)
             print(f'Remaining tiles in playing wall: {playing_wall_len}')
-            print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
+            doras = "".join([unicode_block[t.index]
+                            for t in self.tile_stack.doras])
+            print(f'Dora: {doras}')
             if self.debug_mode:
                 for player in self.players:
                     show_tiles(player)

@@ -78,7 +78,7 @@ class CliInput(UserInput):
                 if i < 10:
                     hand_representation += f"{tile_unicode}"
                 else:
-                    hand_representation += f" {tile_unicode} "
+                    hand_representation += f"{tile_unicode} "
             else:
                 if (i == len(hand_tiles) - 1):
                     if i > 9:
@@ -91,7 +91,7 @@ class CliInput(UserInput):
                     elif i == len(hand_tiles) - 2 :
                         hand_representation += f" {tile_unicode}|"
                     else:
-                        hand_representation += f" {tile_unicode} "
+                        hand_representation += f" {tile_unicode}"
 
         hand_representation += "\n"
         if kawa:
@@ -104,6 +104,7 @@ class CliInput(UserInput):
             for huro in kabe:
                 for tile in huro.tiles:
                     hand_representation += f"{unicode_block[tile.index]}"
+            hand_representation += "\n"
         print(hand_representation)
 
     @abstractmethod
@@ -140,7 +141,10 @@ class CliInput(UserInput):
 
         self.show_tiles(hand_tiles, player.kawa, player.kabe, discard=True)
 
-        return self.select_discard(hand_tiles, kuikae_tiles, new_tile)
+        return self.select_discard(hand_tiles,
+                                   kuikae_tiles,
+                                   new_tile,
+                                   player.is_riichi)
 
 
 class UserRawInput(CliInput):
@@ -222,14 +226,14 @@ class UserRawInput(CliInput):
 
         return Action(selected_action), naki, selected_huro
 
-    def select_discard(self, hand_tiles, kuikae_tiles, new_tile):
+    def select_discard(self, hand_tiles, kuikae_tiles, new_tile, is_riichi):
         if kuikae_tiles:
             # not allowed to choose from this list
             # TODO: now just hide from hand_representation,
             # need to change to something else if UI changes
             hand_tiles = [tile for tile in hand_tiles
                           if tile not in kuikae_tiles]
-        if player.is_riichi and new_tile:
+        if is_riichi and new_tile:
             hand_tiles = [new_tile]
         self.show_tiles(hand_tiles, discard=True)
         print("Please selected the tile you want to discard:")
@@ -276,7 +280,7 @@ class UserInquirerInput(CliInput):
 
         return action, naki, huro
 
-    def select_discard(self, hand_tiles, kuikae_tiles, new_tile):
+    def select_discard(self, hand_tiles, kuikae_tiles, new_tile, is_riichi):
         tiles_dict = {}
         tiles_opt = set()
         for tile in hand_tiles:
@@ -288,8 +292,8 @@ class UserInquirerInput(CliInput):
         if new_tile:
             tiles_opt_ls.insert(0, tiles_opt_ls.pop(
                 tiles_opt_ls.index(unicode_block[new_tile.index])))
-        if self.is_riichi and new_tile:
-            tiles_opt = set(unicode_block[new_tile.index])
+        if is_riichi and new_tile:
+            tiles_opt_ls = [unicode_block[new_tile.index]]
         questions = [
             InquirerList(
                 'tile_to_discard',
@@ -348,21 +352,14 @@ class DummyInput(CliInput):
         if player.kawa:
             hand_representation += "----- Tiles in kawa -----\n"
             for tile in player.kawa:
-                tile_unicode = unicode_block[tile.index]
-                if tile.index == 3:
-                    hand_representation += f"{tile_unicode}"
-                else:
-                    hand_representation += f"{tile_unicode} "
+                hand_representation += f"{unicode_block[tile.index]}"
             hand_representation += "\n"
         if player.kabe:
             hand_representation += "----- Kabe -----\n"
             for huro in player.kabe:
                 for tile in huro.tiles:
-                    tile_unicode = unicode_block[tile.index]
-                    if tile.index == 3:
-                        hand_representation += f"{tile_unicode}"
-                    else:
-                        hand_representation += f"{tile_unicode} "
+                    hand_representation += f"{unicode_block[tile.index]}"
+            hand_representation += "\n"
         print(hand_representation)
 
         return self.select_discard(hand_tiles, kuikae_tiles)

@@ -43,6 +43,18 @@ class Player:
             f"{ self.seating_position }, Jikaze: { self.jikaze.name }"
         )
 
+    def reset_state(self) -> None:
+        self.is_riichi = False
+        self.hand = defaultdict(int)
+        self.kabe = []
+        self.kawa = []
+        self.menzenchin = True
+        self.tmp_huro = None
+        self.furiten_tiles_idx = set()
+        self.tmp_furiten = False
+        self.permanent_furiten = False
+        self.agari_tile = None
+
     def add_kawa(self, tile: Tile) -> None:
         if tile:
             self.hand[tile.index] -= 1
@@ -169,10 +181,10 @@ class Player:
             action_list = [(Action.NOACT, Naki.NONE, []), ]
             if check_ron(self, tile):
                 action_list.append((Action.RON, Naki.NONE, []))
-        else:
+        elif not self.is_riichi:
             action_list = self.get_naki_action_list(
                 False, self.hand, self.kabe, tile, is_haiteihai)
-        if pos == self.get_kamicha():
+        if pos == self.get_kamicha() and not self.is_riichi:
             if possible_chiis := check_chii(self.hand, tile):
                 action_list.append((Action.NAKI, Naki.CHII, possible_chiis))
         if check_ron(self, tile):
@@ -207,7 +219,7 @@ class Player:
         """
         if suukaikan:
             action_list = [(Action.NOACT, Naki.NONE, []), ]
-        else:
+        elif not self.is_riichi:
             action_list = self.get_naki_action_list(
                 True, self.hand, self.kabe, tile, stack.is_haitei)
         if first_turn and nine_yaochuus(self.hand, tile):
