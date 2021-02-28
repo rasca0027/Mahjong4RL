@@ -531,7 +531,7 @@ class Kyoku:
                 return player
         return None
 
-    def apply_noten_points(tenpai: List[Player], noten: List[Player]):
+    def apply_noten_points(self, tenpai: List[Player], noten: List[Player]):
         if len(tenpai) == 1:
             for player in noten:
                 player.points -= 1_000
