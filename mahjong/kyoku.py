@@ -408,6 +408,8 @@ class Kyoku:
         print('\n----------------------------------')
         print('Initial state')
         print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
+        print(f"Current Honba: {self.honba}")
+        print(f"Current Kyotaku: {self.kyotaku}")
         print('\n----------------------------------')
         for player in self.players:
             logn_name = f"Player {player.name}:".ljust(15)

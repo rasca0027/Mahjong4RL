@@ -1,6 +1,7 @@
 {
     "Game Config": {
         "debug mode": false,
+        "game type": "tonpuusen",
         "input": "raw_input",
         "A.I. players": []
     },
