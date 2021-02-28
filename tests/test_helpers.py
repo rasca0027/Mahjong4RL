@@ -3,7 +3,8 @@ import unittest
 from mahjong.components import Suit, Tile, Huro, Naki, Jihai
 from mahjong.player import Player
 from mahjong.helpers import (
-    is_yaochuu, consists_jantou_and_sets, separate_sets, is_chi, is_pon
+    is_yaochuu, nine_yaochuus, consists_jantou_and_sets, separate_sets,
+    is_chi, is_pon
 )
 
 
@@ -23,6 +24,30 @@ class TestIsYaochuu(unittest.TestCase):
         self.assertEqual(test_1, True)
         self.assertEqual(test_2, True)
         self.assertEqual(test_3, False)
+
+
+class TestNineYaochuu(unittest.TestCase):
+
+    def setUp(self):
+        self.player = Player('test', 0)
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HATSU.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 2
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 1
+        self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 9).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 4).index] += 2
+
+    def test_nine_yaochuus(self):
+        new_tile = Tile(Suit.MANZU.value, 1)
+        self.assertEqual(nine_yaochuus(self.player.hand, new_tile), True)
+
+    def test_no_nine_yaochuus(self):
+        new_tile = Tile(Suit.MANZU.value, 7)
+        self.assertEqual(nine_yaochuus(self.player.hand, new_tile), False)
 
 
 class TestConsistsJantouAndSets(unittest.TestCase):
