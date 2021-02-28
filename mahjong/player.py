@@ -177,8 +177,8 @@ class Player:
           action: CHI/PON/DAMINKAN/RON
         """
         self.tmp_huro = None
+        action_list = [(Action.NOACT, Naki.NONE, []), ]
         if suukaikan:
-            action_list = [(Action.NOACT, Naki.NONE, []), ]
             if check_ron(self, tile):
                 action_list.append((Action.RON, Naki.NONE, []))
         elif not self.is_riichi:
@@ -217,9 +217,8 @@ class Player:
           (action, naki): TSUMO/ANKAN/CHAKAN
           discard_tile: Tile
         """
-        if suukaikan:
-            action_list = [(Action.NOACT, Naki.NONE, []), ]
-        elif not self.is_riichi:
+        action_list = [(Action.NOACT, Naki.NONE, []), ]
+        if not suukaikan and not self.is_riichi:
             action_list = self.get_naki_action_list(
                 True, self.hand, self.kabe, tile, stack.is_haitei)
         if first_turn and nine_yaochuus(self.hand, tile):
