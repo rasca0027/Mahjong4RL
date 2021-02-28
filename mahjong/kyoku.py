@@ -463,7 +463,7 @@ class Kyoku:
             self.winners = [self.players[pos] for pos in turn.winners_pos]
             winner_data = {}
             for winner in self.winners:
-                han, fu = self.calculate_yaku(tsumo)
+                han, fu = self.calculate_yaku(winner, tsumo)
                 winner_data[winner] = (han, fu)
             self.apply_points(tsumo, winner_data, loser)
             if self.oya_player in self.winners:
