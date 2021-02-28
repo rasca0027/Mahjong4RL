@@ -247,7 +247,7 @@ class Turn:
         new_tile.owner = player.seating_position
         player.tmp_furiten = False
         (action, naki), action_tile = player.action_with_new_tile(
-            new_tile, self.first_turn, self.stack.is_haitei, self.suukaikan
+            new_tile, self.first_turn, self.stack, self.suukaikan
         )
         state = 0
         discard_pos = None
@@ -275,6 +275,12 @@ class Turn:
                 action=action,
             )
             return -1, action_tile, discard_pos, action
+
+        elif action == Action.RIICHI:
+            self.logger.log(
+                p_pos=player.seating_position,
+                action=action,
+            )
 
         elif action == Action.TSUMO:
             self.logger.log(
@@ -436,8 +442,10 @@ class Kyoku:
                     show_tiles(player)
             print('\n----------------------------------')
             print('Enter next turn')
-            state, discard_tile, discard_pos, _ = turn.discard_flow(
+            state, discard_tile, discard_pos, act = turn.discard_flow(
                 discard_tile, discard_pos)
+            if act == Action.RIICHI:
+                self.kyotaku += 1
 
         if self.debug_mode:
             print('\n----------------------------------')
