@@ -236,7 +236,7 @@ class UserRawInput(CliInput):
         if is_riichi and new_tile:
             hand_tiles = [new_tile]
         self.show_tiles(hand_tiles, discard=True)
-        print("Please selected the tile you want to discard:")
+        print("Please select the tile you want to discard:")
         discard = pyinput.inputNum(
             "Discard tile No.: ",
             min=0,

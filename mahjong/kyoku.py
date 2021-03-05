@@ -410,7 +410,6 @@ class Kyoku:
         self.deal()
 
         # 莊家 oya draw flow
-
         print('\n----------------------------------')
         print('Initial state')
         print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')

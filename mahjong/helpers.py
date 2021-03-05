@@ -186,19 +186,16 @@ def show_tiles(player):
     print(f"Jikaze: {player.jikaze.name}")
     hand_representation = "----- Tiles in hand -----\n"
     for i, tile in enumerate(hand_tiles):
-        tile_unicode = unicode_block[tile.index]
-        hand_representation += f"{tile_unicode}"
+        hand_representation += f"{unicode_block[tile.index]}"
     if player.kawa:
         hand_representation += "\n----- Tiles in kawa -----\n"
         for tile in player.kawa:
-            tile_unicode = unicode_block[tile.index]
-            hand_representation += f"{tile_unicode}"
+            hand_representation += f"{unicode_block[tile.index]}"
         hand_representation += "\n"
     if player.kabe:
         hand_representation += "----- Kabe -----\n"
         for huro in player.kabe:
             for tile in huro.tiles:
-                tile_unicode = unicode_block[tile.index]
-                hand_representation += f"{tile_unicode}"
+                hand_representation += f"{unicode_block[tile.index]}"
     hand_representation += "\n"
     print(hand_representation)
