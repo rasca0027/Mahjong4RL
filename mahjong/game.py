@@ -81,7 +81,7 @@ class Game:
                     self.kyoku_num += 1
                 # advance player jikaze
                 for player in self.players:
-                    player.jikaze = Jihai((player.jikaze.value - 3) % 4 + 4)
+                    player.advance_jikaze()
             else:
                 # TODO: 南風4 如果已經是第一名的話，不繼續連莊，直接結束遊戲
                 ...
