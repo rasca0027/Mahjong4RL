@@ -71,6 +71,11 @@ class TestPlayer(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.player.jikaze = 1
 
+    def test_advance_jikaze(self):
+        self.assertEqual(self.player.jikaze, Jihai.TON)
+        self.player.advance_jikaze()
+        self.assertEqual(self.player.jikaze, Jihai.NAN)
+
     def test_get_kamicha(self):
         self.assertEqual(self.player.get_kamicha(), 3)
         self.assertEqual(self.player_2.get_kamicha(), 0)

@@ -1,6 +1,7 @@
 {
     "Game Config": {
         "debug mode": false,
+        "game type": "tonpuusen",
         "input": "inquirer",
         "A.I. players": [1, 2, 3]
     },

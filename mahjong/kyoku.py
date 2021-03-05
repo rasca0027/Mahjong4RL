@@ -410,26 +410,27 @@ class Kyoku:
         self.deal()
 
         # 莊家 oya draw flow
-        if self.debug_mode:
-            print('\n----------------------------------')
-            print('Initial state')
-            print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
-            for player in self.players:
-                show_tiles(player)
-            input("Press enter to continue...")
-            print(chr(27) + "[2J")
-            print('\n----------------------------------')
-            print('Star game: oya draw flow')
+        print('\n----------------------------------')
+        print('Initial state')
+        print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
+        print(f"Current Honba: {self.honba}")
+        print(f"Current Kyotaku: {self.kyotaku}")
+        for player in self.players:
+            show_tiles(player)
+        input("Press enter to continue...")
+        print(chr(27) + "[2J")
+        print('\n----------------------------------')
+        print('Star game: oya draw flow')
         turn = Turn(self.players, self.tile_stack, self.logger)
         state, discard_tile, discard_pos, act = turn.draw_flow(self.oya_player)
         # Tenhoo
         while state == 0:
+            print('\n----------------------------------')
+            print('Current state')
+            playing_wall_len = len(self.tile_stack.playing_wall)
+            print(f'Remaining tiles in playing wall: {playing_wall_len}')
+            print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
             if self.debug_mode:
-                print('\n----------------------------------')
-                print('Current state')
-                playing_wall_len = len(self.tile_stack.playing_wall)
-                print(f'Remaining tiles in playing wall: {playing_wall_len}')
-                print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
                 for player in self.players:
                     show_tiles(player)
                 input("\nPress enter to continue...")
@@ -467,7 +468,7 @@ class Kyoku:
             self.winners = [self.players[pos] for pos in turn.winners_pos]
             winner_data = {}
             for winner in self.winners:
-                han, fu = self.calculate_yaku(tsumo)
+                han, fu = self.calculate_yaku(winner, tsumo)
                 winner_data[winner] = (han, fu)
             self.apply_points(tsumo, winner_data, loser)
             if self.oya_player in self.winners:
@@ -535,7 +536,7 @@ class Kyoku:
                 return player
         return None
 
-    def apply_noten_points(tenpai: List[Player], noten: List[Player]):
+    def apply_noten_points(self, tenpai: List[Player], noten: List[Player]):
         if len(tenpai) == 1:
             for player in noten:
                 player.points -= 1_000
