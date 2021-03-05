@@ -315,7 +315,8 @@ class TeYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Chuuren_poutou
         """
-        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
+        suit_in_hand = set([Tile.suit_from_idx(k)
+                            for k in self.agari_hand.keys()])
         if len(suit_in_hand) == 1 and (suit_v := list(suit_in_hand)[0]) != 0:
             tmp_hand = copy.deepcopy(self.agari_hand)
             for i in [1, 9]:
@@ -345,7 +346,8 @@ class TeYaku(YakuTypes):
         yakuman
         http://arcturus.su/wiki/Tsuuiisou
         """
-        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
+        suit_in_hand = set([Tile.suit_from_idx(k)
+                            for k in self.agari_hand.keys()])
         suit_in_huro = set([tile.suit for tile in self.huro_tiles])
         suit = suit_in_hand | suit_in_huro
 
@@ -513,8 +515,8 @@ class TeYaku(YakuTypes):
         """
         # check player's hand
         for k in self.agari_hand.keys():
-            suit = k // 10
-            rank = k % 10
+            suit = Tile.suit_from_idx(k)
+            rank = Tile.rank_from_idx(k)
             if is_yaochuu(suit=suit, rank=rank):
                 return False
 
@@ -704,7 +706,8 @@ class Chanta(TeYaku):
         http://arcturus.su/wiki/Chinroutou
         """
         for k in self.agari_hand.keys():
-            suit, rank = k // 10, k % 10
+            suit = Tile.suit_from_idx(k)
+            rank = Tile.rank_from_idx(k)
             if not is_yaochuu(suit=suit, rank=rank) or suit == 0:
                 return False
 
@@ -725,7 +728,8 @@ class Chanta(TeYaku):
         http://arcturus.su/wiki/Honroutou
         """
         for k in self.agari_hand.keys():
-            suit, rank = k // 10, k % 10
+            suit = Tile.suit_from_idx(k)
+            rank = Tile.rank_from_idx(k)
             if not is_yaochuu(suit=suit, rank=rank):
                 return False
 
@@ -999,7 +1003,8 @@ class Somete(TeYaku):
         5 han (open)
         http://arcturus.su/wiki/Sanankou
         """
-        suit_in_hand = set([k // 10 for k in self.agari_hand.keys()])
+        suit_in_hand = set([Tile.suit_from_idx(k)
+                            for k in self.agari_hand.keys()])
         suit_in_huro = set([tile.suit for tile in self.huro_tiles])
         suit = suit_in_hand | suit_in_huro
 
@@ -1019,7 +1024,8 @@ class Somete(TeYaku):
         http://arcturus.su/wiki/Honiisou
         """
         suit_not_jihai_in_hand = set(
-            [k // 10 for k in self.agari_hand.keys() if k // 10 != 0])
+            [Tile.suit_from_idx(k) for k in self.agari_hand.keys()
+             if Tile.suit_from_idx(k) != 0])
         suit_not_jihai_in_huro = set(
             [tile.suit for tile in self.huro_tiles if tile.suit != 0])
         suit_not_jihai = suit_not_jihai_in_hand | suit_not_jihai_in_huro

@@ -105,9 +105,19 @@ class Tile:
     def calc_index(self):
         return self._suit * 10 + self._rank
 
+    @staticmethod
+    def suit_from_idx(ind):
+        return ind // 10
+
+    @staticmethod
+    def rank_from_idx(ind):
+        return ind % 10
+
     @classmethod
     def from_index(cls, ind):
-        return cls(ind // 10, ind % 10)
+        suit = cls.suit_from_idx(ind)
+        rank = cls.rank_from_idx(ind)
+        return cls(suit, rank)
 
     @staticmethod
     def get_yaochuuhai() -> Tuple[List, List]:
