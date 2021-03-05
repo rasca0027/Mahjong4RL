@@ -638,7 +638,7 @@ class TestTurnDiscardFlow(unittest.TestCase):
             self.player_1.seating_position)
         self.assertEqual(state, 1)
         self.assertEqual(discard_tile, None)
-        self.assertEqual(discard_pos, None)
+        self.assertEqual(discard_pos, 0)
 
     def test_normal_ryuukyoku(self):
         self.tile_stack.playing_wall = self.tile_stack.playing_wall[-1:]

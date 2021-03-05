@@ -197,4 +197,5 @@ def show_tiles(player):
         for huro in player.kabe:
             for tile in huro.tiles:
                 hand_representation += f"{unicode_block[tile.index]}"
+    hand_representation += "\n"
     print(hand_representation)

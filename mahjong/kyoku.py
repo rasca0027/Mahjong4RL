@@ -95,7 +95,6 @@ class Turn:
             )
             state = 1
             discard_tile = None
-            discard_pos = None
 
         # TODO: invalid action, raise error
 
@@ -288,6 +287,7 @@ class Turn:
                 action=action,
                 action_tile=new_tile,
             )
+            self.winners_pos = [player.seating_position]
             return 1, action_tile, discard_pos, action
 
         # Discard the action tile
@@ -415,10 +415,16 @@ class Kyoku:
         print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
         print(f"Current Honba: {self.honba}")
         print(f"Current Kyotaku: {self.kyotaku}")
+        print('\n----------------------------------')
         for player in self.players:
-            show_tiles(player)
-        input("Press enter to continue...")
-        print(chr(27) + "[2J")
+            logn_name = f"Player {player.name}:".ljust(15)
+            print(f"{logn_name}{player.points} points")
+            if self.debug_mode:
+                show_tiles(player)
+                print('----------------------------------')
+        if self.debug_mode:
+            input("Press enter to continue...")
+            print(chr(27) + "[2J")
         print('\n----------------------------------')
         print('Star game: oya draw flow')
         turn = Turn(self.players, self.tile_stack, self.logger)
@@ -429,14 +435,14 @@ class Kyoku:
             print('Current state')
             playing_wall_len = len(self.tile_stack.playing_wall)
             print(f'Remaining tiles in playing wall: {playing_wall_len}')
-            print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
+            doras = "".join([unicode_block[t.index]
+                            for t in self.tile_stack.doras])
+            print(f'Dora: {doras}')
             if self.debug_mode:
                 for player in self.players:
                     show_tiles(player)
-                input("\nPress enter to continue...")
-                print(chr(27) + "[2J")
-                print('\n----------------------------------')
-                print('Enter next turn')
+            print('\n----------------------------------')
+            print('Enter next turn')
             state, discard_tile, discard_pos, act = turn.discard_flow(
                 discard_tile, discard_pos)
             if act == Action.RIICHI:

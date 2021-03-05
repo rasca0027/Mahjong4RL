@@ -78,7 +78,7 @@ class CliInput(UserInput):
                 if i < 10:
                     hand_representation += f"{tile_unicode}"
                 else:
-                    hand_representation += f" {tile_unicode} "
+                    hand_representation += f"{tile_unicode} "
             else:
                 if (i == len(hand_tiles) - 1):
                     if i > 9:
@@ -91,7 +91,7 @@ class CliInput(UserInput):
                     elif i == len(hand_tiles) - 2 :
                         hand_representation += f" {tile_unicode}|"
                     else:
-                        hand_representation += f" {tile_unicode} "
+                        hand_representation += f" {tile_unicode}"
 
         hand_representation += "\n"
         if kawa:
@@ -104,6 +104,7 @@ class CliInput(UserInput):
             for huro in kabe:
                 for tile in huro.tiles:
                     hand_representation += f"{unicode_block[tile.index]}"
+            hand_representation += "\n"
         print(hand_representation)
 
     @abstractmethod
@@ -351,21 +352,14 @@ class DummyInput(CliInput):
         if player.kawa:
             hand_representation += "----- Tiles in kawa -----\n"
             for tile in player.kawa:
-                tile_unicode = unicode_block[tile.index]
-                if tile.index == 3:
-                    hand_representation += f"{tile_unicode}"
-                else:
-                    hand_representation += f"{tile_unicode} "
+                hand_representation += f"{unicode_block[tile.index]}"
             hand_representation += "\n"
         if player.kabe:
             hand_representation += "----- Kabe -----\n"
             for huro in player.kabe:
                 for tile in huro.tiles:
-                    tile_unicode = unicode_block[tile.index]
-                    if tile.index == 3:
-                        hand_representation += f"{tile_unicode}"
-                    else:
-                        hand_representation += f"{tile_unicode} "
+                    hand_representation += f"{unicode_block[tile.index]}"
+            hand_representation += "\n"
         print(hand_representation)
 
         return self.select_discard(hand_tiles, kuikae_tiles)
