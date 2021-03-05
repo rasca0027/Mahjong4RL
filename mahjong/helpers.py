@@ -31,8 +31,8 @@ def is_yaochuu(suit: int, rank: int) -> bool:
 def nine_yaochuus(hand: DefaultDict[int, int], new_tile: Tile) -> bool:
     yaochuu_found = 0
     for tile_index in hand.keys():
-        suit = tile_index // 10
-        rank = tile_index % 10
+        suit = Tile.suit_from_idx(tile_index)
+        rank = Tile.rank_from_idx(tile_index)
         if is_yaochuu(suit, rank):
             yaochuu_found += 1
     if is_yaochuu(new_tile.suit, new_tile.rank):
@@ -186,28 +186,15 @@ def show_tiles(player):
     print(f"Jikaze: {player.jikaze.name}")
     hand_representation = "----- Tiles in hand -----\n"
     for i, tile in enumerate(hand_tiles):
-        tile_unicode = unicode_block[tile.index]
-        if tile.index == 3:
-            hand_representation += f"{tile_unicode}"
-        else:
-            hand_representation += f"{tile_unicode} "
+        hand_representation += f"{unicode_block[tile.index]}"
     if player.kawa:
         hand_representation += "\n----- Tiles in kawa -----\n"
         for tile in player.kawa:
-            tile_unicode = unicode_block[tile.index]
-            if tile.index == 3:
-                hand_representation += f"{tile_unicode}"
-            else:
-                hand_representation += f"{tile_unicode} "
+            hand_representation += f"{unicode_block[tile.index]}"
         hand_representation += "\n"
     if player.kabe:
         hand_representation += "----- Kabe -----\n"
         for huro in player.kabe:
             for tile in huro.tiles:
-                tile_unicode = unicode_block[tile.index]
-                if tile.index == 3:
-                    hand_representation += f"{tile_unicode}"
-                else:
-                    hand_representation += f"{tile_unicode} "
-    hand_representation += "\n"
+                hand_representation += f"{unicode_block[tile.index]}"
     print(hand_representation)

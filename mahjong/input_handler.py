@@ -76,10 +76,7 @@ class CliInput(UserInput):
             tile_unicode = unicode_block[tile.index]
             if not discard:
                 if i < 10:
-                    if tile.index == 3:
-                        hand_representation += f"{tile_unicode}"
-                    else:
-                        hand_representation += f"{tile_unicode} "
+                    hand_representation += f"{tile_unicode}"
                 else:
                     hand_representation += f" {tile_unicode} "
             else:
@@ -90,10 +87,7 @@ class CliInput(UserInput):
                         hand_representation += f"|{tile_unicode}||"
                 else:
                     if i < 10:
-                        if tile.index == 3:
-                            hand_representation += f"{tile_unicode}"
-                        else:
-                            hand_representation += f"{tile_unicode} "
+                        hand_representation += f"{tile_unicode}"
                     elif i == len(hand_tiles) - 2 :
                         hand_representation += f" {tile_unicode}|"
                     else:
@@ -103,22 +97,13 @@ class CliInput(UserInput):
         if kawa:
             hand_representation += "----- Tiles in kawa -----\n"
             for tile in kawa:
-                tile_unicode = unicode_block[tile.index]
-                if tile.index == 3:
-                    hand_representation += f"{tile_unicode}"
-                else:
-                    hand_representation += f"{tile_unicode} "
+                hand_representation += f"{unicode_block[tile.index]}"
             hand_representation += "\n"
         if kabe:
             hand_representation += "----- Kabe -----\n"
             for huro in kabe:
                 for tile in huro.tiles:
-                    tile_unicode = unicode_block[tile.index]
-                    if tile.index == 3:
-                        hand_representation += f"{tile_unicode}"
-                    else:
-                        hand_representation += f"{tile_unicode} "
-        hand_representation += "\n"
+                    hand_representation += f"{unicode_block[tile.index]}"
         print(hand_representation)
 
     @abstractmethod
@@ -203,7 +188,7 @@ class UserRawInput(CliInput):
         possible_huro_opt = naki_huros[selected_naki]
         possible_huro_str = ""
         for i, huro in enumerate(possible_huro_opt):
-            huro_str = " ".join([unicode_block[h.index] for h in huro])
+            huro_str = "".join([unicode_block[h.index] for h in huro])
             possible_huro_str += f"{i}: {huro_str}\n"
         possible_huro_str += "6: Cancel\n"
 

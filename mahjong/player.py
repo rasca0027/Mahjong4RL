@@ -84,6 +84,10 @@ class Player:
             raise ValueError(f"Jikaze should be in: {jikaze_value}")
         self._jikaze = value
 
+    def advance_jikaze(self) -> None:
+        new_jikaze = Jihai((self.jikaze.value - 3) % 4 + 4)
+        self.jikaze = new_jikaze
+
     def get_kamicha(self) -> int:
         return (self.seating_position - 1) % 4
 
