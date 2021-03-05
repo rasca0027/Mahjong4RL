@@ -419,18 +419,16 @@ class Kyoku:
         state, discard_tile, discard_pos, act = turn.draw_flow(self.oya_player)
         # Tenhoo
         while state == 0:
+            print('\n----------------------------------')
+            print('Current state')
+            playing_wall_len = len(self.tile_stack.playing_wall)
+            print(f'Remaining tiles in playing wall: {playing_wall_len}')
+            print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
             if self.debug_mode:
-                print('\n----------------------------------')
-                print('Current state')
-                playing_wall_len = len(self.tile_stack.playing_wall)
-                print(f'Remaining tiles in playing wall: {playing_wall_len}')
-                print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
                 for player in self.players:
                     show_tiles(player)
-                input("\nPress enter to continue...")
-                print(chr(27) + "[2J")
-                print('\n----------------------------------')
-                print('Enter next turn')
+            print('\n----------------------------------')
+            print('Enter next turn')
             state, discard_tile, discard_pos, _ = turn.discard_flow(
                 discard_tile, discard_pos)
 
