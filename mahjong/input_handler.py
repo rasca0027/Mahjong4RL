@@ -140,7 +140,10 @@ class CliInput(UserInput):
 
         self.show_tiles(hand_tiles, player.kawa, player.kabe, discard=True)
 
-        return self.select_discard(hand_tiles, kuikae_tiles, new_tile)
+        return self.select_discard(hand_tiles,
+                                   kuikae_tiles,
+                                   new_tile,
+                                   player.is_riichi)
 
 
 class UserRawInput(CliInput):
@@ -222,15 +225,17 @@ class UserRawInput(CliInput):
 
         return Action(selected_action), naki, selected_huro
 
-    def select_discard(self, hand_tiles, kuikae_tiles, new_tile):
+    def select_discard(self, hand_tiles, kuikae_tiles, new_tile, is_riichi):
         if kuikae_tiles:
             # not allowed to choose from this list
             # TODO: now just hide from hand_representation,
             # need to change to something else if UI changes
             hand_tiles = [tile for tile in hand_tiles
                           if tile not in kuikae_tiles]
+        if is_riichi and new_tile:
+            hand_tiles = [new_tile]
         self.show_tiles(hand_tiles, discard=True)
-        print("Please selected the tile you want to discard:")
+        print("Please select the tile you want to discard:")
         discard = pyinput.inputNum(
             "Discard tile No.: ",
             min=0,
@@ -274,7 +279,7 @@ class UserInquirerInput(CliInput):
 
         return action, naki, huro
 
-    def select_discard(self, hand_tiles, kuikae_tiles, new_tile):
+    def select_discard(self, hand_tiles, kuikae_tiles, new_tile, is_riichi):
         tiles_dict = {}
         tiles_opt = set()
         for tile in hand_tiles:
@@ -286,7 +291,8 @@ class UserInquirerInput(CliInput):
         if new_tile:
             tiles_opt_ls.insert(0, tiles_opt_ls.pop(
                 tiles_opt_ls.index(unicode_block[new_tile.index])))
-
+        if is_riichi and new_tile:
+            tiles_opt_ls = [unicode_block[new_tile.index]]
         questions = [
             InquirerList(
                 'tile_to_discard',

@@ -1,12 +1,14 @@
+import copy
+
 from typing import Tuple, List, Set, DefaultDict, Optional
 from collections import defaultdict
 
 from .utils import get_name
 from .helpers import nine_yaochuus
-from .components import Huro, Tile, Action, Jihai, Naki
+from .components import Huro, Tile, Stack, Action, Jihai, Naki
 from .naki_and_actions import (
     check_tenpai, check_ron, check_tsumo, check_ankan, check_chakan,
-    check_daminkan, check_pon, check_chii
+    check_daminkan, check_pon, check_chii, check_riichi
 )
 from .input_handler import input_switch
 
@@ -131,6 +133,22 @@ class Player:
 
         return action_list
 
+    def call_riichi(self, discard_tile, tile, stack):
+        action = Action.NOACT
+        naki = Naki.NONE
+        tmp_hand = copy.deepcopy(self.hand)
+        tmp_hand[tile.index] += 1
+        tmp_hand[discard_tile.index] -= 1
+        if check_riichi(self, check_tenpai(tmp_hand, self.kabe), stack):
+            action_list = [(Action.NOACT, Naki.NONE, []),
+                           (Action.RIICHI, Naki.NONE, [])]
+            action, naki = self.get_input(tile, action_list, False)
+            if action == Action.RIICHI:
+                self.is_riichi = True
+                self.points -= 1_000
+
+        return action, naki
+
     def action_with_discard_tile(
         self,
         tile: Tile,
@@ -177,7 +195,7 @@ class Player:
         self,
         tile: Tile,
         first_turn: bool,
-        is_haiteihai: bool = False,
+        stack: Stack,
         suukaikan: bool = False
     ) -> Tuple[Tuple[Action, Naki], Tile]:
         """"Player has to select an action reacting to the new drawn tile.
@@ -191,7 +209,7 @@ class Player:
             action_list = [(Action.NOACT, Naki.NONE, []), ]
         else:
             action_list = self.get_naki_action_list(
-                True, self.hand, self.kabe, tile, is_haiteihai)
+                True, self.hand, self.kabe, tile, stack.is_haitei)
         if first_turn and nine_yaochuus(self.hand, tile):
             action_list.append((Action.RYUUKYOKU, Naki.NONE, []))
         if check_tsumo(self.hand, self.kabe, tile):
@@ -206,6 +224,8 @@ class Player:
             discard_tile = None
         else:
             discard_tile = self.get_discard(tile)
+            if not self.is_riichi:
+                action, naki = self.call_riichi(discard_tile, tile, stack)
 
         return (action, naki), discard_tile
 

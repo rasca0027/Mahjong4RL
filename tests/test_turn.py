@@ -25,6 +25,14 @@ class TestTurnDrawFlow(unittest.TestCase):
 
         self.turn = Turn(self.players, self.tile_stack, self.logger)
 
+    def test_riichi(self):
+        self.player_1.action_with_new_tile = MagicMock(
+            return_value=((Action.RIICHI, Naki.NONE), None))
+        self.assertEqual(
+            self.turn.draw_flow(self.player_1),
+            (0, None, 0, Action.RIICHI)
+        )
+
     def test_tsumo(self):
         self.player_1.action_with_new_tile = MagicMock(
             return_value=((Action.TSUMO, Naki.NONE), None))
