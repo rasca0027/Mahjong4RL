@@ -1,6 +1,8 @@
 import unittest
+import pyinputplus as pyinput
+from unittest.mock import MagicMock
 
-from mahjong.components import Tile, Stack, Suit, Jihai, Naki, Huro
+from mahjong.components import Tile, Stack, Suit, Jihai, Naki, Huro, Action
 from mahjong.player import Player
 from mahjong.naki_and_actions import (
     check_ron, check_tsumo, check_furiten, check_own_discard_furiten,
@@ -596,6 +598,50 @@ class TestRiichi(unittest.TestCase):
         machi = check_tenpai(self.player.hand, self.player.kabe)
         riichi = check_riichi(self.player, machi, self.stack)
         self.assertEqual(riichi, False)
+
+    def test_ankan_after_riichi(self):
+        # tenpai: 5 SOUZU
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 1
+        self.player.hand[Tile(Suit.SOUZU.value, 5).index] -= 1
+        self.player.is_riichi = True
+
+        ankan_tile = Tile(Suit.MANZU.value, 3)
+        ankan_tile.owner = 1
+
+        pyinput.inputNum = MagicMock(side_effect=[1, 0])
+        pyinput.inputChoice = MagicMock(return_value=5)
+
+        (action, naki), discard_tile = self.player.action_with_new_tile(
+            ankan_tile, False, self.stack, False)
+
+        self.assertEqual(action, Action.NAKI)
+        self.assertEqual(naki, Naki.ANKAN)
+        self.assertEqual(discard_tile, None)
+
+    def test_no_ankan_after_riichi(self):
+        # tenpai: 7 PINZU
+        self.player = Player('test', 1)
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 2).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 3).index] += 2
+        self.player.hand[Tile(Suit.MANZU.value, 4).index] += 1
+        for i in range(4, 7):
+            self.player.hand[Tile(Suit.SOUZU.value, i).index] += 1
+        self.player.hand[Tile(Suit.PINZU.value, 7).index] += 1
+
+        self.player.is_riichi = True
+
+        ankan_tile = Tile(Suit.MANZU.value, 1)
+        ankan_tile.owner = 1
+
+        pyinput.inputNum = MagicMock(side_effect=[0])
+
+        (action, naki), discard_tile = self.player.action_with_new_tile(
+            ankan_tile, False, self.stack, False)
+
+        self.assertEqual(action, Action.NOACT)
+        self.assertEqual(naki, Naki.NONE)
+        self.assertEqual(discard_tile, ankan_tile)
 
 
 class TestRemainsAreSets(unittest.TestCase):
