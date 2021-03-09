@@ -99,7 +99,7 @@ class Player:
         self._jikaze = value
 
     def advance_jikaze(self) -> None:
-        new_jikaze = Jihai((self.jikaze.value - 3) % 4 + 4)
+        new_jikaze = Jihai((self.jikaze.value + 3) % 4 + 4)
         self.jikaze = new_jikaze
 
     def get_kamicha(self) -> int:

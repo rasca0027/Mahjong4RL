@@ -74,7 +74,13 @@ class TestPlayer(unittest.TestCase):
     def test_advance_jikaze(self):
         self.assertEqual(self.player.jikaze, Jihai.TON)
         self.player.advance_jikaze()
+        self.assertEqual(self.player.jikaze, Jihai.PEI)
+        self.player.advance_jikaze()
+        self.assertEqual(self.player.jikaze, Jihai.SHAA)
+        self.player.advance_jikaze()
         self.assertEqual(self.player.jikaze, Jihai.NAN)
+        self.player.advance_jikaze()
+        self.assertEqual(self.player.jikaze, Jihai.TON)
 
     def test_get_kamicha(self):
         self.assertEqual(self.player.get_kamicha(), 3)
