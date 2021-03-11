@@ -222,19 +222,19 @@ class Player:
             action_list = self.get_naki_action_list(
                 True, self.hand, self.kabe, tile, stack.is_haitei)
         if self.is_riichi:
-            if current_machi := check_tenpai(self.hand, self.kabe):
-                if possible_kans := check_ankan(self.hand, tile):
-                    valid_kans = []
-                    for ankan in possible_kans:
-                        kan_hand = copy.deepcopy(self.hand)
-                        kan_hand[ankan[0].index] -= 4
-                        kan_kabe = copy.deepcopy(self.kabe)
-                        kan_kabe.append(Huro(Naki.ANKAN, ankan[0], ankan))
-                        if current_machi == check_tenpai(kan_hand, kan_kabe):
-                            valid_kans.append(ankan)
-                    if valid_kans:
-                        action_list.append(
-                            (Action.NAKI, Naki.ANKAN, valid_kans))
+            if possible_kans := check_ankan(self.hand, tile):
+                current_machi = check_tenpai(self.hand, self.kabe)
+                valid_kans = []
+                for ankan in possible_kans:
+                    kan_hand = copy.deepcopy(self.hand)
+                    kan_hand[ankan[0].index] -= 4
+                    kan_kabe = copy.deepcopy(self.kabe)
+                    kan_kabe.append(Huro(Naki.ANKAN, ankan[0], ankan))
+                    if current_machi == check_tenpai(kan_hand, kan_kabe):
+                        valid_kans.append(ankan)
+                if valid_kans:
+                    action_list.append(
+                        (Action.NAKI, Naki.ANKAN, valid_kans))
         if first_turn and nine_yaochuus(self.hand, tile):
             action_list.append((Action.RYUUKYOKU, Naki.NONE, []))
         if check_tsumo(self.hand, self.kabe, tile):
