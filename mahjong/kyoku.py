@@ -412,7 +412,8 @@ class Kyoku:
         # 莊家 oya draw flow
         print('\n----------------------------------')
         print('Initial state')
-        print(f'Dora: {unicode_block[self.tile_stack.doras[0].index]}')
+        dora_indi = unicode_block[self.tile_stack.dora_indicators[0].index]
+        print(f'Dora indicator: {dora_indi}')
         print(f"Current Honba: {self.honba}")
         print(f"Current Kyotaku: {self.kyotaku}")
         print('\n----------------------------------')
@@ -436,8 +437,8 @@ class Kyoku:
             playing_wall_len = len(self.tile_stack.playing_wall)
             print(f'Remaining tiles in playing wall: {playing_wall_len}')
             doras = "".join([unicode_block[t.index]
-                            for t in self.tile_stack.doras])
-            print(f'Dora: {doras}')
+                            for t in self.tile_stack.dora_indicators])
+            print(f'Dora Indicators: {doras}')
             if self.debug_mode:
                 for player in self.players:
                     show_tiles(player)
