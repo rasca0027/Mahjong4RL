@@ -21,6 +21,15 @@ game = Game(names)
 game.start_game()
 ```
 
+```
+can add your own config json file to configs/
+and change the following in python to use your config file
+
+game = Game(names, YOUR_CONFIG_FILE_NAME)
+
+available input: "inquirer" or "raw_input"
+```
+
 ## 👀 Run Tests
 ```python
 python -m unittest
