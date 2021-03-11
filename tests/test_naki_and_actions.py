@@ -621,7 +621,7 @@ class TestRiichi(unittest.TestCase):
     def test_no_ankan_after_riichi(self):
         # tenpai: 7 PINZU
         self.player = Player('test', 1)
-        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
+        self.player.hand[Tile(Suit.MANZU.value, 1).index] += 4
         self.player.hand[Tile(Suit.MANZU.value, 2).index] += 2
         self.player.hand[Tile(Suit.MANZU.value, 3).index] += 2
         self.player.hand[Tile(Suit.MANZU.value, 4).index] += 1
@@ -631,7 +631,7 @@ class TestRiichi(unittest.TestCase):
 
         self.player.is_riichi = True
 
-        ankan_tile = Tile(Suit.MANZU.value, 1)
+        ankan_tile = Tile(Suit.SOUZU.value, 1)
         ankan_tile.owner = 1
 
         pyinput.inputNum = MagicMock(side_effect=[0])
