@@ -61,6 +61,21 @@ class YakuCalculator():
         fu = self.calculate_fu(final_yakus, final_hans)
         return final_hans, fu
 
+    def has_at_least_one_yaku(self):
+        """Check if player has at least one yaku.
+
+        Similar to the `calculate` method, but doesn't need to run all
+        evaluations, can return if any of it is True.
+
+        :return: bool, if player has at least one yaku
+        """
+        for evaluation in self.evaluations:
+            all_evals = evaluation.get_all_evals()
+            for current_eval in all_evals:
+                if current_eval():
+                    return True
+        return False
+
     def filter_yaku(
             self, yakus: List[Tuple[str, int]]) -> List[Tuple[str, int]]:
         """Filter out mutually exclusive yakus."""

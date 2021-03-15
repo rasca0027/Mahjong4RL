@@ -2,17 +2,25 @@ import copy
 from typing import List, DefaultDict, TYPE_CHECKING
 from itertools import groupby
 
-from .components import Tile, Stack, Suit, Naki, Huro
+from .components import Tile, Stack, Suit, Naki, Huro, Jihai
+from .yaku_calculator import YakuCalculator
 if TYPE_CHECKING:
     from .player import Player
 
 
-def check_ron(player: 'Player', discarded_tile: Tile):
+def check_ron(
+        player: 'Player',
+        stack: Stack,
+        bakaze: Jihai,
+        discarded_tile: Tile
+):
     """Helper function to check if discarded tile can form a winning hand
     The hand must have a valid yaku and it's not furiten 振聴
 
     Args:
         player (Player): Current player, 手牌 副露 棄牌
+        stack (Stack): tile stack
+        bakaze (Jihai): kyoku's bakaze
         discarded_tile (Tile object): The potential winning hand
 
     Returns:
@@ -23,39 +31,53 @@ def check_ron(player: 'Player', discarded_tile: Tile):
     """
     if discarded_tile in check_tenpai(player.hand, player.kabe):
         if not check_furiten(player):
-            if check_yaku(player):
+            if check_yaku(player, stack, bakaze, True):
                 return True
 
     return False
 
 
-def check_tsumo(hand: DefaultDict[int, int], kabe: List[Huro], new_tile: Tile):
+def check_tsumo(
+        player: Player,
+        stack: Stack,
+        bakaze: Jihai,
+        new_tile: Tile):
     """Helper function to check if new tile can form a winning hand
     The hand must have a valid yaku
 
     Args:
-        hand (DefaultDict): Player's hand
-        kabe (List[Huro]): Player's kabe
+        player: Player
+        stack: Tile stack
+        bakaze: Kyoku's bakaze
         new_tile (Tile object): The potential winning hand
 
     Returns:
         bool: True for Ron, False otherwise.
     """
-    if new_tile in check_tenpai(hand, kabe):
-        return check_yaku(hand)
+    if new_tile in check_tenpai(player.hand, player.kabe):
+        return check_yaku(player, stack, bakaze, False)
     else:
         return False
 
 
-def check_yaku(hand: DefaultDict[int, int]):
+def check_yaku(
+    player: Player,
+    tile_stack: Stack,
+    bakaze: Jihai,
+    is_ron: bool,
+) -> bool:
     """Helper function to check if a winning hand had more than 1 yaku
     Args:
-        hand (DefaultDict): Player's hand
+        player: Player
+        tile_stack: Tile stack
+        bakaze: Kyoku's bakaze
+        is_ron: bool
     Returns:
         bool: True for Yaku >= 1, False otherwise.
     """
-    # TODO
-    return True
+    yaku_calculator = YakuCalculator(
+        player, tile_stack, bakaze, is_ron)
+    return yaku_calculator.has_at_least_one_yaku()
 
 
 def check_furiten(player: 'Player') -> bool:

@@ -24,12 +24,14 @@ class Turn:
         self,
         players: List[Player],
         stack: Stack,
+        bakaze: Jihai,
         logger: KyokuLogger,
         atamahane: bool = True,
     ) -> None:
         # TODO: make sure players are sorted by seating position
         self.players = players
         self.stack = stack
+        self.bakaze = bakaze
         self.first_turn = True  # 開局連打四張內算第一輪，四張後或有人鳴牌則非第一輪
         self.suukaikan = False
         self.oya_draws = 0  # temporary
@@ -154,7 +156,9 @@ class Turn:
         naki_actions = [
             (i, self.players[i].action_with_discard_tile(
                 discard_tile, discard_pos,
-                self.stack.is_haitei, self.suukaikan))
+                self.stack,
+                self.bakaze,
+                self.suukaikan))
             for i in range(0, 4) if i != discard_pos
         ]
 
@@ -246,7 +250,7 @@ class Turn:
         new_tile.owner = player.seating_position
         player.tmp_furiten = False
         (action, naki), action_tile = player.action_with_new_tile(
-            new_tile, self.first_turn, self.stack, self.suukaikan
+            new_tile, self.first_turn, self.stack, self.bakaze, self.suukaikan
         )
         state = 0
         discard_pos = None
@@ -428,7 +432,7 @@ class Kyoku:
             print(chr(27) + "[2J")
         print('\n----------------------------------')
         print('Star game: oya draw flow')
-        turn = Turn(self.players, self.tile_stack, self.logger)
+        turn = Turn(self.players, self.tile_stack, self.bakaze, self.logger)
         state, discard_tile, discard_pos, act = turn.draw_flow(self.oya_player)
         # Tenhoo
         while state == 0:
