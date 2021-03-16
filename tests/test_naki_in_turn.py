@@ -121,8 +121,8 @@ class TestPon(unittest.TestCase):
         turn = Turn(
             self.current_kyoku.players,
             self.current_kyoku.tile_stack,
-            Jihai.TON
-            self.logger,
+            Jihai.TON,
+            self.logger
         )
 
         mock_draw_flow = MagicMock(
