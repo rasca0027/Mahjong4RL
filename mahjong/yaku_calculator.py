@@ -197,16 +197,3 @@ class YakuCalculator():
         fu += wait_pattern_fu
         # round up
         return int(math.ceil(fu / 10.0)) * 10
-
-    def at_least_one_yaku(self):
-        """To check if a winning hand had more than 1 yaku
-        Returns:
-            bool: True for Yaku >= 1, False otherwise.
-        """
-        for evaluation in self.evaluations:
-            all_evals = evaluation.get_all_evals()
-            for current_eval in all_evals:
-                if current_eval():
-                    return True
-
-        return False
