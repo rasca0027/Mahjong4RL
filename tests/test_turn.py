@@ -23,7 +23,7 @@ class TestTurnDrawFlow(unittest.TestCase):
             for i in range(13):
                 player.hand[self.tile_stack.draw().index] += 1
 
-        self.turn = Turn(self.players, self.tile_stack, self.logger)
+        self.turn = Turn(self.players, self.tile_stack, Jihai.TON, self.logger)
 
     def test_riichi(self):
         self.player_1.action_with_new_tile = MagicMock(
@@ -325,7 +325,7 @@ class TestTurnEnsembleActions(unittest.TestCase):
             for i in range(13):
                 player.hand[self.tile_stack.draw().index] += 1
 
-        self.turn = Turn(self.players, self.tile_stack, self.logger)
+        self.turn = Turn(self.players, self.tile_stack, Jihai.TON, self.logger)
 
     def test_all_noact(self):
         discard_player = self.player_1
@@ -459,7 +459,7 @@ class TestTurnKanFlow(unittest.TestCase):
             for i in range(13):
                 player.hand[self.tile_stack.draw().index] += 1
 
-        self.turn = Turn(self.players, self.tile_stack, self.logger)
+        self.turn = Turn(self.players, self.tile_stack, Jihai.TON, self.logger)
 
     def test_kan_flow_no_act(self):
         kan_player = self.player_1
@@ -500,7 +500,7 @@ class TestTurnNakiFlow(unittest.TestCase):
             for i in range(13):
                 player.hand[self.tile_stack.draw().index] += 1
 
-        self.turn = Turn(self.players, self.tile_stack, self.logger)
+        self.turn = Turn(self.players, self.tile_stack, Jihai.TON, self.logger)
 
     def test_daminkan(self):
         self.player_1.action_with_naki = MagicMock(return_value=None)
@@ -592,7 +592,7 @@ class TestTurnDiscardFlow(unittest.TestCase):
             for i in range(13):
                 player.hand[self.tile_stack.draw().index] += 1
 
-        self.turn = Turn(self.players, self.tile_stack, self.logger)
+        self.turn = Turn(self.players, self.tile_stack, Jihai.TON, self.logger)
 
     def test_all_noact(self):
         self.turn.ensemble_actions = MagicMock(

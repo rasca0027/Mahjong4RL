@@ -60,6 +60,7 @@ class TestPon(unittest.TestCase):
         turn = Turn(
             self.current_kyoku.players,
             self.current_kyoku.tile_stack,
+            Jihai.TON,
             self.logger,
         )
 
@@ -120,6 +121,7 @@ class TestPon(unittest.TestCase):
         turn = Turn(
             self.current_kyoku.players,
             self.current_kyoku.tile_stack,
+            Jihai.TON
             self.logger,
         )
 
@@ -190,6 +192,7 @@ class TestChii(unittest.TestCase):
         turn = Turn(
             self.current_kyoku.players,
             self.current_kyoku.tile_stack,
+            Jihai.TON,
             self.logger,
         )
 
@@ -270,6 +273,7 @@ class TestKan(unittest.TestCase):
         turn = Turn(
             self.current_kyoku.players,
             self.current_kyoku.tile_stack,
+            Jihai.TON,
             self.logger,
         )
 
@@ -335,6 +339,7 @@ class TestKan(unittest.TestCase):
         turn = Turn(
             self.current_kyoku.players,
             self.current_kyoku.tile_stack,
+            Jihai.TON,
             self.logger,
         )
 
@@ -403,6 +408,7 @@ class TestKan(unittest.TestCase):
         turn = Turn(
             self.current_kyoku.players,
             self.current_kyoku.tile_stack,
+            Jihai.TON,
             self.logger,
         )
 

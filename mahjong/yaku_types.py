@@ -1,37 +1,41 @@
 import copy
-from typing import List, Optional, Callable
+from typing import List, Optional, Callable, TYPE_CHECKING
 from collections import defaultdict
 from itertools import combinations
 from abc import ABC, abstractmethod
 
-from .player import Player
 from .helpers import (
     is_yaochuu, separate_sets, consists_jantou_and_sets
 )
 from .components import Suit, Jihai, Tile, Naki, Stack
 from .utils import get_name
-from .naki_and_actions import check_tenpai
+if TYPE_CHECKING:
+    from .player import Player
 
 
 class YakuTypes(ABC):
 
     def __init__(
-        self, player: Player, stack: Stack,
-        bakaze: Jihai, ron: bool, first_turn: Optional[bool] = False
+        self, player: 'Player', stack: Stack, machi_tiles: List[Tile],
+        bakaze: Jihai, ron: bool, agari_tile: Optional[Tile] = None,
+        first_turn: Optional[bool] = False
     ):
         self._total_yaku = []
         self._total_han = []
         self._yakuman_count = 0
         self.player = player
+        self.machi_tiles = machi_tiles
         self.stack = stack
         self.bakaze = bakaze
         self.is_ron = ron
         self.first_turn = first_turn
+        self.agari_tile = agari_tile
         self.agari_hand = copy.deepcopy(self.player.hand)
         self.agari_hand = defaultdict(
             int, {k: v for k, v in self.agari_hand.items() if v > 0})
         if self.player.agari_tile:
-            self.agari_hand[self.player.agari_tile.index] += 1
+            self.agari_tile = self.player.agari_tile
+        self.agari_hand[self.agari_tile.index] += 1
         self.huro_tiles = [
             tile for huro in self.player.kabe for tile in huro.tiles]
         self.use_chain = True
@@ -65,7 +69,7 @@ class YakuTypes(ABC):
         return self._player
 
     @player.setter
-    def player(self, player: Player):
+    def player(self, player: 'Player'):
         self._player = player
 
     @property
@@ -298,7 +302,7 @@ class TeYaku(YakuTypes):
         single_yaochuu_n = sum(v == 1 for v in yaochuu_in_hand.values())
         pair_yaochuu_keys = [k for (k, v) in yaochuu_in_hand.items() if v == 2]
         if (single_yaochuu_n == 12) and (len(pair_yaochuu_keys) == 1):
-            if pair_yaochuu_keys[0] == self.player.agari_tile.index:
+            if pair_yaochuu_keys[0] == self.agari_tile.index:
                 # 13-way wait
                 self.total_yaku = 'kokushi musou 13-way wait'
                 self.yakuman_count = 2
@@ -331,7 +335,7 @@ class TeYaku(YakuTypes):
                     tmp_hand[Tile(suit_v, i).index] -= 1
 
             remain_tile = [k for k, v in tmp_hand.items() if v > 0][0]
-            if self.player.agari_tile.index == remain_tile:
+            if self.agari_tile.index == remain_tile:
                 self.total_yaku = 'junsei chuuren poutou'
                 self.yakuman_count = 2
             else:
@@ -469,9 +473,8 @@ class TeYaku(YakuTypes):
                      self.bakaze.value, self.player.jikaze.value]
 
         def is_ryanmen() -> bool:  # 两面听牌
-            tenpai_tiles = check_tenpai(self.player.hand, self.player.kabe)
             wait_patterns = {}
-            for idx, pot_agari_tile in enumerate(tenpai_tiles):
+            for idx, pot_agari_tile in enumerate(self.machi_tiles):
                 tmp_agari_hand = copy.deepcopy(self.player.hand)
                 tmp_agari_hand[pot_agari_tile.index] += 1
 
@@ -481,15 +484,15 @@ class TeYaku(YakuTypes):
             ryanmen = False
             for idx in wait_patterns.keys():
                 [shuntsus, jantou] = wait_patterns[idx]
-                if self.player.agari_tile == jantou:  # 單騎聽
+                if self.agari_tile == jantou:  # 單騎聽
                     continue
                 for shuntsu in shuntsus:
-                    if self.player.agari_tile == shuntsu[1]:  # 坎張聽
+                    if self.agari_tile == shuntsu[1]:  # 坎張聽
                         continue
                     elif (
-                        (self.player.agari_tile == shuntsu[0]
+                        (self.agari_tile == shuntsu[0]
                          and shuntsu[2].rank == 9)
-                        or (self.player.agari_tile == shuntsu[2]
+                        or (self.agari_tile == shuntsu[2]
                             and shuntsu[0].rank == 1)
                     ):
                         continue  # 邊張聽
@@ -857,7 +860,7 @@ class Koutsu(TeYaku):
         ankou = len(koutsus) + len(kantsus)
 
         if ankou == 4:
-            if jantou == self.player.agari_tile:
+            if jantou == self.agari_tile:
                 self.total_yaku = 'suuankou tanki'
                 self.yakuman_count = 2
                 return True
@@ -893,7 +896,7 @@ class Koutsu(TeYaku):
                    if huro.naki_type == Naki.ANKAN]
         ankou = len(koutsus) + len(kantsus)
 
-        if ankou == 3 and self.player.agari_tile not in koutsus:
+        if ankou == 3 and self.agari_tile not in koutsus:
             self.total_yaku = 'sanankou'
             self.total_han = 2
             return True
