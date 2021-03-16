@@ -20,6 +20,8 @@ def check_ron(
 
     Args:
         player (Player): Current player, 手牌 副露 棄牌
+        stack (Stack): tile stack
+        bakaze (Jihai): kyoku's bakaze
         discarded_tile (Tile object): The potential winning hand
 
     Returns:
@@ -49,8 +51,10 @@ def check_tsumo(
     The hand must have a valid yaku
 
     Args:
-        player (Player): Current player
+        player: Player
         new_tile (Tile object): The potential winning hand
+        stack: Tile stack
+        bakaze: Kyoku's bakaze
 
     Returns:
         bool: True for Ron, False otherwise.
@@ -73,13 +77,19 @@ def check_yaku(
     """Helper function to check if a winning hand had more than 1 yaku
     Args:
         player (Player): Current player
+        stack: Tile stack
+        bakaze: Kyoku's bakaze
+        is_ron: bool
+        machi_tiles: list of waiting tiles
+        agari_tile: Winning tile
+
     Returns:
         bool: True for Yaku >= 1, False otherwise.
     """
     yaku_calculator = YakuCalculator(
         player, stack, bakaze, is_ron, machi_tiles, agari_tile)
 
-    return yaku_calculator.at_least_one_yaku()
+    return yaku_calculator.has_at_least_one_yaku()
 
 
 def check_furiten(player: 'Player') -> bool:

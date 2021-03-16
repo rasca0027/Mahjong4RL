@@ -185,7 +185,7 @@ class Player:
                 action_list.append((Action.RON, Naki.NONE, []))
         elif not self.is_riichi:
             action_list = self.get_naki_action_list(
-                False, self.hand, self.kabe, tile, is_haiteihai)
+                False, self.hand, self.kabe, tile, tile_stack.is_haiteihai)
         if pos == self.get_kamicha() and not self.is_riichi:
             if possible_chiis := check_chii(self.hand, tile):
                 action_list.append((Action.NAKI, Naki.CHII, possible_chiis))
