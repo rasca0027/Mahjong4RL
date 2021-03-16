@@ -103,4 +103,10 @@ class Game:
         return any(filter(lambda p: p.points < 0, self.players))
 
     def end_game(self):
-        ...
+        print('\n----------------------------------')
+        print('End Game')
+        ranked_players = sorted(
+            self.players, key=lambda x: x.points, reverse=True)
+        for i, player in enumerate(ranked_players):
+            logn_name = f"No. {i}: player {player.name} ".ljust(15)
+            print(f"{logn_name}{player.points} points")
