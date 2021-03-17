@@ -53,17 +53,17 @@ class YakuCalculator():
 
             for current_eval in all_evals:
                 if current_eval():
-                    if yakuman_count > 0 and (  # already in yakuman mode
-                            evaluation.total_yaku[-1] == 'yakuman'):
-                        # ignore not yakuman
-                        yakuman_count += 1
-                    elif evaluation.total_yaku[-1] == 'yakuman':
-                        # enter yakuman mode
-                        yakuman_count += 1
-                    else:  # not yakuman or never had yakuman
-                        possible_yakus.append((
-                            evaluation.total_yaku[-1],
-                            evaluation.total_han[-1]))
+                    if yakuman_count > 0:
+                        # already in yakuman mode, ignore not yakuman
+                        if evaluation.total_han[-1] >= 13:
+                            yakuman_count += evaluation.yakuman_count[-1]
+                    else:  # never had yakuman
+                        if evaluation.total_han[-1] >= 13:
+                            yakuman_count += evaluation.yakuman_count[-1]
+                        else:
+                            possible_yakus.append((
+                                evaluation.total_yaku[-1],
+                                evaluation.total_han[-1]))
                     if use_chain:
                         break
         if yakuman_count > 0:
@@ -74,7 +74,7 @@ class YakuCalculator():
         final_yakus = self.filter_yaku(possible_yakus)
         final_hans = sum(han for yaku_name, han in final_yakus)
         fu = self.calculate_fu(final_yakus, final_hans)
-        return final_hans, fu
+        return max(13, final_hans), fu
 
     def filter_yaku(
             self, yakus: List[Tuple[str, int]]) -> List[Tuple[str, int]]:

@@ -21,7 +21,7 @@ class YakuTypes(ABC):
     ):
         self._total_yaku = []
         self._total_han = []
-        self._yakuman_count = 0
+        self._yakuman_count = []
         self.player = player
         self.stack = stack
         self.bakaze = bakaze
@@ -81,8 +81,8 @@ class YakuTypes(ABC):
         return self._yakuman_count
 
     @yakuman_count.setter
-    def yakuman_count(self, yakuman_count):
-        self._yakuman_count += yakuman_count
+    def yakuman_count(self, yakumans):
+        self._yakuman_count.append(yakumans)
 
 
 class JouKyouYaku(YakuTypes):
@@ -208,6 +208,7 @@ class JouKyouYaku(YakuTypes):
         ):
             self.total_yaku = 'tenhou'
             self.yakuman_count = 1
+            self.total_han = 13
             return True
         return False
 
@@ -219,6 +220,7 @@ class JouKyouYaku(YakuTypes):
         if self.first_turn and self.is_ron:
             self.total_yaku = 'chiihou'
             self.yakuman_count = 1
+            self.total_han = 13
             return True
         return False
 
@@ -281,6 +283,7 @@ class TeYaku(YakuTypes):
 
         self.total_yaku = 'ryuuiisou'
         self.yakuman_count = 1
+        self.total_han = 13
         return True
 
     def kokushi_musou(self):  # 国士無双 or 国士無双１３面待ち
@@ -302,9 +305,11 @@ class TeYaku(YakuTypes):
                 # 13-way wait
                 self.total_yaku = 'kokushi musou 13-way wait'
                 self.yakuman_count = 2
+                self.total_han = 26
             else:  # single wait
                 self.total_yaku = 'kokushi musou'
                 self.yakuman_count = 1
+                self.total_han = 13
             return True
 
         return False
@@ -334,9 +339,11 @@ class TeYaku(YakuTypes):
             if self.player.agari_tile.index == remain_tile:
                 self.total_yaku = 'junsei chuuren poutou'
                 self.yakuman_count = 2
+                self.total_han = 26
             else:
                 self.total_yaku = 'chuuren poutou'
                 self.yakuman_count = 1
+                self.total_han = 13
             return True
 
         return False
@@ -354,6 +361,7 @@ class TeYaku(YakuTypes):
         if len(suit) == 1 and list(suit)[0] == 0:
             self.total_yaku = 'tsuuiisou'
             self.yakuman_count = 1
+            self.total_han = 13
             return True
         return False
 
@@ -559,6 +567,7 @@ class Yakuhai(TeYaku):
                 return False
         self.total_yaku = "daisangen"
         self.yakuman_count = 1
+        self.total_han = 13
         return True
 
     def daisuushii(self):  # 大四喜
@@ -579,6 +588,7 @@ class Yakuhai(TeYaku):
                 return False
         self.total_yaku = "daisuushii"
         self.yakuman_count = 1
+        self.total_han = 13
         return True
 
     def shousuushii(self):  # 小四喜
@@ -606,6 +616,7 @@ class Yakuhai(TeYaku):
                 return False
         self.total_yaku = "shousuushii"
         self.yakuman_count = 1
+        self.total_han = 13
         return True
 
     def shousangen(self):  # 小三元
@@ -718,6 +729,7 @@ class Chanta(TeYaku):
 
         self.total_yaku = 'chinroutou'
         self.yakuman_count = 1
+        self.total_han = 13
         return True
 
     def honroutou(self):  # 混老頭
@@ -860,10 +872,12 @@ class Koutsu(TeYaku):
             if jantou == self.player.agari_tile:
                 self.total_yaku = 'suuankou tanki'
                 self.yakuman_count = 2
+                self.total_han = 26
                 return True
             elif not self.is_ron:
                 self.total_yaku = 'suuankou'
                 self.yakuman_count = 1
+                self.total_han = 13
                 return True
 
         return False
@@ -878,6 +892,7 @@ class Koutsu(TeYaku):
         if len(kantsus) == 4:
             self.total_yaku = 'suukantsu'
             self.yakuman_count = 1
+            self.total_han = 13
             return True
 
         return False

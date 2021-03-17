@@ -669,7 +669,7 @@ class TestYakuhai(unittest.TestCase):
         yaku_types = Yakuhai(self.player, self.stack, self.bakaze, True)
         self.assertEqual(yaku_types.tsuuiisou(), True)
         self.assertEqual(yaku_types.total_yaku, ['tsuuiisou'])
-        self.assertEqual(yaku_types.total_han, [])
+        self.assertEqual(yaku_types.total_han, [13])
         self.assertEqual(yaku_types.yakuman_count, 1)
 
     def test_no_daisuushii(self):  # 大四喜
@@ -729,7 +729,7 @@ class TestYakuhai(unittest.TestCase):
         yaku_types = Yakuhai(self.player, self.stack, self.bakaze, True)
         self.assertEqual(yaku_types.shousuushii(), True)
         self.assertEqual(yaku_types.total_yaku, ['shousuushii'])
-        self.assertEqual(yaku_types.total_han, [])
+        self.assertEqual(yaku_types.total_han, [13])
         self.assertEqual(yaku_types.yakuman_count, 1)
 
     def test_no_shousangen(self):  # 小三元
@@ -791,7 +791,7 @@ class TestYakuhai(unittest.TestCase):
         self.assertEqual(yaku_types.total_yaku,
                          ['sangenpai_CHUN', 'bakaze_TON', 'jikaze_TON'])
         self.assertEqual(yaku_types.total_han, [1, 1, 1])
-        self.assertEqual(yaku_types.yakuman_count, 0)
+        self.assertEqual(yaku_types.yakuman_count, [])
 
 
 class TestPeikou(unittest.TestCase):
@@ -909,7 +909,7 @@ class TestChanta(unittest.TestCase):
         yaku_types = Chanta(self.player, self.stack, self.bakaze, True)
         self.assertEqual(yaku_types.chinroutou(), True)
         self.assertEqual(yaku_types.total_yaku, ['chinroutou'])
-        self.assertEqual(yaku_types.total_han, [])
+        self.assertEqual(yaku_types.total_han, [13])
         self.assertEqual(yaku_types.yakuman_count, 1)
 
     def test_no_honroutou(self):  # 混老頭
@@ -1119,7 +1119,7 @@ class TestKoutsu(unittest.TestCase):
         yaku_types = Koutsu(self.player, self.stack, self.bakaze, ron)
         self.assertEqual(yaku_types.suuankou(), True)
         self.assertEqual(yaku_types.total_yaku, ['suuankou'])
-        self.assertEqual(yaku_types.total_han, [])
+        self.assertEqual(yaku_types.total_han, [13])
         self.assertEqual(yaku_types.yakuman_count, 1)
 
     def test_no_suukantsu(self):  # 四槓子
