@@ -45,16 +45,31 @@ class YakuCalculator():
         :return: int, han and fu
         """
         possible_yakus: List[Tuple[str, int]] = []
+        yakuman_count: int = 0
+
         for evaluation in self.evaluations:
             all_evals = evaluation.get_all_evals()
             use_chain = evaluation.use_chain
 
             for current_eval in all_evals:
                 if current_eval():
-                    possible_yakus.append((
-                        evaluation.total_yaku[-1], evaluation.total_han[-1]))
+                    if yakuman_count > 0 and (  # already in yakuman mode
+                            evaluation.total_yaku[-1] == 'yakuman'):
+                        # ignore not yakuman
+                        yakuman_count += 1
+                    elif evaluation.total_yaku[-1] == 'yakuman':
+                        # enter yakuman mode
+                        yakuman_count += 1
+                    else:  # not yakuman or never had yakuman
+                        possible_yakus.append((
+                            evaluation.total_yaku[-1],
+                            evaluation.total_han[-1]))
                     if use_chain:
                         break
+        if yakuman_count > 0:
+            # only allow at most two yakuman
+            return max(2, yakuman_count) * 13, 20
+
         # filter contradictory yakus
         final_yakus = self.filter_yaku(possible_yakus)
         final_hans = sum(han for yaku_name, han in final_yakus)
