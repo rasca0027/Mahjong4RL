@@ -108,5 +108,5 @@ class Game:
         ranked_players = sorted(
             self.players, key=lambda x: x.points, reverse=True)
         for i, player in enumerate(ranked_players):
-            logn_name = f"No. {i}: player {player.name} ".ljust(15)
-            print(f"{logn_name}{player.points} points")
+            lname = f"No. {i + 1}: player {player.name} ".ljust(30)
+            print(f"{lname}{player.points} points")
