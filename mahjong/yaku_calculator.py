@@ -68,7 +68,7 @@ class YakuCalculator():
                         break
         if yakuman_count > 0:
             # only allow at most two yakuman
-            return max(2, yakuman_count) * 13, 20
+            return min(2, yakuman_count) * 13, 20
 
         # filter contradictory yakus
         final_yakus = self.filter_yaku(possible_yakus)
