@@ -156,9 +156,7 @@ class Turn:
         naki_actions = [
             (i, self.players[i].action_with_discard_tile(
                 discard_tile, discard_pos,
-                self.stack,
-                self.bakaze,
-                self.suukaikan))
+                self.stack, self.bakaze, self.suukaikan))
             for i in range(0, 4) if i != discard_pos
         ]
 
@@ -398,8 +396,9 @@ class Kyoku:
             han: int
             fu: int
         """
+        machi_tiles = check_tenpai(winner.hand, winner.kabe)
         yaku_calculator = YakuCalculator(
-            winner, self.tile_stack, self.bakaze, not tsumo)
+            winner, self.tile_stack, self.bakaze, not tsumo, machi_tiles)
         final_hans, fu = yaku_calculator.calculate()
         return final_hans, fu
 

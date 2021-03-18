@@ -3,16 +3,17 @@ from typing import List, DefaultDict, TYPE_CHECKING
 from itertools import groupby
 
 from .components import Tile, Stack, Suit, Naki, Huro, Jihai
+from .helpers import check_remains_are_sets
 from .yaku_calculator import YakuCalculator
 if TYPE_CHECKING:
     from .player import Player
 
 
 def check_ron(
-        player: 'Player',
-        stack: Stack,
-        bakaze: Jihai,
-        discarded_tile: Tile
+    player: 'Player',
+    discarded_tile: Tile,
+    stack: Stack,
+    bakaze: Jihai
 ):
     """Helper function to check if discarded tile can form a winning hand
     The hand must have a valid yaku and it's not furiten 振聴
@@ -29,54 +30,65 @@ def check_ron(
     ref:
       https://colab.research.google.com/drive/1ih1hU_EDRQ8z-NI0KJ7lVeORxJa7HmNf?usp=sharing
     """
-    if discarded_tile in check_tenpai(player.hand, player.kabe):
+    machi_tiles = check_tenpai(player.hand, player.kabe)
+    if discarded_tile in machi_tiles:
         if not check_furiten(player):
-            if check_yaku(player, stack, bakaze, True):
+            if check_yaku(
+                player, stack, bakaze, True, machi_tiles, discarded_tile
+            ):
                 return True
 
     return False
 
 
 def check_tsumo(
-        player: Player,
-        stack: Stack,
-        bakaze: Jihai,
-        new_tile: Tile):
+    player: 'Player',
+    new_tile: Tile,
+    stack: Stack,
+    bakaze: Jihai
+):
     """Helper function to check if new tile can form a winning hand
     The hand must have a valid yaku
 
     Args:
         player: Player
+        new_tile (Tile object): The potential winning hand
         stack: Tile stack
         bakaze: Kyoku's bakaze
-        new_tile (Tile object): The potential winning hand
 
     Returns:
         bool: True for Ron, False otherwise.
     """
-    if new_tile in check_tenpai(player.hand, player.kabe):
-        return check_yaku(player, stack, bakaze, False)
+    machi_tiles = check_tenpai(player.hand, player.kabe)
+    if new_tile in machi_tiles:
+        return check_yaku(player, stack, bakaze, False, machi_tiles, new_tile)
     else:
         return False
 
 
 def check_yaku(
-    player: Player,
-    tile_stack: Stack,
+    player: 'Player',
+    stack: Stack,
     bakaze: Jihai,
     is_ron: bool,
-) -> bool:
+    machi_tiles: List[Tile],
+    agari_tile: Tile
+):
     """Helper function to check if a winning hand had more than 1 yaku
     Args:
-        player: Player
-        tile_stack: Tile stack
+        player (Player): Current player
+        stack: Tile stack
         bakaze: Kyoku's bakaze
         is_ron: bool
+        machi_tiles: list of waiting tiles
+        agari_tile: Winning tile
+
     Returns:
         bool: True for Yaku >= 1, False otherwise.
     """
     yaku_calculator = YakuCalculator(
-        player, tile_stack, bakaze, is_ron)
+        player, stack, bakaze, is_ron, machi_tiles, agari_tile)
+
     return yaku_calculator.has_at_least_one_yaku()
 
 
@@ -344,42 +356,3 @@ def check_tenpai(hand: DefaultDict, kabe: List[Huro]) -> List[Tile]:
             possible_tiles += machi_tiles
 
     return [k for k, v in groupby(sorted(possible_tiles))]
-
-
-def check_remains_are_sets(remain_tiles: DefaultDict[int, int],
-                           huro_count: int) -> bool:
-    """Helper function to check all tiles in remain_tiles can form into sets
-    Set is defined as:
-      1. Shuntsu 「順子」 is a tile group with three sequential numbered tiles
-      2. Koutsu 「刻子」 is a tile group with three of the same type of tiles
-
-    Args:
-        remain_tiles (DefaultDict):
-            tiles in hand after taking out Jantou (雀頭/眼) and Kabe
-        huro_count:
-            how many huro in player's kabe
-
-    Returns:
-        bool: True for tiles can form sets, False otherwise.
-    """
-    sets_to_find = 4 - huro_count
-
-    for tile_index in sorted(remain_tiles.keys()):
-        if tile_index < Tile(Suit.MANZU.value, 1).index:  # only check Koutsu
-            if remain_tiles[tile_index] == 3:
-                sets_to_find -= 1
-        else:  # numbered tiles
-            if remain_tiles[tile_index] >= 3:  # check for Koutsu
-                remain_tiles[tile_index] -= 3
-                sets_to_find -= 1
-            if remain_tiles[tile_index + 2] > 0:  # check for Shuntsu
-                chii_n = min(remain_tiles[tile_index],
-                             remain_tiles[tile_index + 1],
-                             remain_tiles[tile_index + 2])
-                if chii_n > 0:
-                    remain_tiles[tile_index] -= chii_n
-                    remain_tiles[tile_index + 1] -= chii_n
-                    remain_tiles[tile_index + 2] -= chii_n
-                    sets_to_find -= chii_n
-
-    return sets_to_find == 0

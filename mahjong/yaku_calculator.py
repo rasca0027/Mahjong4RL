@@ -4,25 +4,33 @@ from typing import List, Tuple
 
 from .components import Tile, Naki
 from .helpers import separate_sets
-from .naki_and_actions import check_tenpai
 from .yaku_types import (
     JouKyouYaku, TeYaku, Yakuhai, Peikou, Chanta, Koutsu, Sanshoku, Somete,
 )
 
 
 class YakuCalculator():
-    def __init__(self, player, stack, bakaze, is_ron):
+    def __init__(self, player, stack, bakaze, is_ron, machi_tiles, agari_tile):
         self.player = player
         self.bakaze = bakaze
         self.is_ron = is_ron
-        self.joukyouyaku_eval = JouKyouYaku(player, stack, bakaze, is_ron)
-        self.teyaku_eval = TeYaku(player, stack, bakaze, is_ron)
-        self.yakuhai_eval = Yakuhai(player, stack, bakaze, is_ron)
-        self.peikou_eval = Peikou(player, stack, bakaze, is_ron)
-        self.chanta_eval = Chanta(player, stack, bakaze, is_ron)
-        self.koutsu_eval = Koutsu(player, stack, bakaze, is_ron)
-        self.sanshoku_eval = Sanshoku(player, stack, bakaze, is_ron)
-        self.somete_eval = Somete(player, stack, bakaze, is_ron)
+        self.machi_tiles = machi_tiles
+        self.joukyouyaku_eval = JouKyouYaku(
+            player, stack, machi_tiles, bakaze, is_ron, agari_tile)
+        self.teyaku_eval = TeYaku(
+            player, stack, machi_tiles, bakaze, is_ron, agari_tile)
+        self.yakuhai_eval = Yakuhai(
+            player, stack, machi_tiles, bakaze, is_ron, agari_tile)
+        self.peikou_eval = Peikou(
+            player, stack, machi_tiles, bakaze, is_ron, agari_tile)
+        self.chanta_eval = Chanta(
+            player, stack, machi_tiles, bakaze, is_ron, agari_tile)
+        self.koutsu_eval = Koutsu(
+            player, stack, machi_tiles, bakaze, is_ron, agari_tile)
+        self.sanshoku_eval = Sanshoku(
+            player, stack, machi_tiles, bakaze, is_ron, agari_tile)
+        self.somete_eval = Somete(
+            player, stack, machi_tiles, bakaze, is_ron, agari_tile)
         self.evaluations = [
             self.joukyouyaku_eval,
             self.teyaku_eval,
@@ -169,10 +177,9 @@ class YakuCalculator():
             return wait_pattern_fu
 
         # separate sets
-        tenpai_tiles = check_tenpai(self.player.hand, self.player.kabe)
         player_huro_n = len(self.player.kabe)
         wait_patterns = {}
-        for idx, pot_agari_tile in enumerate(tenpai_tiles):
+        for idx, pot_agari_tile in enumerate(self.machi_tiles):
             tmp_agari_hand = copy.deepcopy(self.player.hand)
             tmp_agari_hand[pot_agari_tile.index] += 1
 
