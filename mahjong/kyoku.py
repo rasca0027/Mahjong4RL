@@ -421,8 +421,8 @@ class Kyoku:
         print(f"Current Kyotaku: {self.kyotaku}")
         print('\n----------------------------------')
         for player in self.players:
-            logn_name = f"Player {player.name}:".ljust(15)
-            print(f"{logn_name}{player.points} points")
+            lname = f"Player {player.name}:".ljust(15)
+            print(f"{lname}{player.points} points")
             if self.debug_mode:
                 show_tiles(player)
                 print('----------------------------------')
