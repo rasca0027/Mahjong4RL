@@ -165,7 +165,8 @@ class Player:
         self,
         tile: Tile,
         pos: int,
-        is_haiteihai: bool = False,
+        stack: Stack,
+        bakaze: Jihai,
         suukaikan: bool = False
     ) -> Tuple[Action, Naki]:
         """"Player has to select an action reacting to
@@ -179,15 +180,15 @@ class Player:
         self.tmp_huro = None
         action_list = [(Action.NOACT, Naki.NONE, []), ]
         if suukaikan:
-            if check_ron(self, tile):
+            if check_ron(self, tile, stack, bakaze):
                 action_list.append((Action.RON, Naki.NONE, []))
         elif not self.is_riichi:
             action_list = self.get_naki_action_list(
-                False, self.hand, self.kabe, tile, is_haiteihai)
+                False, self.hand, self.kabe, tile, stack.is_haitei)
         if pos == self.get_kamicha() and not self.is_riichi:
             if possible_chiis := check_chii(self.hand, tile):
                 action_list.append((Action.NAKI, Naki.CHII, possible_chiis))
-        if check_ron(self, tile):
+        if check_ron(self, tile, stack, bakaze):
             action_list.append((Action.RON, Naki.NONE, []))
 
         action, naki = self.get_input(tile, action_list, True)
@@ -208,6 +209,7 @@ class Player:
         tile: Tile,
         first_turn: bool,
         stack: Stack,
+        bakaze: Jihai,
         suukaikan: bool = False
     ) -> Tuple[Tuple[Action, Naki], Tile]:
         """"Player has to select an action reacting to the new drawn tile.
@@ -237,7 +239,7 @@ class Player:
                         (Action.NAKI, Naki.ANKAN, valid_kans))
         if first_turn and nine_yaochuus(self.hand, tile):
             action_list.append((Action.RYUUKYOKU, Naki.NONE, []))
-        if check_tsumo(self.hand, self.kabe, tile):
+        if check_tsumo(self, tile, stack, bakaze):
             action_list.append((Action.TSUMO, Naki.NONE, []))
 
         action, naki = self.get_input(tile, action_list, False)

@@ -3,6 +3,7 @@ import unittest
 from mahjong.components import Stack, Jihai, Suit, Tile
 from mahjong.player import Player
 from mahjong.yaku_calculator import YakuCalculator
+from mahjong.naki_and_actions import check_tenpai
 
 
 class TestYakuCalculator(unittest.TestCase):
@@ -18,7 +19,10 @@ class TestYakuCalculator(unittest.TestCase):
         self.player.agari_tile = Tile(Suit.SOUZU.value, 5)
 
     def test_filter_yaku(self):
-        yaku_calc = YakuCalculator(self.player, self.stack, self.bakaze, False)
+        machi_tiles = check_tenpai(self.player.hand, self.player.kabe)
+        yaku_calc = YakuCalculator(
+            self.player, self.stack, self.bakaze, False,
+            machi_tiles, self.player.agari_tile)
         possible_yakus = [
             ('ryanpeikou', 3),
             ('chiitoitsu', 2),
@@ -33,7 +37,10 @@ class TestYakuCalculator(unittest.TestCase):
         self.assertEqual(final_yakus, final_yaku_answer)
 
     def test_menzen_tsumo(self):
-        yaku_calc = YakuCalculator(self.player, self.stack, self.bakaze, False)
+        machi_tiles = check_tenpai(self.player.hand, self.player.kabe)
+        yaku_calc = YakuCalculator(
+            self.player, self.stack, self.bakaze, False,
+            machi_tiles, self.player.agari_tile)
         total_han, fu = yaku_calc.calculate()
         self.assertEqual(total_han, 1)
         self.assertEqual(fu, 40)

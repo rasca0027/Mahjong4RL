@@ -27,21 +27,29 @@ class TestRon(unittest.TestCase):
         self.player.hand[Tile(Suit.MANZU.value, 3).index] += 2
         self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 2
 
+        self.stack = Stack()
+        self.bakaze = Jihai.TON
+
     def test_ron(self):
         discard_1 = Tile(Suit.MANZU.value, 3)
         discard_2 = Tile(Suit.SOUZU.value, 5)
 
-        self.assertEqual(check_ron(self.player, discard_1), True)
-        self.assertEqual(check_ron(self.player, discard_2), True)
+        ron_1 = check_ron(self.player, discard_1, self.stack, self.bakaze)
+        ron_2 = check_ron(self.player, discard_2, self.stack, self.bakaze)
+        self.assertEqual(ron_1, True)
+        self.assertEqual(ron_2, True)
 
     def test_no_ron(self):
         discard_1 = Tile(Suit.MANZU.value, 4)
-        self.assertEqual(check_ron(self.player, discard_1), False)
+        ron_1 = check_ron(self.player, discard_1, self.stack, self.bakaze)
+        self.assertEqual(ron_1, False)
 
         # 振聴
         discard_2 = Tile(Suit.MANZU.value, 3)
         self.player.add_kawa(Tile(Suit.MANZU.value, 3))
-        self.assertEqual(check_ron(self.player, discard_2), False)
+
+        ron_2 = check_ron(self.player, discard_2, self.stack, self.bakaze)
+        self.assertEqual(ron_2, False)
 
 
 class TestTsumo(unittest.TestCase):
@@ -61,24 +69,30 @@ class TestTsumo(unittest.TestCase):
         self.player.hand[Tile(Suit.MANZU.value, 3).index] += 2
         self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 2
 
+        self.stack = Stack()
+        self.bakaze = Jihai.TON
+
     def test_tsumo(self):
         discard_1 = Tile(Suit.MANZU.value, 3)
         discard_2 = Tile(Suit.SOUZU.value, 5)
-        check_tsumo_1 = check_tsumo(self.player.hand,
-                                    self.player.kabe,
-                                    discard_1)
-        check_tsumo_2 = check_tsumo(self.player.hand,
-                                    self.player.kabe,
-                                    discard_2)
+        check_tsumo_1 = check_tsumo(self.player,
+                                    discard_1,
+                                    self.stack,
+                                    self.bakaze)
+        check_tsumo_2 = check_tsumo(self.player,
+                                    discard_2,
+                                    self.stack,
+                                    self.bakaze)
 
         self.assertEqual(check_tsumo_1, True)
         self.assertEqual(check_tsumo_2, True)
 
     def test_no_tsumo(self):
         discard_1 = Tile(Suit.MANZU.value, 4)
-        check_no_tsumo = check_tsumo(self.player.hand,
-                                     self.player.kabe,
-                                     discard_1)
+        check_no_tsumo = check_tsumo(self.player,
+                                     discard_1,
+                                     self.stack,
+                                     self.bakaze)
         self.assertEqual(check_no_tsumo, False)
 
 
