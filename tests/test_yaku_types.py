@@ -1251,7 +1251,7 @@ class TestKoutsu(unittest.TestCase):
 
         machi_tiles = check_tenpai(self.player.hand, self.player.kabe)
         yaku_types = Koutsu(
-            self.player, self.stack, machi_tiles, self.bakaze, True)
+            self.player, self.stack, machi_tiles, self.bakaze, ron)
 
         self.assertEqual(yaku_types.suuankou(), False)
         self.assertEqual(yaku_types.total_yaku, [])
