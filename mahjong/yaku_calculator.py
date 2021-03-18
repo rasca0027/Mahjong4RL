@@ -53,21 +53,36 @@ class YakuCalculator():
         :return: int, han and fu
         """
         possible_yakus: List[Tuple[str, int]] = []
+        yakuman_count: int = 0
+
         for evaluation in self.evaluations:
             all_evals = evaluation.get_all_evals()
             use_chain = evaluation.use_chain
 
             for current_eval in all_evals:
                 if current_eval():
-                    possible_yakus.append((
-                        evaluation.total_yaku[-1], evaluation.total_han[-1]))
+                    if yakuman_count > 0:
+                        # already in yakuman mode, ignore not yakuman
+                        if evaluation.total_han[-1] >= 13:
+                            yakuman_count += evaluation.yakuman_count[-1]
+                    else:  # never had yakuman
+                        if evaluation.total_han[-1] >= 13:
+                            yakuman_count += evaluation.yakuman_count[-1]
+                        else:
+                            possible_yakus.append((
+                                evaluation.total_yaku[-1],
+                                evaluation.total_han[-1]))
                     if use_chain:
                         break
+        if yakuman_count > 0:
+            # only allow at most two yakuman
+            return min(2, yakuman_count) * 13, 20
+
         # filter contradictory yakus
         final_yakus = self.filter_yaku(possible_yakus)
         final_hans = sum(han for yaku_name, han in final_yakus)
         fu = self.calculate_fu(final_yakus, final_hans)
-        return final_hans, fu
+        return min(13, final_hans), fu
 
     def has_at_least_one_yaku(self):
         """Check if player has at least one yaku.

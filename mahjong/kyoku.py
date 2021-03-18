@@ -572,8 +572,10 @@ class Kyoku:
                 points = 4_000
             elif han == 11 or han == 12:
                 points = 6_000
-            elif han >= 13:
-                points = 8_000  # 還要handle 雙倍役滿?
+            elif han == 13:
+                points = 8_000
+            elif han == 26:
+                points = 16_000
         return points
 
     def apply_points(self,
