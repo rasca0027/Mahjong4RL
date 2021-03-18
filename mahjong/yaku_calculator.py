@@ -74,7 +74,7 @@ class YakuCalculator():
         final_yakus = self.filter_yaku(possible_yakus)
         final_hans = sum(han for yaku_name, han in final_yakus)
         fu = self.calculate_fu(final_yakus, final_hans)
-        return max(13, final_hans), fu
+        return min(13, final_hans), fu
 
     def filter_yaku(
             self, yakus: List[Tuple[str, int]]) -> List[Tuple[str, int]]:
