@@ -22,7 +22,6 @@ class YakuTypes(ABC):
     ):
         self._total_yaku = []
         self._total_han = []
-        self._yakuman_count = []
         self.player = player
         self.machi_tiles = machi_tiles
         self.stack = stack
@@ -79,14 +78,6 @@ class YakuTypes(ABC):
     @bakaze.setter
     def bakaze(self, bakaze):
         self._bakaze = bakaze
-
-    @property
-    def yakuman_count(self):
-        return self._yakuman_count
-
-    @yakuman_count.setter
-    def yakuman_count(self, yakumans):
-        self._yakuman_count.append(yakumans)
 
 
 class JouKyouYaku(YakuTypes):
@@ -211,7 +202,6 @@ class JouKyouYaku(YakuTypes):
             and self.first_turn and not self.is_ron
         ):
             self.total_yaku = 'tenhou'
-            self.yakuman_count = 1
             self.total_han = 13
             return True
         return False
@@ -223,7 +213,6 @@ class JouKyouYaku(YakuTypes):
         """
         if self.first_turn and self.is_ron:
             self.total_yaku = 'chiihou'
-            self.yakuman_count = 1
             self.total_han = 13
             return True
         return False
@@ -286,7 +275,6 @@ class TeYaku(YakuTypes):
                 return False
 
         self.total_yaku = 'ryuuiisou'
-        self.yakuman_count = 1
         self.total_han = 13
         return True
 
@@ -308,11 +296,9 @@ class TeYaku(YakuTypes):
             if pair_yaochuu_keys[0] == self.agari_tile.index:
                 # 13-way wait
                 self.total_yaku = 'kokushi musou 13-way wait'
-                self.yakuman_count = 2
                 self.total_han = 26
             else:  # single wait
                 self.total_yaku = 'kokushi musou'
-                self.yakuman_count = 1
                 self.total_han = 13
             return True
 
@@ -342,11 +328,9 @@ class TeYaku(YakuTypes):
             remain_tile = [k for k, v in tmp_hand.items() if v > 0][0]
             if self.agari_tile.index == remain_tile:
                 self.total_yaku = 'junsei chuuren poutou'
-                self.yakuman_count = 2
                 self.total_han = 26
             else:
                 self.total_yaku = 'chuuren poutou'
-                self.yakuman_count = 1
                 self.total_han = 13
             return True
 
@@ -364,7 +348,6 @@ class TeYaku(YakuTypes):
 
         if len(suit) == 1 and list(suit)[0] == 0:
             self.total_yaku = 'tsuuiisou'
-            self.yakuman_count = 1
             self.total_han = 13
             return True
         return False
@@ -569,7 +552,6 @@ class Yakuhai(TeYaku):
             else:
                 return False
         self.total_yaku = "daisangen"
-        self.yakuman_count = 1
         self.total_han = 13
         return True
 
@@ -590,7 +572,6 @@ class Yakuhai(TeYaku):
             else:
                 return False
         self.total_yaku = "daisuushii"
-        self.yakuman_count = 1
         self.total_han = 13
         return True
 
@@ -618,7 +599,6 @@ class Yakuhai(TeYaku):
             else:
                 return False
         self.total_yaku = "shousuushii"
-        self.yakuman_count = 1
         self.total_han = 13
         return True
 
@@ -731,7 +711,6 @@ class Chanta(TeYaku):
                 return False
 
         self.total_yaku = 'chinroutou'
-        self.yakuman_count = 1
         self.total_han = 13
         return True
 
@@ -874,12 +853,10 @@ class Koutsu(TeYaku):
         if ankou == 4:
             if jantou == self.agari_tile:
                 self.total_yaku = 'suuankou tanki'
-                self.yakuman_count = 2
                 self.total_han = 26
                 return True
             elif not self.is_ron:
                 self.total_yaku = 'suuankou'
-                self.yakuman_count = 1
                 self.total_han = 13
                 return True
 
@@ -894,7 +871,6 @@ class Koutsu(TeYaku):
         kantsus = [huro for huro in self.player.kabe if huro.naki_type in kan]
         if len(kantsus) == 4:
             self.total_yaku = 'suukantsu'
-            self.yakuman_count = 1
             self.total_han = 13
             return True
 
