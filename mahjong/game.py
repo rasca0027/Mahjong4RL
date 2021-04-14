@@ -68,23 +68,23 @@ class Game:
             if self.check_tobu():  # 有人被飛
                 break
             if not renchan:
-                if self.kyoku_num == 4:
-                    if self.game_config['game type'] == 'hanchan':
-                        if self.bakaze == Jihai.NAN:
-                            break  # end game
-                        elif self.bakaze == Jihai.TON:
-                            self.bakaze = Jihai.NAN
-                            self.kyoku_num = 1
-                    else:
-                        break  # end game
+                if self.check_lask_kyoku():
+                    break  # end game
+                elif self.kyoku_num == 4:
+                    self.bakaze == Jihai.NAN
+                    self.kyoku_num = 1
                 else:
                     self.kyoku_num += 1
                 # advance player jikaze
                 for player in self.players:
                     player.advance_jikaze()
             else:
-                # TODO: 南風4 如果已經是第一名的話，不繼續連莊，直接結束遊戲
-                ...
+                # 最後一局如果已經是第一名的話，不繼續連莊，直接結束遊戲
+                # TODO: 是否考慮西入
+                if self.is_all_last():
+                    break
+                else:
+                    pass
 
             input("\nPress enter to enter next kyoku...")
             print(chr(27) + "[2J")
@@ -101,6 +101,33 @@ class Game:
 
     def check_tobu(self):
         return any(filter(lambda p: p.points < 0, self.players))
+
+    def ckeck_last_kyoku(self) -> bool:
+        is_last_kyoku = (
+            (
+                self.game_config["game type"] == "hanchan"
+                and self.bakaze == Jihai.NAN
+                and self.kyoku_num == 4
+            )
+            or (
+                self.bakaze == Jihai.TON
+                and self.kyoku_num == 4
+            )
+        )
+        return is_last_kyoku
+
+    def is_all_last(self):
+        ranked_players = sorted(
+            self.players,
+            key=lambda p: p.points,
+            reverse=True,
+        )
+        if self.ckeck_last_kyoku() and (
+            ranked_players[0].jikaze == Jihai.TON
+            and ranked_players[0].points > ranked_players[1].points
+        ):
+            return True
+        return False
 
     def end_game(self):
         print('\n----------------------------------')

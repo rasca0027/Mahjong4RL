@@ -35,6 +35,21 @@ class TestGame(unittest.TestCase):
             self.game.start_game()
         mock_func.assert_called()
 
+    def test_all_last(self):
+        # test if the points are the same
+        with patch('mahjong.kyoku.Kyoku.start') as mock_func:
+            def f():
+                self.game.players[0].points = 30_000
+                self.game.players[1].points = 29_000
+                self.game.players[2].points = 21_000
+                self.game.players[3].points = 20_000
+                self.game.bakaze = Jihai.TON
+                self.game.kyoku_num = 4
+                return True, 0, 0
+            mock_func.side_effect = f
+            self.game.start_game()
+        mock_func.assert_called()
+
     def test_complete_game(self):
         ...
 
