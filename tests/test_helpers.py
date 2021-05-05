@@ -4,7 +4,7 @@ from mahjong.components import Suit, Tile, Huro, Naki, Jihai
 from mahjong.player import Player
 from mahjong.helpers import (
     is_yaochuu, nine_yaochuus, consists_jantou_and_sets, separate_sets,
-    is_chi, is_pon
+    is_chi, is_pon, rank_players
 )
 
 
@@ -138,3 +138,30 @@ class TestIsPon(unittest.TestCase):
         self.assertEqual(is_pon(tile_set), False)
         tile_set.pop()
         self.assertEqual(is_pon(tile_set), False)
+
+
+class TestRankPlayers(unittest.TestCase):
+
+    def setUp(self):
+        self.player_0 = Player('Kelly', 0)
+        self.player_1 = Player('Leo', 1)
+        self.player_2 = Player('Ball', 2)
+        self.player_3 = Player('Hao', 3)
+        self.players = [self.player_0, self.player_1,
+                        self.player_2, self.player_3]
+
+    def test_rank_players(self):
+        # all same points
+        expected_rank = [self.player_0, self.player_1,
+                         self.player_2, self.player_3]
+        self.assertEqual(rank_players(self.players), expected_rank)
+
+    def test_rank_players_diff_points(self):
+        self.player_0.points = 10_000
+        self.player_1.points = 25_000
+        self.player_2.points = 40_000
+        self.player_3.points = 25_000
+
+        expected_rank = [self.player_2, self.player_1,
+                         self.player_3, self.player_0]
+        self.assertEqual(rank_players(self.players), expected_rank)

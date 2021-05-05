@@ -7,6 +7,7 @@ from pyfiglet import Figlet
 from .player import Player
 from .components import Jihai
 from .kyoku import Kyoku
+from .helpers import rank_players
 
 
 class Game:
@@ -117,11 +118,7 @@ class Game:
         return is_last_kyoku
 
     def is_all_last(self):
-        ranked_players = sorted(
-            self.players,
-            key=lambda p: p.points,
-            reverse=True,
-        )
+        ranked_players = rank_players(self.players)
         if self.ckeck_last_kyoku() and (
             ranked_players[0].jikaze == Jihai.TON
             and ranked_players[0].points > ranked_players[1].points
@@ -132,8 +129,7 @@ class Game:
     def end_game(self):
         print('\n----------------------------------')
         print('End Game')
-        ranked_players = sorted(
-            self.players, key=lambda x: x.points, reverse=True)
+        ranked_players = rank_players(self.players)
         for i, player in enumerate(ranked_players):
             lname = f"No. {i + 1}: player {player.name} ".ljust(30)
             print(f"{lname}{player.points} points")
