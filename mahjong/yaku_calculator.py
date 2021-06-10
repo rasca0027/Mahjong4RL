@@ -12,6 +12,7 @@ from .yaku_types import (
 class YakuCalculator():
     def __init__(self, player, stack, bakaze, is_ron, machi_tiles, agari_tile):
         self.player = player
+        self.stack = stack
         self.bakaze = bakaze
         self.is_ron = is_ron
         self.machi_tiles = machi_tiles
@@ -85,6 +86,10 @@ class YakuCalculator():
         # filter contradictory yakus
         final_yakus = self.filter_yaku(possible_yakus)
         final_hans = sum(han for yaku_name, han in final_yakus)
+
+        # add doras
+        final_hans += self.check_doras()
+
         fu = self.calculate_fu(final_yakus, final_hans)
         return min(13, final_hans), fu
 
@@ -102,6 +107,27 @@ class YakuCalculator():
                 if current_eval():
                     return True
         return False
+
+    def check_doras(self) -> int:
+        """Checks how many dora in player's hand.
+
+        :return: number of doras
+        """
+        # get all doras
+        all_doras = self.stack.doras
+        dora_count = 0
+        # if riichi, add uradora
+        if self.player.is_riichi:
+            all_doras += self.stack.uradoras
+        # TODO: add akadora
+
+        # count occurence of doras
+        for dora in all_doras:
+            dora_count += self.player.hand[dora.index]
+        for huro in self.player.kabe:
+            dora_in_huro = sum(t in all_doras for t in huro.tiles)
+            dora_count += dora_in_huro
+        return dora_count
 
     def filter_yaku(
             self, yakus: List[Tuple[str, int]]) -> List[Tuple[str, int]]:

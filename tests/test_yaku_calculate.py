@@ -10,6 +10,7 @@ class TestYakuCalculator(unittest.TestCase):
     def setUp(self):
         self.player = Player('test player', 0)
         self.stack = Stack()
+        self.stack.doras = [Tile(Suit.PINZU.value, 3)]
         self.bakaze = Jihai.TON
         for i in range(2, 8):
             self.player.hand[Tile(Suit.PINZU.value, i).index] += 1
@@ -42,5 +43,13 @@ class TestYakuCalculator(unittest.TestCase):
             self.player, self.stack, self.bakaze, False,
             machi_tiles, self.player.agari_tile)
         total_han, fu = yaku_calc.calculate()
-        self.assertEqual(total_han, 1)
+        self.assertEqual(total_han, 2)  # menzen tsumo and dora
         self.assertEqual(fu, 40)
+
+    def test_check_doras(self):
+        machi_tiles = check_tenpai(self.player.hand, self.player.kabe)
+        yaku_calc = YakuCalculator(
+            self.player, self.stack, self.bakaze, False,
+            machi_tiles, self.player.agari_tile)
+        dora = yaku_calc.check_doras()
+        self.assertEqual(dora, 1)
