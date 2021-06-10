@@ -1,9 +1,11 @@
 import copy
-from typing import DefaultDict, List, Tuple
+from typing import DefaultDict, List, Tuple, TYPE_CHECKING
 from itertools import groupby
 
 from .utils import unicode_block
 from .components import Tile, Suit, Jihai
+if TYPE_CHECKING:
+    from .player import Player
 
 
 def convert_hand(hand: DefaultDict[int, int]) -> List[Tile]:
@@ -237,3 +239,12 @@ def show_tiles(player):
                 hand_representation += f"{unicode_block[tile.index]}"
     hand_representation += "\n"
     print(hand_representation)
+
+
+def rank_players(plyers: List['Player']):
+    """Sort the list of players by points and jikaze
+    """
+    def sort_keys(plyer):
+        return (plyer.points, plyer.jikaze.value * -1)
+
+    return sorted(plyers, key=sort_keys, reverse=True)
