@@ -209,7 +209,6 @@ class TestTeYaku(unittest.TestCase):
         self.assertEqual(yaku_types.ryuuiisou(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, [])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_ryuuiisou(self):  # 緑一色
         self.player.hand[Tile(Suit.SOUZU.value, 2).index] += 2
@@ -233,7 +232,6 @@ class TestTeYaku(unittest.TestCase):
         self.assertEqual(yaku_types.ryuuiisou(), True)
         self.assertEqual(yaku_types.total_yaku, ['ryuuiisou'])
         self.assertEqual(yaku_types.total_han, [13])
-        self.assertEqual(yaku_types.yakuman_count, [1])
 
     def test_no_kokushi_musou(self):  # 国士無双
         self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
@@ -255,7 +253,6 @@ class TestTeYaku(unittest.TestCase):
         self.assertEqual(yaku_types.kokushi_musou(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, [])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_kokushi_musou(self):  # 国士無双 single wait
         self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
@@ -279,7 +276,6 @@ class TestTeYaku(unittest.TestCase):
         self.assertEqual(yaku_types.kokushi_musou(), True)
         self.assertEqual(yaku_types.total_yaku, ['kokushi musou'])
         self.assertEqual(yaku_types.total_han, [13])
-        self.assertEqual(yaku_types.yakuman_count, [1])
 
     def test_kokushi_musou_13_way(self):  # 国士無双 13-way wait
         self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 1
@@ -304,7 +300,6 @@ class TestTeYaku(unittest.TestCase):
         self.assertEqual(yaku_types.kokushi_musou(), True)
         self.assertEqual(yaku_types.total_yaku, ['kokushi musou 13-way wait'])
         self.assertEqual(yaku_types.total_han, [26])
-        self.assertEqual(yaku_types.yakuman_count, [2])
 
     def test_no_chuuren_poutou(self):  # 九蓮宝燈
         self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 3
@@ -325,7 +320,6 @@ class TestTeYaku(unittest.TestCase):
         self.assertEqual(yaku_types.chuuren_poutou(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, [])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_chuuren_poutou(self):  # 九蓮宝燈
         self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 3
@@ -346,7 +340,6 @@ class TestTeYaku(unittest.TestCase):
         self.assertEqual(yaku_types.chuuren_poutou(), True)
         self.assertEqual(yaku_types.total_yaku, ['chuuren poutou'])
         self.assertEqual(yaku_types.total_han, [13])
-        self.assertEqual(yaku_types.yakuman_count, [1])
 
     def test_junsei_chuuren_poutou(self):  # 純正九蓮宝燈
         self.player.hand[Tile(Suit.SOUZU.value, 1).index] += 3
@@ -367,7 +360,6 @@ class TestTeYaku(unittest.TestCase):
         self.assertEqual(yaku_types.chuuren_poutou(), True)
         self.assertEqual(yaku_types.total_yaku, ['junsei chuuren poutou'])
         self.assertEqual(yaku_types.total_han, [26])
-        self.assertEqual(yaku_types.yakuman_count, [2])
 
     def test_no_toitoihou(self):  # 対々和
         self.player.hand[Tile(Suit.PINZU.value, 8).index] += 1
@@ -700,7 +692,6 @@ class TestYakuhai(unittest.TestCase):
         self.assertEqual(yaku_types.daisangen(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, [])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_daisangen(self):  # 大三元
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 3
@@ -723,7 +714,6 @@ class TestYakuhai(unittest.TestCase):
         self.assertEqual(yaku_types.daisangen(), True)
         self.assertEqual(yaku_types.total_yaku, ['daisangen'])
         self.assertEqual(yaku_types.total_han, [13])
-        self.assertEqual(yaku_types.yakuman_count, [1])
 
     def test_no_tsuuiisou(self):  # 字一色
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 3
@@ -746,7 +736,6 @@ class TestYakuhai(unittest.TestCase):
         self.assertEqual(yaku_types.tsuuiisou(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, [])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_tsuuiisou(self):  # 字一色
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 3
@@ -769,7 +758,6 @@ class TestYakuhai(unittest.TestCase):
         self.assertEqual(yaku_types.tsuuiisou(), True)
         self.assertEqual(yaku_types.total_yaku, ['tsuuiisou'])
         self.assertEqual(yaku_types.total_han, [13])
-        self.assertEqual(yaku_types.yakuman_count, [1])
 
     def test_no_daisuushii(self):  # 大四喜
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 3
@@ -792,7 +780,6 @@ class TestYakuhai(unittest.TestCase):
         self.assertEqual(yaku_types.daisuushii(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, [])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_daisuushii(self):  # 大四喜
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 3
@@ -815,7 +802,6 @@ class TestYakuhai(unittest.TestCase):
         self.assertEqual(yaku_types.daisuushii(), True)
         self.assertEqual(yaku_types.total_yaku, ['daisuushii'])
         self.assertEqual(yaku_types.total_han, [13])
-        self.assertEqual(yaku_types.yakuman_count, [1])
 
     def test_shousuushii(self):  # 小四喜
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.TON.value).index] += 3
@@ -838,7 +824,6 @@ class TestYakuhai(unittest.TestCase):
         self.assertEqual(yaku_types.shousuushii(), True)
         self.assertEqual(yaku_types.total_yaku, ['shousuushii'])
         self.assertEqual(yaku_types.total_han, [13])
-        self.assertEqual(yaku_types.yakuman_count, [1])
 
     def test_no_shousangen(self):  # 小三元
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.PEI.value).index] += 2
@@ -861,7 +846,6 @@ class TestYakuhai(unittest.TestCase):
         self.assertEqual(yaku_types.shousangen(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, [])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_shousangen(self):  # 小三元
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.HAKU.value).index] += 2
@@ -884,7 +868,6 @@ class TestYakuhai(unittest.TestCase):
         self.assertEqual(yaku_types.shousangen(), True)
         self.assertEqual(yaku_types.total_yaku, ['shousangen'])
         self.assertEqual(yaku_types.total_han, [2])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_yakuhai(self):  # 役牌
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.NAN.value).index] += 2
@@ -908,7 +891,6 @@ class TestYakuhai(unittest.TestCase):
         self.assertEqual(yaku_types.total_yaku,
                          ['sangenpai_CHUN', 'bakaze_TON', 'jikaze_TON'])
         self.assertEqual(yaku_types.total_han, [1, 1, 1])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
 
 class TestPeikou(unittest.TestCase):
@@ -1021,7 +1003,6 @@ class TestChanta(unittest.TestCase):
         self.assertEqual(yaku_types.chinroutou(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, [])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_chinroutou(self):  # 清老頭
         self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
@@ -1045,7 +1026,6 @@ class TestChanta(unittest.TestCase):
         self.assertEqual(yaku_types.chinroutou(), True)
         self.assertEqual(yaku_types.total_yaku, ['chinroutou'])
         self.assertEqual(yaku_types.total_han, [13])
-        self.assertEqual(yaku_types.yakuman_count, [1])
 
     def test_no_honroutou(self):  # 混老頭
         self.player.hand[Tile(Suit.MANZU.value, 2).index] += 3
@@ -1069,7 +1049,6 @@ class TestChanta(unittest.TestCase):
         self.assertEqual(yaku_types.honroutou(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, [])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_honroutou(self):  # 混老頭
         self.player.hand[Tile(Suit.JIHAI.value, Jihai.CHUN.value).index] += 3
@@ -1093,7 +1072,6 @@ class TestChanta(unittest.TestCase):
         self.assertEqual(yaku_types.honroutou(), True)
         self.assertEqual(yaku_types.total_yaku, ['honroutou'])
         self.assertEqual(yaku_types.total_han, [2])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_no_junchantaiyaochuu(self):  # 純全帯么九
         self.player.hand[Tile(Suit.MANZU.value, 4).index] += 3
@@ -1238,7 +1216,6 @@ class TestKoutsu(unittest.TestCase):
         self.assertEqual(yaku_types.suuankou(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, [])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_no_suuankou_ron(self):  # 四暗刻
         self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
@@ -1256,7 +1233,6 @@ class TestKoutsu(unittest.TestCase):
         self.assertEqual(yaku_types.suuankou(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, [])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_suuankou_tanki(self):  # 四暗刻単騎
         self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
@@ -1273,7 +1249,6 @@ class TestKoutsu(unittest.TestCase):
         self.assertEqual(yaku_types.suuankou(), True)
         self.assertEqual(yaku_types.total_yaku, ['suuankou tanki'])
         self.assertEqual(yaku_types.total_han, [26])
-        self.assertEqual(yaku_types.yakuman_count, [2])
 
     def test_suuankou(self):  # 四暗刻
         self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3
@@ -1291,7 +1266,6 @@ class TestKoutsu(unittest.TestCase):
         self.assertEqual(yaku_types.suuankou(), True)
         self.assertEqual(yaku_types.total_yaku, ['suuankou'])
         self.assertEqual(yaku_types.total_han, [13])
-        self.assertEqual(yaku_types.yakuman_count, [1])
 
     def test_no_suukantsu(self):  # 四槓子
         self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 1
@@ -1322,7 +1296,6 @@ class TestKoutsu(unittest.TestCase):
         self.assertEqual(yaku_types.suukantsu(), False)
         self.assertEqual(yaku_types.total_yaku, [])
         self.assertEqual(yaku_types.total_han, [])
-        self.assertEqual(yaku_types.yakuman_count, [])
 
     def test_suukantsu(self):  # 四槓子
         self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 1
@@ -1357,7 +1330,6 @@ class TestKoutsu(unittest.TestCase):
         self.assertEqual(yaku_types.suukantsu(), True)
         self.assertEqual(yaku_types.total_yaku, ['suukantsu'])
         self.assertEqual(yaku_types.total_han, [13])
-        self.assertEqual(yaku_types.yakuman_count, [1])
 
     def test_no_sanankou(self):  # 三暗刻
         self.player.hand[Tile(Suit.MANZU.value, 1).index] += 3

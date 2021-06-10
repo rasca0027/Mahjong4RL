@@ -63,11 +63,15 @@ class YakuCalculator():
                 if current_eval():
                     if yakuman_count > 0:
                         # already in yakuman mode, ignore not yakuman
-                        if evaluation.total_han[-1] >= 13:
-                            yakuman_count += evaluation.yakuman_count[-1]
+                        if evaluation.total_han[-1] == 13:
+                            yakuman_count += 1
+                        elif evaluation.total_han[-1] == 26:
+                            yakuman_count += 2
                     else:  # never had yakuman
-                        if evaluation.total_han[-1] >= 13:
-                            yakuman_count += evaluation.yakuman_count[-1]
+                        if evaluation.total_han[-1] == 13:
+                            yakuman_count += 1
+                        elif evaluation.total_han[-1] == 26:
+                            yakuman_count += 2
                         else:
                             possible_yakus.append((
                                 evaluation.total_yaku[-1],
