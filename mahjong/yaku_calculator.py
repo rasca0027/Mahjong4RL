@@ -174,13 +174,25 @@ class YakuCalculator():
                         'chiitoitsu', 'rinshan_kaihou', 'haitei_raoyue',
                         'houtei_raoyui']
         }
-        yaku_list = [yaku for yaku, han in yakus]
-        for yaku_name in yaku_list:
-            if yaku_name in YAKU_EXCLUDE_TABLE:
-                excluded_yakus = YAKU_EXCLUDE_TABLE[yaku_name]
-                yakus = list(filter(
-                    lambda x: x[0] not in excluded_yakus, yakus))
-        return yakus
+        yakus_han = dict(yakus)
+
+        conflict_pairs = []
+        for yaku_name in yakus_han.keys():
+            if ex_yakus := YAKU_EXCLUDE_TABLE.get(yaku_name):
+                for ex_yaku in list(set(ex_yakus) & set(yakus_han.keys())):
+                    conflict_pairs.append((yaku_name, ex_yaku))
+
+        yakus_to_remove = []
+        for pair in conflict_pairs:
+            if yakus_han[pair[0]] > yakus_han[pair[1]]:
+                yakus_to_remove.append(pair[1])
+            else:
+                yakus_to_remove.append(pair[0])
+
+        for yaku in list(set(yakus_to_remove)):
+            yakus_han.pop(yaku, None)
+
+        return list(yakus_han.items())
 
     def calculate_fu(self, final_yakus: List[Tuple[str, int]], total_han: int):
 
