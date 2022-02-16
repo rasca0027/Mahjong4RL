@@ -505,7 +505,7 @@ class TeYaku(YakuTypes):
     def tanyao(self):  # 断么九
         """A hand contain only numbered tiles 2-8 from any of the three main suits.
         1 han
-        http://arcturus.su/wiki/Honroutou
+        https://riichi.wiki/Tanyao
         """
         # check player's hand
         for k in self.agari_hand.keys():
@@ -995,7 +995,7 @@ class Somete(TeYaku):
         """A hand is composed of tiles in one suit only.
         6 han
         5 han (open)
-        http://arcturus.su/wiki/Sanankou
+        http://arcturus.su/wiki/Chiniisou
         """
         suit_in_hand = set([Tile.suit_from_idx(k)
                             for k in self.agari_hand.keys()])

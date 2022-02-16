@@ -133,9 +133,46 @@ class YakuCalculator():
             self, yakus: List[Tuple[str, int]]) -> List[Tuple[str, int]]:
         """Filter out mutually exclusive yakus."""
         YAKU_EXCLUDE_TABLE = {
+            'ippatsu': [],
             'menzen_tsumo': [],
-            'ryanpeikou': ['chiitoitsu'],
-            # TODO: fill in table
+            'tanyao': [],
+            'pinfu': [],
+            'iipeikou': [],
+            'ikkitsuukan': ['tanyao'],
+            'yakuhai': ['tanyao', 'pinfu'],
+            'sanshoku_doujun': ['ikkitsuukan'],
+            'sanshoku_doukou': [
+                'pinfu', 'iipeikou', 'ikkitsuukan', 'sanshoku_doujun'],
+            'toitoihou': [
+                'pinfu', 'iipeikou', 'ikkitsuukan', 'sanshoku_doujun'],
+            'sanankou': [
+                'pinfu', 'iipeikou', 'ikkitsuukan', 'sanshoku_doujun'],
+            'sankantsu': [
+                'pinfu', 'iipeikou', 'ikkitsuukan', 'sanshoku_doujun'],
+            'chanta': ['tanyao', 'ikkitsuukan'],
+            'junchantaiyaochuu': ['tanyao', 'ikkitsuukan', 'yakuhai'],
+            'ryanpeikou': ['iipeikou', 'ikkitsuukan', 'yakuhai',
+                           'sanshoku_doujun', 'sanshoku_doukou', 'toitoihou',
+                           'sanankou', 'sankantsu'],
+            'shousangen': ['tanyao', 'pinfu', 'ikkitsuukan', 'sanshoku_doujun',
+                           'sanshoku_doukou', 'junchantaiyaochuu',
+                           'ryanpeikou'],
+            'honroutou': ['tanyao', 'pinfu', 'iipeikou', 'ikkitsuukan',
+                          'sanshoku_doujun', 'chanta', 'ryanpeikou'],
+            'honiisou': ['sanshoku_doujun', 'sanshoku_doukou'],
+            'chiniisou': ['yakuhai', 'sanshoku_doujun', 'sanshoku_doukou',
+                          'shousangen', 'honroutou', 'honiisou'],
+            'chiitoitsu': ['pinfu', 'iipeikou', 'ikkitsuukan', 'yakuhai',
+                           'sanshoku_doujun', 'sanshoku_doukou', 'toitoihou',
+                           'sanankou', 'sankantsu', 'junchantaiyaochuu',
+                           'ryanpeikou', 'shousangen'],
+            'rinshan_kaihou': ['ippatsu', 'pinfu', 'ryanpeikou', 'chiitoitsu'],
+            'haitei_raoyue': ['rinshan_kaihou'],
+            'houtei_raoyui': ['ippatsu', 'menzen_tsumo', 'rinshan_kaihou',
+                              'haitei_raoyue'],
+            'chankan': ['menzen_tsumo', 'toitoihou', 'ryanpeikou', 'honroutou',
+                        'chiitoitsu', 'rinshan_kaihou', 'haitei_raoyue',
+                        'houtei_raoyui']
         }
         yaku_list = [yaku for yaku, han in yakus]
         for yaku_name in yaku_list:
