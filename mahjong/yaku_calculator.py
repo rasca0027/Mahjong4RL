@@ -133,17 +133,62 @@ class YakuCalculator():
             self, yakus: List[Tuple[str, int]]) -> List[Tuple[str, int]]:
         """Filter out mutually exclusive yakus."""
         YAKU_EXCLUDE_TABLE = {
+            'ippatsu': [],
             'menzen_tsumo': [],
-            'ryanpeikou': ['chiitoitsu'],
-            # TODO: fill in table
+            'tanyao': [],
+            'pinfu': [],
+            'iipeikou': [],
+            'ikkitsuukan': ['tanyao'],
+            'yakuhai': ['tanyao', 'pinfu'],
+            'sanshoku_doujun': ['ikkitsuukan'],
+            'sanshoku_doukou': [
+                'pinfu', 'iipeikou', 'ikkitsuukan', 'sanshoku_doujun'],
+            'toitoihou': [
+                'pinfu', 'iipeikou', 'ikkitsuukan', 'sanshoku_doujun'],
+            'sanankou': [
+                'pinfu', 'iipeikou', 'ikkitsuukan', 'sanshoku_doujun'],
+            'sankantsu': [
+                'pinfu', 'iipeikou', 'ikkitsuukan', 'sanshoku_doujun'],
+            'chanta': ['tanyao', 'ikkitsuukan'],
+            'junchantaiyaochuu': ['tanyao', 'ikkitsuukan', 'yakuhai'],
+            'ryanpeikou': ['iipeikou', 'ikkitsuukan', 'yakuhai',
+                           'sanshoku_doujun', 'sanshoku_doukou', 'toitoihou',
+                           'sanankou', 'sankantsu'],
+            'shousangen': ['tanyao', 'pinfu', 'ikkitsuukan', 'sanshoku_doujun',
+                           'sanshoku_doukou', 'junchantaiyaochuu',
+                           'ryanpeikou'],
+            'honroutou': ['tanyao', 'pinfu', 'iipeikou', 'ikkitsuukan',
+                          'sanshoku_doujun', 'chanta', 'ryanpeikou'],
+            'honiisou': ['sanshoku_doujun', 'sanshoku_doukou'],
+            'chiniisou': ['yakuhai', 'sanshoku_doujun', 'sanshoku_doukou',
+                          'shousangen', 'honroutou', 'honiisou'],
+            'chiitoitsu': ['pinfu', 'iipeikou', 'ikkitsuukan', 'yakuhai',
+                           'sanshoku_doujun', 'sanshoku_doukou', 'toitoihou',
+                           'sanankou', 'sankantsu', 'junchantaiyaochuu',
+                           'ryanpeikou', 'shousangen'],
+            'rinshan_kaihou': ['ippatsu', 'pinfu', 'ryanpeikou', 'chiitoitsu'],
+            'haitei_raoyue': ['rinshan_kaihou'],
+            'houtei_raoyui': ['ippatsu', 'menzen_tsumo', 'rinshan_kaihou',
+                              'haitei_raoyue'],
+            'chankan': ['menzen_tsumo', 'toitoihou', 'ryanpeikou', 'honroutou',
+                        'chiitoitsu', 'rinshan_kaihou', 'haitei_raoyue',
+                        'houtei_raoyui']
         }
-        yaku_list = [yaku for yaku, han in yakus]
-        for yaku_name in yaku_list:
-            if yaku_name in YAKU_EXCLUDE_TABLE:
-                excluded_yakus = YAKU_EXCLUDE_TABLE[yaku_name]
-                yakus = list(filter(
-                    lambda x: x[0] not in excluded_yakus, yakus))
-        return yakus
+        yakus_han = dict(yakus)
+
+        yakus_to_remove = set()
+        for yaku_name in yakus_han.keys():
+            if ex_yakus := YAKU_EXCLUDE_TABLE.get(yaku_name):
+                for ex_yaku in list(set(ex_yakus) & set(yakus_han.keys())):
+                    if yakus_han[yaku_name] > yakus_han[ex_yaku]:
+                        yakus_to_remove.add(ex_yaku)
+                    else:
+                        yakus_to_remove.add(yaku_name)
+
+        for yaku in yakus_to_remove:
+            yakus_han.pop(yaku, None)
+
+        return list(yakus_han.items())
 
     def calculate_fu(self, final_yakus: List[Tuple[str, int]], total_han: int):
 

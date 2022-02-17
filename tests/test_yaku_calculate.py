@@ -18,38 +18,96 @@ class TestYakuCalculator(unittest.TestCase):
         self.player.hand[Tile(Suit.MANZU.value, 9).index] += 2
         self.player.hand[Tile(Suit.SOUZU.value, 5).index] += 2
         self.player.agari_tile = Tile(Suit.SOUZU.value, 5)
+        self.machi_tiles = check_tenpai(self.player.hand, self.player.kabe)
 
-    def test_filter_yaku(self):
-        machi_tiles = check_tenpai(self.player.hand, self.player.kabe)
+    # TODO: 想一些其他反例
+    def test_filter_yaku_1(self):
         yaku_calc = YakuCalculator(
             self.player, self.stack, self.bakaze, False,
-            machi_tiles, self.player.agari_tile)
+            self.machi_tiles, self.player.agari_tile)
         possible_yakus = [
             ('ryanpeikou', 3),
             ('chiitoitsu', 2),
             ('menzen_tsumo', 1),
         ]
         final_yakus = yaku_calc.filter_yaku(possible_yakus)
-        self.assertEqual(len(final_yakus), 2)
         final_yaku_answer = [
             ('ryanpeikou', 3),
             ('menzen_tsumo', 1),
         ]
         self.assertEqual(final_yakus, final_yaku_answer)
 
-    def test_menzen_tsumo(self):
-        machi_tiles = check_tenpai(self.player.hand, self.player.kabe)
+    def test_filter_yaku_2(self):
         yaku_calc = YakuCalculator(
             self.player, self.stack, self.bakaze, False,
-            machi_tiles, self.player.agari_tile)
+            self.machi_tiles, self.player.agari_tile)
+        possible_yakus = [
+            ('ryanpeikou', 3),
+            ('menzen_tsumo', 1),
+        ]
+        final_yakus = yaku_calc.filter_yaku(possible_yakus)
+        final_yaku_answer = [
+            ('ryanpeikou', 3),
+            ('menzen_tsumo', 1),
+        ]
+        self.assertEqual(final_yakus, final_yaku_answer)
+
+    def test_filter_yaku_3(self):
+        yaku_calc = YakuCalculator(
+            self.player, self.stack, self.bakaze, False,
+            self.machi_tiles, self.player.agari_tile)
+        possible_yakus = [
+            ('ryanpeikou', 3),
+            ('iipeikou', 1)
+        ]
+        final_yakus = yaku_calc.filter_yaku(possible_yakus)
+        final_yaku_answer = [
+            ('ryanpeikou', 3)
+        ]
+        self.assertEqual(final_yakus, final_yaku_answer)
+
+    def test_filter_yaku_4(self):
+        yaku_calc = YakuCalculator(
+            self.player, self.stack, self.bakaze, False,
+            self.machi_tiles, self.player.agari_tile)
+        possible_yakus = [
+            ('ryanpeikou', 3),
+            ('sanankou', 2)
+        ]
+        final_yakus = yaku_calc.filter_yaku(possible_yakus)
+        final_yaku_answer = [
+            ('ryanpeikou', 3)
+        ]
+        self.assertEqual(final_yakus, final_yaku_answer)
+
+    def test_filter_yaku_5(self):
+        yaku_calc = YakuCalculator(
+            self.player, self.stack, self.bakaze, False,
+            self.machi_tiles, self.player.agari_tile)
+        possible_yakus = [
+            ('shousangen', 2),
+            ('iipeikou', 1),
+            ('honiisou', 3)
+        ]
+        final_yakus = yaku_calc.filter_yaku(possible_yakus)
+        final_yaku_answer = [
+            ('shousangen', 2),
+            ('iipeikou', 1),
+            ('honiisou', 3)
+        ]
+        self.assertEqual(final_yakus, final_yaku_answer)
+
+    def test_menzen_tsumo(self):
+        yaku_calc = YakuCalculator(
+            self.player, self.stack, self.bakaze, False,
+            self.machi_tiles, self.player.agari_tile)
         total_han, fu = yaku_calc.calculate()
         self.assertEqual(total_han, 2)  # menzen tsumo and dora
         self.assertEqual(fu, 40)
 
     def test_check_doras(self):
-        machi_tiles = check_tenpai(self.player.hand, self.player.kabe)
         yaku_calc = YakuCalculator(
             self.player, self.stack, self.bakaze, False,
-            machi_tiles, self.player.agari_tile)
+            self.machi_tiles, self.player.agari_tile)
         dora = yaku_calc.check_doras()
         self.assertEqual(dora, 1)
