@@ -30,7 +30,6 @@ class TestYakuCalculator(unittest.TestCase):
             ('menzen_tsumo', 1),
         ]
         final_yakus = yaku_calc.filter_yaku(possible_yakus)
-        self.assertEqual(len(final_yakus), 2)
         final_yaku_answer = [
             ('ryanpeikou', 3),
             ('menzen_tsumo', 1),
@@ -46,7 +45,6 @@ class TestYakuCalculator(unittest.TestCase):
             ('menzen_tsumo', 1),
         ]
         final_yakus = yaku_calc.filter_yaku(possible_yakus)
-        self.assertEqual(len(final_yakus), 2)
         final_yaku_answer = [
             ('ryanpeikou', 3),
             ('menzen_tsumo', 1),
@@ -59,13 +57,42 @@ class TestYakuCalculator(unittest.TestCase):
             self.machi_tiles, self.player.agari_tile)
         possible_yakus = [
             ('ryanpeikou', 3),
-            ('toitoihou', 2),
+            ('iipeikou', 1)
+        ]
+        final_yakus = yaku_calc.filter_yaku(possible_yakus)
+        final_yaku_answer = [
+            ('ryanpeikou', 3)
+        ]
+        self.assertEqual(final_yakus, final_yaku_answer)
+
+    def test_filter_yaku_4(self):
+        yaku_calc = YakuCalculator(
+            self.player, self.stack, self.bakaze, False,
+            self.machi_tiles, self.player.agari_tile)
+        possible_yakus = [
+            ('ryanpeikou', 3),
             ('sanankou', 2)
         ]
         final_yakus = yaku_calc.filter_yaku(possible_yakus)
-        self.assertEqual(len(final_yakus), 1)
         final_yaku_answer = [
             ('ryanpeikou', 3)
+        ]
+        self.assertEqual(final_yakus, final_yaku_answer)
+
+    def test_filter_yaku_5(self):
+        yaku_calc = YakuCalculator(
+            self.player, self.stack, self.bakaze, False,
+            self.machi_tiles, self.player.agari_tile)
+        possible_yakus = [
+            ('shousangen', 2),
+            ('iipeikou', 1),
+            ('honiisou', 3)
+        ]
+        final_yakus = yaku_calc.filter_yaku(possible_yakus)
+        final_yaku_answer = [
+            ('shousangen', 2),
+            ('iipeikou', 1),
+            ('honiisou', 3)
         ]
         self.assertEqual(final_yakus, final_yaku_answer)
 
