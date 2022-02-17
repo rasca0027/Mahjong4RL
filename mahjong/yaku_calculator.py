@@ -176,13 +176,17 @@ class YakuCalculator():
         }
         yakus_han = dict(yakus)
 
+        yakus_to_remove = set()
         for yaku_name in yakus_han.keys():
             if ex_yakus := YAKU_EXCLUDE_TABLE.get(yaku_name):
                 for ex_yaku in list(set(ex_yakus) & set(yakus_han.keys())):
                     if yakus_han[yaku_name] > yakus_han[ex_yaku]:
-                        yakus_han.pop(ex_yaku, None)
+                        yakus_to_remove.add(ex_yaku)
                     else:
-                        yakus_han.pop(yaku_name, None)
+                        yakus_to_remove.add(yaku_name)
+
+        for yaku in yakus_to_remove:
+            yakus_han.pop(yaku, None)
 
         return list(yakus_han.items())
 
