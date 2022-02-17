@@ -20,6 +20,7 @@ class TestYakuCalculator(unittest.TestCase):
         self.player.agari_tile = Tile(Suit.SOUZU.value, 5)
         self.machi_tiles = check_tenpai(self.player.hand, self.player.kabe)
 
+    # TODO: 想一些其他反例
     def test_filter_yaku_1(self):
         yaku_calc = YakuCalculator(
             self.player, self.stack, self.bakaze, False,
